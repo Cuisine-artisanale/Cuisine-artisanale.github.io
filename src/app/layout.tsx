@@ -28,7 +28,7 @@ const CookieConsent = dynamic(
 export const metadata = {
 	title: 'Cuisine artisanale',
 	description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
-	manifest: '/Cuisine-artisanale/manifest.json',
+	manifest: '/manifest.json',
 	appleWebApp: {
 		capable: true,
 		statusBarStyle: 'default',
@@ -48,12 +48,12 @@ export const metadata = {
 	},
 	icons: {
 		icon: [
-			{ url: '/Cuisine-artisanale/favicon.ico' },
-			{ url: '/Cuisine-artisanale/icon-192.png', sizes: '192x192', type: 'image/png' },
-			{ url: '/Cuisine-artisanale/icon-512.png', sizes: '512x512', type: 'image/png' },
+			{ url: '/favicon.ico' },
+			{ url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+			{ url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
 		],
 		apple: [
-			{ url: '/Cuisine-artisanale/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+			{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
 		],
 	},
 };
