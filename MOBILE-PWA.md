@@ -61,7 +61,7 @@ Un fichier CSS global a été créé avec toutes les optimisations mobiles :
 {
   "name": "Cuisine Artisanale",
   "short_name": "Cuisine Artisanale",
-  "start_url": "/Cuisine-artisanale/",
+  "start_url": "//",
   "display": "standalone",
   "theme_color": "#8B4513",
   "background_color": "#FFF9F5"
