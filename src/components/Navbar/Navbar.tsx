@@ -92,7 +92,6 @@ const Navbar: React.FC = () => {
 	try {
 	  setIsLoading(true);
 	  await signInWithGoogle();
-	  // No need to navigate, AuthContext will handle the state change
 	} catch (error) {
 	  console.error('Login error:', error);
 	  // You might want to show a toast message here

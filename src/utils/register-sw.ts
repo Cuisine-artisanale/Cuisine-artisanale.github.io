@@ -11,7 +11,7 @@ export function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-	const swUrl = `/Cuisine-artisanale/sw.js`;
+	const swUrl = `/sw.js`;
 
 	navigator.serviceWorker
 	  .register(swUrl)

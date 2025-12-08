@@ -3,7 +3,6 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'export', // Enable static export for GitHub Pages
-  basePath: '/Cuisine-artisanale.github.io', // GitHub Pages subdirectory
   images: {
 	unoptimized: true, // Required for static export
 	remotePatterns: [],
