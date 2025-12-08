@@ -35,10 +35,10 @@ export const notifyGoogleIndexingOnNewRecipe = onDocumentCreated(
 			.replace(/[\u0300-\u036f]/g, "")
 			.replace(/[^\w\s-]/g, "")
 			.trim()
-			.replace(/\s+/g, "_")
+			.replace(/\s+/g, "-")
 			.toLowerCase();
 
-		const recipeUrl = `https://www.aymeric-sabatier.fr/Cuisine-artisanale/recettes/${slug}`;
+		const recipeUrl = `https://www.Cuisine-artisanale.fr/recettes/${slug}`;
 
 		const serviceAccount = JSON.parse(process.env.GOOGLE_INDEXING_KEY || "{}");
 
@@ -129,10 +129,10 @@ export const sendWeeklyRecipeEmail = async (email: string) => {
 			.replace(/\s+/g, "_")
 			.toLowerCase();
 
-		const recipeUrl = `https://www.aymeric-sabatier.fr/Cuisine-artisanale/recettes/${slug}`;
+		const recipeUrl = `https://www.Cuisine-artisanale.fr/recettes/${slug}`;
 
 		// Lien de désabonnement
-		const unsubscribeUrl = `https://www.aymeric-sabatier.fr/Cuisine-artisanale/unsubscribe?email=${encodeURIComponent(
+		const unsubscribeUrl = `https://www.Cuisine-artisanale.fr/unsubscribe?email=${encodeURIComponent(
 			email
 		)}`;
 

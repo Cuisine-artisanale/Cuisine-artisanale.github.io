@@ -18,4 +18,4 @@ Disallow: /search
 Crawl-delay: 1
 
 # Sitemap
-Sitemap: https://www.aymeric-sabatier.fr/Cuisine-artisanale/sitemap.xml
+Sitemap: https://www.Cuisine-artisanale.github.io/sitemap.xml
