@@ -189,7 +189,7 @@ const AccountDetail: React.FC = () => {
 		onHide={() => setEditDialogVisible(false)}
 		header="Éditer le profil"
 		modal
-		style={{ width: '50vw' }}
+		style={{ width: '80vw' }}
 		className='dialog-account'
 	  >
 		<div className="edit-form">

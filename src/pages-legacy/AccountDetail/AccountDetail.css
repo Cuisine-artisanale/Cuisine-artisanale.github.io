@@ -53,9 +53,20 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+/* Desktop hover effects only */
+@media (hover: hover) and (pointer: fine) {
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Mobile - Touch feedback only */
+@media (hover: none) and (pointer: coarse) {
+  .stat-card:active {
+    transform: scale(0.99);
+    opacity: 0.95;
+  }
 }
 
 .stat-content {
@@ -253,9 +264,42 @@
   border-radius: 50% !important;
 }
 
-:global(.p-dialog .p-dialog-header .p-dialog-close:hover) {
-  background-color: var(--surface-hover) !important;
-  color: var(--primary-color) !important;
+/* Desktop hover only for dialog close button */
+@media (hover: hover) and (pointer: fine) {
+  :global(.p-dialog .p-dialog-header .p-dialog-close:hover) {
+    background-color: var(--surface-hover) !important;
+    color: var(--primary-color) !important;
+  }
+
+  :global(.p-dialog .p-inputtext:hover:not(:focus)) {
+    border-color: var(--primary-light) !important;
+  }
+
+  :global(.p-dialog .p-button-secondary:hover) {
+    background-color: var(--surface-border) !important;
+    color: var(--primary-color) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(44, 24, 16, 0.15) !important;
+  }
+
+  :global(.p-dialog .p-button.p-button-primary:hover) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(139, 69, 19, 0.3) !important;
+    opacity: 0.95 !important;
+  }
+}
+
+/* Mobile touch feedback for dialog buttons */
+@media (hover: none) and (pointer: coarse) {
+  :global(.p-dialog .p-dialog-header .p-dialog-close:active) {
+    background-color: var(--surface-hover) !important;
+    transform: scale(0.95) !important;
+  }
+
+  :global(.p-dialog .p-button:active) {
+    transform: scale(0.98) !important;
+    opacity: 0.9 !important;
+  }
 }
 
 :global(.p-dialog .p-dialog-header .p-dialog-close i) {
@@ -281,10 +325,6 @@
   outline: none !important;
 }
 
-:global(.p-dialog .p-inputtext:hover:not(:focus)) {
-  border-color: var(--primary-light) !important;
-}
-
 :global(.p-dialog .p-inputtext:disabled) {
   background-color: var(--surface-ground) !important;
   color: var(--text-color-secondary) !important;
@@ -307,22 +347,9 @@
   border: 2px solid var(--surface-border) !important;
 }
 
-:global(.p-dialog .p-button-secondary:hover) {
-  background-color: var(--surface-border) !important;
-  color: var(--primary-color) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(44, 24, 16, 0.15) !important;
-}
-
 :global(.p-dialog .p-button.p-button-primary) {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
   color: var(--text-color-inverted) !important;
-}
-
-:global(.p-dialog .p-button.p-button-primary:hover) {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 16px rgba(139, 69, 19, 0.3) !important;
-  opacity: 0.95 !important;
 }
 
 :global(.p-dialog .p-button.p-button-primary:active) {
@@ -376,38 +403,135 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .AccountDetail {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 1rem;
   }
 
   .welcome-section h2 {
-    font-size: 22px;
+    font-size: 1.375rem;
+  }
+
+  .welcome-section p {
+    font-size: 16px; /* Minimum 16px pour éviter le zoom iOS */
+  }
+
+  /* Touch target pour bouton edit profile */
+  .edit-profile-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0.75rem 1.5rem !important;
   }
 
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
+    gap: 1rem;
   }
 
   .stat-card {
-    padding: 15px !important;
+    padding: 1rem !important;
   }
 
   .stat-icon {
-    font-size: 24px;
+    font-size: 1.5rem;
   }
 
   .stat-info h3 {
-    font-size: 20px;
+    font-size: 1.5rem;
+  }
+
+  .stat-info p {
+    font-size: 0.875rem;
   }
 
   .activity-card,
   .recommendations-card {
-    padding: 20px !important;
+    padding: 1.5rem !important;
   }
 
-  .p-dialog {
+  .activity-title,
+  .recommendations-title {
+    font-size: 1.125rem;
+  }
+
+  .activity-item {
+    padding: 1rem;
+  }
+
+  /* Dialog mobile optimizations */
+  :global(.p-dialog) {
     width: 90vw !important;
+    max-width: 500px !important;
+  }
+
+  :global(.p-dialog .p-dialog-header) {
+    padding: 1.5rem !important;
+  }
+
+  :global(.p-dialog .p-dialog-content) {
+    padding: 1.5rem !important;
+  }
+
+  :global(.p-dialog .p-dialog-header .p-dialog-title) {
+    font-size: 1.125rem !important;
+  }
+
+  /* Touch targets pour inputs dans dialog */
+  :global(.p-dialog .p-inputtext) {
+    font-size: 16px !important; /* Minimum 16px pour éviter le zoom iOS */
+    padding: 0.875rem 1rem !important;
+    min-height: 44px !important;
+  }
+
+  /* Touch targets pour boutons dans dialog */
+  :global(.p-dialog .p-button) {
+    min-height: 44px !important;
+    padding: 0.875rem 1.5rem !important;
+  }
+
+  /* Close button touch target */
+  :global(.p-dialog .p-dialog-header .p-dialog-close) {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .dialog-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .dialog-buttons .p-button {
+    width: 100%;
+  }
+
+  .form-group label {
+    font-size: 16px; /* Minimum 16px pour éviter le zoom iOS */
+  }
+
+  .form-group input {
+    font-size: 16px !important; /* Minimum 16px pour éviter le zoom iOS */
+    padding: 0.875rem 1rem !important;
+    min-height: 44px !important;
+  }
+
+  /* Scroll optimizations */
+  .activity-card,
+  .recommendations-card {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Safe area for iPhone notch */
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .AccountDetail {
+      padding-bottom: calc(env(safe-area-inset-bottom) + 1rem) !important;
+    }
   }
 }

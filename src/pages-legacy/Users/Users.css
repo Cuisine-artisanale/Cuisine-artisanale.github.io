@@ -145,9 +145,28 @@
   justify-content: center;
 }
 
-.action-buttons .p-button.p-button-text:hover {
-  background: var(--danger-100);
-  color: var(--danger-700);
+/* Desktop hover only */
+@media (hover: hover) and (pointer: fine) {
+  .action-buttons .p-button.p-button-text:hover {
+    background: var(--danger-100);
+    color: var(--danger-700);
+  }
+
+  .user-table .p-datatable-tbody > tr:hover {
+    background: var(--surface-hover);
+  }
+}
+
+/* Mobile touch feedback */
+@media (hover: none) and (pointer: coarse) {
+  .action-buttons .p-button:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+
+  .user-table .p-datatable-tbody > tr:active {
+    background: var(--surface-hover);
+  }
 }
 
 /* Loading State */
@@ -220,8 +239,9 @@
   }
 
   .table-header .p-input-icon-left input {
-    font-size: 0.9rem;
-    padding: 0.5rem 0.5rem 0.5rem 2rem;
+    font-size: 16px; /* Minimum 16px pour éviter le zoom iOS */
+    padding: 0.75rem 0.75rem 0.75rem 2rem;
+    min-height: 44px; /* Touch target minimum */
   }
 
   .user-table {
@@ -247,6 +267,20 @@
     font-size: 1rem;
   }
 
+  /* Touch targets pour action buttons */
+  .action-buttons .p-button {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Touch feedback pour boutons d'actions */
+  .action-buttons .p-button:active {
+    transform: scale(0.98) !important;
+    opacity: 0.9 !important;
+    transition: transform 0.1s ease, opacity 0.1s ease !important;
+  }
+
   .user-table .p-paginator {
     padding: 0.75rem;
   }
@@ -265,8 +299,9 @@
   /* Improve cell editing on mobile */
   .user-table .p-cell-editing input,
   .user-table .p-cell-editing .p-dropdown {
-    padding: 0.5rem;
-    font-size: 0.9rem;
+    padding: 0.75rem;
+    font-size: 16px; /* Minimum 16px pour éviter le zoom iOS */
+    min-height: 44px; /* Touch target minimum */
   }
 
   .user-table .p-cell-editing .p-dropdown-panel {
@@ -334,6 +369,15 @@
 
 [data-theme="dark"] .table-header .p-input-icon-left input {
   background: var(--surface-ground);
+}
+
+/* Safe area for iPhone notch */
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .users-container {
+      padding-bottom: calc(env(safe-area-inset-bottom) + 1rem) !important;
+    }
+  }
 }
 
 /* Global Pagination Styles */
