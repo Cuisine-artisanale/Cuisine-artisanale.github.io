@@ -77,6 +77,7 @@ const Actualites: React.FC = () => {
 				width={600}
 				priority
 				sizes="(max-width: 768px) 100vw, 100vw"
+				unoptimized={true}
 			/>
 			)}
 			<div className="featured-content">

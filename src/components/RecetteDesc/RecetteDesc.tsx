@@ -701,6 +701,7 @@ const RecetteDesc: React.FC = () => {
 							height={400}
 							priority={currentImageIndex === 0}
 							sizes="(max-width: 768px) 100vw, 50vw"
+							unoptimized={true}
 						/>
 						</div>
 						{recette.images.length > 1 && (
@@ -717,6 +718,7 @@ const RecetteDesc: React.FC = () => {
 								width={100}
 								height={100}
 								sizes="100px"
+								unoptimized={true}
 								/>
 							</div>
 							))}
@@ -853,6 +855,7 @@ const RecetteDesc: React.FC = () => {
 										height={200}
 										loading="lazy"
 										sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+										unoptimized={true}
 									/>
 								)}
 								<div className="similar-recipe-content">
