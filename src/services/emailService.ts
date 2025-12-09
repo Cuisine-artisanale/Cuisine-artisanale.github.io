@@ -35,13 +35,24 @@ export const sendVerificationEmail = async (
       used: false,
     });
 
-    // Note: L'envoi d'email nécessite un serveur backend.
-    // Pour GitHub Pages (site statique), utilisez EmailJS ou un service tiers côté client.
-    console.log("📧 Lien de vérification (à utiliser en développement):", verificationUrl);
-    console.log("⚠️ L'envoi d'email automatique n'est pas disponible sur GitHub Pages");
+    // Envoyer l'email via l'API route Resend
+    const response = await fetch('/api/send-verification-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        displayName,
+        verificationUrl,
+      }),
+    });
 
-    // TODO: Implémenter EmailJS pour l'envoi d'emails depuis le client
-    // Exemple: emailjs.send('service_id', 'template_id', { email, displayName, verificationUrl })
+    if (!response.ok) {
+      throw new Error('Erreur lors de l\'envoi de l\'email');
+    }
+
+    console.log("✅ Email de vérification envoyé via Resend à:", email);
   } catch (error) {
     console.error("❌ Erreur lors de l'envoi de l'email de vérification:", error);
     throw new Error("Erreur lors de l'envoi de l'email de vérification");
@@ -109,13 +120,23 @@ export const sendPasswordResetEmailCustom = async (email: string): Promise<void>
       used: false,
     });
 
-    // Note: L'envoi d'email nécessite un serveur backend.
-    // Pour GitHub Pages (site statique), utilisez EmailJS ou un service tiers côté client.
-    console.log("📧 Lien de réinitialisation (à utiliser en développement):", resetUrl);
-    console.log("⚠️ L'envoi d'email automatique n'est pas disponible sur GitHub Pages");
+    // Envoyer l'email via l'API route Resend
+    const response = await fetch('/api/send-reset-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        resetUrl,
+      }),
+    });
 
-    // TODO: Implémenter EmailJS pour l'envoi d'emails depuis le client
-    // Exemple: emailjs.send('service_id', 'template_id', { email, resetUrl })
+    if (!response.ok) {
+      throw new Error('Erreur lors de l\'envoi de l\'email');
+    }
+
+    console.log("✅ Email de réinitialisation envoyé via Resend à:", email);
   } catch (error) {
     console.error("❌ Erreur lors de l'envoi de l'email de réinitialisation:", error);
     throw new Error("Erreur lors de l'envoi de l'email de réinitialisation");
