@@ -1,154 +1,209 @@
-/* PrimeReact Base Theme */
 @layer primereact {
+
+	/* ============================================
+	   ROOT LIGHT THEME (Base Theme)
+	   ============================================ */
 	:root {
-		/* Container Width */
-		--container-width: 1200px;
-		--container-padding: 2rem;
 
-		/* Main Colors */
-		--primary-color: #8B4513;		  /* Saddle brown as primary */
-		--primary-dark: #2C1810;		   /* Deep brown for hover */
-		--primary-light: #CD853F;		  /* Peru brown for accents */
-		--secondary-color: #2C1810;		/* Deep brown */
+		/* =============================
+		   Core Brand Colors (Your Theme)
+		   ============================= */
+		--primary-color: #8B4513 !important;     /* Saddle Brown (Main Brand) */
+		--primary-dark: #2C1810 !important;
+		--primary-light: #CD853F !important;
+		--secondary-color: #2C1810 !important;
 
-		/* Navbar Colors */
-		--primary-color-navbar: #A0522D;   /* Sienna brown */
-		--secondary-color-navbar: rgba(44, 24, 16, 0.2); /* Deep brown with opacity */
+		/* =============================
+		   PrimeReact Primary Scale
+		   ============================= */
+		--primary-50:  #F7EFE8;
+		--primary-100: #E8D5CC;
+		--primary-200: #D9BCAF;
+		--primary-300: #C9A293;
+		--primary-400: #BA8977;
+		--primary-500: var(--primary-color) !important;
+		--primary-600: #713A11;
+		--primary-700: #5A2E0E;
+		--primary-800: #43230A;
+		--primary-900: #2C1810;
 
-		/* Surface Colors */
-		--surface-ground: #FFF9F5;		 /* Warm white background */
-		--surface-section: #FFF1E6;		/* Light peach section background */
-		--surface-card: #fff7f7;		   /* Pure white for cards */
-		--surface-overlay: #FFFFFF;		/* Pure white for overlays */
-		--surface-border: #E8D5CC;		 /* Warm gray border */
-		--surface-hover: #fad4a7;		  /* Hover surface color */
+		--primary: var(--primary-500);
 
-		/* Background Colors */
-		--background-base: #FFFFFF;		/* Base background color */
-		--background-paper: #FFF9F5;	   /* Paper background color */
-		--background-elevated: #FFF1E6;	/* Elevated surface background */
+		/* =============================
+		   Status Colors (Success / Info / Warning / Danger)
+		   ============================= */
+		--success-50:  #E8F5E9;
+		--success-100: #C8E6C9;
+		--success-200: #A5D6A7;
+		--success-300: #81C784;
+		--success-400: #66BB6A;
+		--success-500: #6BCB77;
+		--success-600: #43A047;
+		--success-700: #388E3C;
+		--success-800: #2E7D32;
+		--success-900: #1B5E20;
 
-		/* Text Colors */
-		--text-color: #2C1810;			 /* Deep brown for main text */
-		--text-color-secondary: #7D4F50;	/* Rustic red for secondary text */
-		--text-color-light: #A0522D;		/* Sienna brown */
-		--text-color-inverted: #FFFFFF;	 /* White text for dark backgrounds */
-		--a-hover-color: #CD853F;		   /* Peru brown */
+		--info-50:  #E1F5FE;
+		--info-100: #B3E5FC;
+		--info-200: #81D4FA;
+		--info-300: #4FC3F7;
+		--info-400: #29B6F6;
+		--info-500: #40A2E3;
+		--info-600: #039BE5;
+		--info-700: #0288D1;
+		--info-800: #0277BD;
+		--info-900: #01579B;
 
-		/* Button Colors */
-		--button-bg: var(--primary-color);
-		--button-text: #FFFFFF;			/* White text on buttons */
-		--button-border: var(--primary-color);
+		--warning-50:  #FFF8E1;
+		--warning-100: #FFECB3;
+		--warning-200: #FFE082;
+		--warning-300: #FFD54F;
+		--warning-400: #FFCA28;
+		--warning-500: #FFB74D;
+		--warning-600: #FFB300;
+		--warning-700: #FFA000;
+		--warning-800: #FF8F00;
+		--warning-900: #FF6F00;
+
+		--danger-50:  #FFEBEE;
+		--danger-100: #FFCDD2;
+		--danger-200: #EF9A9A;
+		--danger-300: #E57373;
+		--danger-400: #EF5350;
+		--danger-500: #FF6B6B;
+		--danger-600: #E53935;
+		--danger-700: #D32F2F;
+		--danger-800: #C62828;
+		--danger-900: #B71C1C;
+
+		--success: var(--success-500);
+		--info:    var(--info-500);
+		--warning: var(--warning-500);
+		--danger:  var(--danger-500);
+
+		/* =============================
+		   Surfaces (Backgrounds)
+		   ============================= */
+		--surface-ground: #FFF9F5;
+		--surface-section: #FFF1E6;
+		--surface-card: #FFFFFF;
+		--surface-overlay: #FFFFFF;
+		--surface-hover: #FAD4A7;
+
+		/* =============================
+		   Borders / Lines
+		   ============================= */
+		--surface-border: #E8D5CC;
+		--border-color: #E8D5CC;
+		--border-color-hover: var(--primary-light);
+
+		/* =============================
+		   Text Colors
+		   ============================= */
+		--text-color: #2C1810;
+		--text-color-secondary: #7D4F50;
+		--text-color-light: #A0522D;
+		--text-color-inverted: #FFFFFF;
+
+		/* =============================
+		   Buttons
+		   ============================= */
+		--button-bg: var(--primary);
+		--button-text: #FFFFFF;
 		--button-hover-bg: var(--primary-dark);
-		--button-hover-text: #FFFFFF;	  /* Keeping white text on hover */
+		--button-hover-text: #FFFFFF;
+		--button-border: var(--primary);
 		--button-hover-border: var(--primary-dark);
 
-		/* Input */
+		/* =============================
+		   Inputs
+		   ============================= */
 		--input-bg: var(--surface-card);
 		--input-text: var(--text-color);
 		--input-border: var(--surface-border);
 		--input-hover-border: var(--primary-light);
-		--input-focus-border: var(--primary-color);
-		--input-focus-shadow: 0 0 0 2px rgba(139, 69, 19, 0.1);
+		--input-focus-border: var(--primary);
+		--input-focus-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
 		--input-placeholder: var(--text-color-secondary);
+
 		--input-filled-bg: var(--surface-ground);
-		--input-error-border: #FF6B6B;
-		--input-error-shadow: 0 0 0 2px rgba(255, 107, 107, 0.1);
-		--input-success-border: #6BCB77;
-		--input-success-shadow: 0 0 0 2px rgba(107, 203, 119, 0.1);
 
-		/* Input Sizes */
-		--input-height-sm: 2rem;
-		--input-height-md: 2.5rem;
-		--input-height-lg: 3rem;
-		--input-spacing-sm: 0.5rem;
-		--input-spacing-md: 0.75rem;
-		--input-spacing-lg: 1rem;
+		--input-error-border: var(--danger);
+		--input-error-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
 
-		/* Panel */
+		--input-success-border: var(--success);
+		--input-success-shadow: 0 0 0 2px rgba(107, 203, 119, 0.2);
+
+		/* =============================
+		   Panels / Cards / Dropdown
+		   ============================= */
 		--panel-header-bg: var(--surface-section);
 		--panel-content-bg: var(--surface-card);
 		--panel-border: var(--surface-border);
 
-		/* Dropdown */
-		--dropdown-color: #E8D5CC;		 /* Warm gray */
+		--dropdown-color: var(--surface-border);
 
-		/* Component Specific */
+		/* =============================
+		   Shape / Shadow
+		   ============================= */
 		--border-radius: 8px;
 		--focus-ring: 0 0 0 2px #FFE4D6;
 		--card-shadow: 0 2px 12px rgba(44, 24, 16, 0.08);
 
-		/* Border Colors */
-		--border-color: #ddd;			  /* Default border color */
-		--border-color-hover: #A0522D;	 /* Border color on hover */
+		/* =============================
+		   Layout
+		   ============================= */
+		--container-width: 1200px;
+		--container-padding: 2rem;
 
-		/* Link Colors */
-		--link-color: #8B4513;			/* Default link color */
-		--link-color-hover: #A0522D;	  /* Link color on hover */
-		--link-color-active: #2C1810;	 /* Link color when active */
+		/* =============================
+		   Links
+		   ============================= */
+		--link-color: var(--primary-color);
+		--link-color-hover: var(--primary-light);
+		--link-color-active: var(--primary-dark);
+
+		--background-base: var(--primary-50) !important;
+
 	}
 
-	/* Dark theme variables */
+	/* ============================================
+	   DARK THEME
+	   ============================================ */
 	[data-theme="dark"] {
-		/* Main Colors */
-		--primary-color: #CD853F;		  /* Peru brown - lighter for dark mode */
-		--primary-dark: #8B4513;		   /* Saddle brown as dark variant */
-		--primary-light: #DEB887;		  /* Burlywood - even lighter for accents */
-		--secondary-color: #CD853F;		/* Peru brown */
+		--primary-color: #CD853F !important;
+		--primary-dark: #8B4513 !important;
+		--primary-light: #DEB887 !important;
 
-		/* Navbar Colors */
-		--primary-color-navbar: #2C1810;   /* Deep brown */
-		--secondary-color-navbar: rgba(255, 249, 245, 0.2); /* Warm white with opacity */
+		--surface-ground: #261511 !important;
+		--surface-section: #2C1810 !important;
+		--surface-card: #342013 !important;
+		--surface-border: #4D2B1D !important;
+		--surface-hover: #965533 !important;
 
-		/* Surface & Background Colors */
-		--surface-ground: #261511;		 /* Dark brown background */
-		--surface-section: #2C1810;		/* Slightly lighter brown */
-		--surface-card: #342013;		   /* Main brown */
-		--surface-overlay: #342013;		/* Overlay brown */
-		--surface-border: #4D2B1D;		 /* Light brown border */
-		--surface-hover: #965533;		  /* Hover surface color */
+		--text-color: #FFE4D6 !important;
+		--text-color-secondary: #FFDAB9;
 
-		/* Background Colors */
-		--background-base: #1A0F0D;		/* Dark base background */
-		--background-paper: #261511;	   /* Dark paper background */
-		--background-elevated: #2C1810;	/* Dark elevated surface */
+		--input-bg: #070201;
 
-		/* Text Colors */
-		--text-color: #FFE4D6;			 /* Light peach for main text */
-		--text-color-secondary: #FFDAB9;	/* Peachpuff for secondary text */
-		--text-color-light: #FFE4C4;		/* Bisque for light text */
-		--text-color-inverted: #2C1810;	 /* Dark brown for light backgrounds */
+		--card-shadow: 0 2px 12px rgba(0,0,0,0.35);
 
-		/* Button Colors */
-		--button-bg: var(--primary-color);
-		--button-text: #FFFFFF;			/* White text in dark mode */
-		--button-hover-text: #FFFFFF;	  /* Keeping white text on hover */
-		--button-hover-bg: var(--primary-dark);
-		--button-hover-border: var(--primary-dark);
+		--border-color: #4D2B1D;
+		--border-color-hover: #CD853F;
 
-		/* Component Colors */
-		--input-bg: var(--surface-ground);
-		--panel-header-bg: var(--surface-section);
-		--panel-content-bg: var(--surface-card);
-		--panel-border: var(--surface-border);
+		--dropdown-color: #4D2B1D;
 
-		/* Dropdown */
-		--dropdown-color: #4D2B1D;		 /* Medium brown */
+		--link-color: #DEB887 !important;
+		--link-color-hover: #FFE4B5 !important;
+		--link-color-active: #CD853F !important;
 
-		/* Card Shadow */
-		--card-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-
-		/* Border Colors */
-		--border-color: #4D2B1D;		  /* Darker border for dark mode */
-		--border-color-hover: #CD853F;	 /* Lighter border on hover for dark mode */
-
-		/* Link Colors */
-		--link-color: #DEB887;			 /* Burlywood - lighter for dark mode */
-		--link-color-hover: #FFE4B5;	   /* Moccasin - very light on hover */
-		--link-color-active: #CD853F;	  /* Peru brown when active */
+		--background-base: #1A0E05 !important;
 	}
 
-	/* Media Queries for Container Width */
+	/* ============================================
+	   RESPONSIVE
+	   ============================================ */
+
 	@media (min-width: 1200px) {
 		:root {
 			--container-width: 1200px;
@@ -169,395 +224,5 @@
 			--container-padding: 1rem;
 		}
 	}
-
-	/* Global Input Styles */
-
-	.p-button {
-		gap: 1rem !important;
-	}
-
-	/* --- FIX p-input-icon-left overlapping issue --- */
-	.p-input-icon-left {
-		position: relative !important;
-		display: inline-flex !important;
-		align-items: center !important;
-	}
-
-	.p-input-icon-left > i {
-		position: absolute !important;
-		left: 0.75rem !important;
-		top: 50% !important;
-		pointer-events: none !important;
-		z-index: 1 !important;
-		color: var(--text-color-secondary);
-	}
-
-	.p-input-icon-left > .p-inputtext {
-		padding-left: 2rem !important;
-		position: relative !important;
-	}
-
-	.p-autocomplete {
-		width: 100% !important;
-		button {
-			border-radius: 0 0.75rem 0.75rem 0 !important;
-		}
-		input {
-			border-radius: 0.75rem 0 0 0.75rem !important;
-		}
-	}
-
-	.p-dropdown,
-	.p-multiselect,
-	.p-inputnumber,
-	.p-password,
-	.p-autocomplete-items-wrapper,
-	.p-textarea {
-		background: var(--input-bg) !important;
-		padding: var(--input-spacing-md) !important;
-		border-radius: var(--border-radius) !important;
-		font-size: 1rem !important;
-		color: var(--text-color) !important;
-		transition: all 0.3s ease !important;
-		width: 100% !important;
-		font-family: var(--font-family) !important;
-	}
-
-	.p-inputtext{
-		background: var(--input-bg) !important;
-		padding: var(--input-spacing-md) !important;
-		border-radius: var(--border-radius) !important;
-		font-size: 1rem !important;
-		color: var(--text-color) !important;
-		transition: all 0.3s ease !important;
-		width: 100% !important;
-		font-family: var(--font-family) !important;
-	}
-
-	.p-inputtext::placeholder,
-	.p-dropdown::placeholder,
-	.p-autocomplete-items-wrapper::placeholder,
-	.p-multiselect::placeholder {
-		color: var(--input-placeholder) !important;
-		opacity: 0.7;
-		font-size: 1rem !important;
-		text-align: center;
-	}
-
-	.p-inputtext:hover:not(:disabled):not(:focus),
-	.p-dropdown:hover:not(:disabled):not(:focus),
-	.p-multiselect:hover:not(:disabled):not(:focus),
-	.p-inputnumber:hover:not(:disabled):not(:focus),
-	.p-password:hover:not(:disabled):not(:focus),
-	.p-autocomplete-items-wrapper:hover:not(:disabled):not(:focus),
-	.p-textarea:hover:not(:disabled):not(:focus) {
-		border-color: var(--input-hover-border) !important;
-	}
-
-	.p-inputtext:focus,
-	.p-dropdown:focus,
-	.p-multiselect:focus,
-	.p-inputnumber:focus,
-	.p-password:focus,
-	.p-autocomplete-items-wrapper:focus,
-	.p-textarea:focus {
-		border-color: var(--input-focus-border) !important;
-		box-shadow: var(--input-focus-shadow) !important;
-		outline: none !important;
-	}
-
-	.p-inputtext:disabled,
-	.p-dropdown:disabled,
-	.p-multiselect:disabled,
-	.p-inputnumber:disabled,
-	.p-password:disabled,
-	.p-autocomplete-items-wrapper:disabled,
-	.p-textarea:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-
-	.p-multiselect-checkbox{
-		display: none;
-	}
-
-	.p-autocomplete-items-wrapper .p-autocomplete-item{
-		padding: var(--input-spacing-md) var(--input-spacing-lg) !important;
-		color: var(--text-color) !important;
-		transition: all 0.2s ease !important;
-		list-style: none;
-		cursor: pointer;
-	}
-
-	.p-autocomplete-items-wrapper .p-autocomplete-item:hover{
-		background: var(--primary-color) !important;
-		color: var(--text-color-inverted) !important;
-	}
-
-	.p-autocomplete-items-wrapper .p-autocomplete-item.p-highlight{
-		background: var(--primary-color) !important;
-		color: var(--text-color-inverted) !important;
-	}
-
-	/* Dropdown Specific */
-	.p-dropdown-panel {
-		background: var(--surface-card) !important;
-		border: 1px solid var(--surface-border) !important;
-		border-radius: var(--border-radius) !important;
-		box-shadow: var(--card-shadow) !important;
-	}
-
-	.p-dropdown-item {
-		padding: var(--input-spacing-md) var(--input-spacing-lg) !important;
-		color: var(--text-color) !important;
-		transition: all 0.2s ease !important;
-		cursor: pointer;
-		&:hover {
-			background: var(--surface-hover) !important;
-		   }
-	}
-
-	.p-dropdown-item.p-highlight {
-		background: var(--primary-color) !important;
-		color: var(--text-color-inverted) !important;
-	}
-
-	.p-dropdown-label {
-		border-radius: var(--border-radius) 0 0 var(--border-radius) !important;
-	}
-
-	.p-dropdown-trigger {
-		padding: 0 var(--input-spacing-md) !important;
-		color: var(--text-color-inverted) !important;
-		background: var(--button-bg) !important;
-		border-radius: 0 var(--border-radius) var(--border-radius) 0 !important;
-	}
-
-	/* MultiSelect Enhanced Styling */
-	.p-multiselect {
-		min-height: var(--input-height-md);
-		display: flex;
-		align-items: center;
-	}
-
-	.p-multiselect-label {
-		padding: var(--input-spacing-md) !important;
-		color: var(--text-color) !important;
-	}
-
-	.p-multiselect-label.p-placeholder {
-		color: var(--input-placeholder) !important;
-	}
-
-	.p-multiselect-panel {
-		background: var(--surface-card) !important;
-		border: 1px solid var(--surface-border) !important;
-		border-radius: var(--border-radius) !important;
-		box-shadow: var(--card-shadow) !important;
-		margin-top: 0.5rem !important;
-		transform-origin: center top;
-		animation: dropdownAnimation 0.2s ease-out !important;
-	}
-
-	.p-multiselect-panel .p-multiselect-header {
-		padding: var(--input-spacing-md) var(--input-spacing-lg) !important;
-		border-bottom: 1px solid var(--surface-border) !important;
-		background: var(--surface-section) !important;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.p-multiselect-panel .p-multiselect-filter-container {
-		width: 100%;
-		margin-bottom: 0 !important;
-		position: relative;
-	}
-
-	.p-multiselect-panel .p-multiselect-filter-container .p-inputtext {
-		width: 100%;
-		padding-right: 2rem !important;
-	}
-
-	.p-multiselect-panel .p-multiselect-filter-container i {
-		position: absolute;
-		right: 0.75rem;
-		top: 50%;
-		transform: translateY(-50%);
-		color: var(--text-color-secondary);
-	}
-
-	.p-multiselect-panel .p-multiselect-items {
-		padding: var(--input-spacing-sm) 0 !important;
-	}
-
-	.p-multiselect-panel .p-multiselect-items .p-multiselect-item {
-		padding: var(--input-spacing-md) var(--input-spacing-lg) !important;
-		margin-bottom: 0.15rem !important;
-		border-radius: var(--border-radius) !important;
-		color: var(--text-color) !important;
-		transition: all 0.2s ease !important;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.p-multiselect-panel .p-multiselect-items .p-multiselect-item:hover {
-		background: var(--surface-hover) !important;
-		color: var(--primary-color) !important;
-	}
-
-	.p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-highlight {
-		background: var(--primary-color) !important;
-		color: var(--text-color-inverted) !important;
-	}
-
-	/* Enhanced Focus States */
-	.p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-highlight.p-focus {
-		background: var(--primary-dark) !important;
-		color: var(--text-color-inverted) !important;
-		outline: none !important;
-		box-shadow: inset 0 0 0 2px var(--primary-light) !important;
-		position: relative;
-	}
-
-	.p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-focus:not(.p-highlight) {
-		background: var(--surface-hover) !important;
-		color: var(--text-color) !important;
-		outline: none !important;
-		box-shadow: inset 0 0 0 2px var(--primary-color) !important;
-	}
-
-	/* Keyboard Navigation Enhancement */
-	.p-multiselect-panel .p-multiselect-items .p-multiselect-item:focus {
-		outline: none !important;
-	}
-
-	.p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-focus::after {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		border-radius: var(--border-radius) !important;
-		pointer-events: none;
-		transition: box-shadow 0.2s ease;
-	}
-
-	/* Dark Theme Focus States */
-	[data-theme="dark"] .p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-highlight.p-focus {
-		background: var(--primary-dark) !important;
-		box-shadow: inset 0 0 0 2px var(--primary-light) !important;
-	}
-
-	[data-theme="dark"] .p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-focus:not(.p-highlight) {
-		background: var(--surface-hover) !important;
-		box-shadow: inset 0 0 0 2px var(--primary-color) !important;
-	}
-
-	.p-multiselect-token {
-		background: var(--primary-color) !important;
-		color: var(--text-color-inverted) !important;
-		border-radius: var(--border-radius) !important;
-		padding: 0.25rem 0.5rem !important;
-		margin: 0.25rem !important;
-		display: inline-flex;
-		align-items: center;
-		gap: 0.25rem;
-	}
-
-	.p-multiselect-token-icon {
-		cursor: pointer;
-		color: var(--text-color-inverted) !important;
-		margin-left: 0.5rem;
-	}
-
-	.p-multiselect-token-icon:hover {
-		opacity: 0.8;
-	}
-
-	.p-multiselect-trigger {
-		padding: 0 var(--input-spacing-md) !important;
-		color: var(--text-color-secondary) !important;
-	}
-
-	@keyframes dropdownAnimation {
-		from {
-			opacity: 0;
-			transform: translateY(-4px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	/* Empty Message Styling */
-	.p-multiselect-empty-message {
-		padding: var(--input-spacing-lg) !important;
-		color: var(--text-color-secondary) !important;
-		text-align: center;
-		font-style: italic;
-	}
-
-	/* Close Button in Header */
-	.p-multiselect-close {
-		width: 2rem !important;
-		height: 2rem !important;
-		border-radius: 50% !important;
-		background: transparent !important;
-		color: var(--text-color-secondary) !important;
-		border: none !important;
-		transition: all 0.2s ease !important;
-	}
-
-	.p-multiselect-close:hover {
-		background: var(--surface-hover) !important;
-		color: var(--primary-color) !important;
-	}
-
-	/* Selected Items Counter */
-	.p-multiselect-header-selected-items {
-		margin-left: auto;
-		padding: 0.25rem 0.5rem;
-		background: var(--surface-hover);
-		border-radius: var(--border-radius);
-		font-size: 0.875rem;
-		color: var(--text-color-secondary);
-	}
-
-	.p-toast-message-text{
-		background-color: var(--surface-card) !important;
-		color: var(--text-color) !important;
-		padding: 1rem !important;
-		border-radius: var(--border-radius) !important;
-	}
-
-	.p-paginator {
-		background: transparent;
-		border: none;
-		padding: 1rem 0;
-		gap: 1rem;
-	}
-
-	.p-paginator-pages {
-		display: flex;
-		gap: 0.5rem;
-	}
-
-	/* Dark Theme Adjustments */
-	[data-theme="dark"] .p-multiselect-panel {
-		background: var(--surface-card) !important;
-		border-color: var(--surface-border) !important;
-	}
-
-	[data-theme="dark"] .p-multiselect-items .p-multiselect-item:hover {
-		background: var(--surface-hover) !important;
-		color: var(--primary-light) !important;
-	}
-
-	[data-theme="dark"] .p-multiselect-token {
-		background: var(--primary-dark) !important;
-	}
 }
+

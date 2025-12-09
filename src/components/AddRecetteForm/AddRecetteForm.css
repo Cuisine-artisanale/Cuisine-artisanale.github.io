@@ -115,11 +115,6 @@
   font-size: 1rem;
 }
 
-.p-inputtext, .p-dropdown, .p-inputnumber, .p-multiselect {
-  width: 100%;
-  border-radius: 0.5rem !important;
-}
-
 /* ================================
    ETAPE 2: timings
 =================================== */
@@ -189,29 +184,6 @@
 
 .remove-ingredient-btn:hover {
   transform: scale(1.1);
-}
-
-/* AutoComplete */
-.p-autocomplete-input {
-  border-radius: 0.75rem 0rem !important;
-  border: 1px solid var(--surface-border) !important;
-  padding: 0.65rem 0.75rem !important;
-  font-size: 1rem;
-}
-
-.p-autocomplete-panel {
-  border-radius: 0.75rem !important;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-}
-
-.p-autocomplete-item {
-  padding: 0.65rem 1rem !important;
-  cursor: pointer;
-}
-
-.p-autocomplete-item:hover {
-  background: var(--surface-hover);
 }
 
 /* ================================
@@ -318,8 +290,8 @@
 }
 
 .step-number {
-  background-color: #10b981;
-  color: white;
+  background-color: var(--success-500);
+  color: var(--text-color-inverted);
   font-weight: bold;
   border-radius: 50%;
   width: 36px;
@@ -337,25 +309,25 @@
 .step-header label {
   flex: 1;
   font-weight: 500;
-  color: #111827;
+  color: var(--text-color);
 }
 
 /* 🗑️ Bouton supprimer une étape */
 .delete-step-btn {
   background: none;
   border: none;
-  color: #ef4444;
+  color: var(--danger-500);
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
 .delete-step-btn:hover {
-  color: #dc2626;
+  color: var(--danger-700);
 }
 
 .step-textarea {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--surface-border);
   border-radius: 0.5rem;
   padding: 0.75rem;
   font-size: 0.95rem;
@@ -364,9 +336,9 @@
 }
 
 .step-textarea:focus {
-  border-color: #10b981;
+  border-color: var(--success-500);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+  box-shadow: var(--input-success-shadow);
 }
 
 /* ➕ Bouton ajouter une étape */
@@ -375,8 +347,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #10b981;
-  color: white;
+  background-color: var(--success-500);
+  color: var(--text-color-inverted);
   border: none;
   border-radius: 0.5rem;
   padding: 0.6rem 1rem;
@@ -388,19 +360,19 @@
 }
 
 .add-step-btn:hover {
-  background-color: #059669;
+  background-color: var(--success-700);
   transform: translateY(-1px);
 }
 
 /* ➕ Bouton ajouter une sous-recette */
 .p-button-text.p-button-sm {
   margin-bottom: 1.5rem;
-  color: #2563eb;
+  color: var(--info-500);
   font-weight: 500;
 }
 
 .p-button-text.p-button-sm:hover {
-  color: #1d4ed8;
+  color: var(--info-700);
   text-decoration: underline;
 }
 
@@ -416,14 +388,14 @@
 .delete-part-btn {
   background: none;
   border: none;
-  color: #ef4444;
+  color: var(--danger-500);
   cursor: pointer;
   font-size: 1.1rem;
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .delete-part-btn:hover {
-  color: #dc2626;
+  color: var(--danger-700);
   transform: scale(1.1);
 }
 
@@ -535,32 +507,6 @@
   border-top: 1px solid var(--surface-border);
 }
 
-.form-actions .p-button {
-  font-size: 1rem;
-  padding: 0.8rem 2rem;
-  border-radius: 9999px;
-  transition: all 0.3s ease;
-}
-
-.p-button-primary {
-  background: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-}
-
-.p-button-primary:hover {
-  background: var(--primary-dark) !important;
-}
-
-.p-button-secondary {
-  background: transparent !important;
-  color: var(--text-color-secondary) !important;
-  border: 1px solid var(--surface-border) !important;
-}
-
-.p-button-secondary:hover {
-  background: var(--surface-hover) !important;
-}
-
 /* ================================
    IMAGE UPLOAD
 =================================== */
@@ -638,11 +584,6 @@
 
   .form-actions {
 	flex-direction: column;
-  }
-
-  .form-actions .p-button {
-	width: 100%;
-	min-height: 48px !important;
   }
 
   /* Step buttons plus grands sur mobile */

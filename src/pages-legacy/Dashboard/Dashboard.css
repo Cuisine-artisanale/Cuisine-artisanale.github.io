@@ -1,5 +1,5 @@
 .Dashboard {
   padding: 16px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--surface-border);
   margin: 10px;
 }

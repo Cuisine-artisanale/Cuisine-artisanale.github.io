@@ -88,16 +88,11 @@ const Navbar: React.FC = () => {
 	{ label: 'Déconnexion', icon: 'pi pi-power-off', onClick: handleLogout }
   ];
 
-  const handleLogin = async () => {
-	try {
-	  setIsLoading(true);
-	  await signInWithGoogle();
-	} catch (error) {
-	  console.error('Login error:', error);
-	  // You might want to show a toast message here
-	} finally {
-	  setIsLoading(false);
-	}
+  const handleLogin = () => {
+	// Get current path to redirect back after login
+	const currentPath = pathname || '/';
+	const redirectUrl = encodeURIComponent(currentPath);
+	router.push(`/login?redirect=${redirectUrl}`);
   };
 
   const handleMobileMenuToggle = () => {
@@ -177,11 +172,10 @@ const Navbar: React.FC = () => {
 			) : (
 			  <div className="auth-buttons">
 				<Button
-				  label="Se connecter avec Google"
-				  icon="pi pi-google"
-				  className="p-button-outlined google-auth-btn"
+				  label="Se connecter"
+				  icon="pi pi-sign-in"
+				  className="p-button-outlined login-btn"
 				  onClick={handleLogin}
-				  loading={isLoading}
 				/>
 			  </div>
 			)}
@@ -225,11 +219,13 @@ const Navbar: React.FC = () => {
 		  ) : (
 			<div className="mobile-auth-buttons">
 			  <Button
-				label="Se connecter avec Google"
-				icon="pi pi-google"
-				className="p-button-outlined google-auth-btn"
-				onClick={handleLogin}
-				loading={isLoading}
+				label="Se connecter"
+				icon="pi pi-sign-in"
+				className="p-button-outlined login-btn"
+				onClick={() => {
+				  handleLogin();
+				  handleMobileMenuClose();
+				}}
 			  />
 			</div>
 		  )}

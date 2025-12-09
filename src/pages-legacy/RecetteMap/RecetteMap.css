@@ -36,22 +36,6 @@
   gap: 1rem;
 }
 
-.search-filters .p-input-icon-left {
-  width: 100%;
-}
-
-.search-filters .p-input-icon-left i {
-  color: var(--text-color-secondary);
-}
-
-.search-filters .p-inputtext {
-  width: 100%;
-}
-
-.filter-dropdown {
-  width: 100%;
-}
-
 /* Recipe List */
 .recipe-list {
   flex: 1;
@@ -245,23 +229,6 @@
 
 .recipe-popup .p-button {
   width: 100%;
-}
-
-/* Dark Theme Adjustments */
-[data-theme="dark"] .recipe-sidebar {
-  background: var(--surface-card);
-}
-
-[data-theme="dark"] .sidebar-header {
-  background: var(--surface-section);
-}
-
-[data-theme="dark"] .recipe-item {
-  background: var(--surface-section);
-}
-
-[data-theme="dark"] .recipe-type {
-  background: var(--surface-card);
 }
 
 /* Responsive Design */

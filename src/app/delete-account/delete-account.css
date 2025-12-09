@@ -1,0 +1,167 @@
+.delete-account-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  padding: 2rem 1rem;
+}
+
+.delete-account-container {
+  width: 100%;
+  max-width: 600px;
+}
+
+.delete-account-card {
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  padding: 2.5rem;
+  box-shadow: var(--card-shadow);
+  border: 2px solid #dc2626;
+}
+
+.delete-account-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.delete-account-header > i {
+  font-size: 4rem;
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+
+.delete-account-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.warning-text {
+  color: #dc2626;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Info */
+.delete-account-info {
+  background: rgba(220, 38, 38, 0.1);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 2rem;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.delete-account-info p {
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+}
+
+.email-display {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+  padding: 0.5rem;
+  background: var(--surface-ground);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.info-text {
+  margin-top: 1.5rem;
+  font-weight: 600;
+}
+
+.delete-account-info ul {
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0;
+}
+
+.delete-account-info li {
+  color: var(--text-color-secondary);
+  margin-bottom: 0.5rem;
+}
+
+/* Form */
+.delete-account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.form-field input {
+  width: 100%;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+/* Actions */
+.delete-account-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.cancel-button {
+  flex: 1;
+  padding: 0.75rem;
+  font-weight: 600;
+}
+
+.delete-button {
+  flex: 1;
+  padding: 0.75rem;
+  background: #dc2626 !important;
+  border: 1px solid #dc2626 !important;
+  color: white !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.delete-button:hover:not(:disabled) {
+  background: #991b1b !important;
+  border-color: #991b1b !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .delete-account-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .delete-account-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .delete-account-header > i {
+    font-size: 3rem;
+  }
+
+  .delete-account-actions {
+    flex-direction: column;
+  }
+}
+
+/* Dark Mode Adjustments */
+[data-theme="dark"] .delete-account-page {
+  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+}

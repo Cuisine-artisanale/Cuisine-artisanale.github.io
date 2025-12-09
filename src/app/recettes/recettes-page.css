@@ -137,20 +137,6 @@
   justify-content: flex-end;
 }
 
-.filtre_buttons .p-button {
-  min-width: 120px;
-}
-
-.filtre_buttons .p-button.p-button-secondary {
-	background: var(--surface-section) !important;
-	color: var(--text-color) !important;
-	border: 1px solid var(--surface-border) !important;
-}
-
-.filtre_buttons .p-button.p-button-secondary:hover {
-  background: var(--surface-ground) !important;
-}
-
 /* Animations */
 @keyframes spin {
   to {

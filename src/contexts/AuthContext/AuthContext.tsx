@@ -1,6 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@firebaseModule"; // Assure-toi que l'importation est correcte
-import { User, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  User,
+  onAuthStateChanged,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile
+} from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, getDocs } from "firebase/firestore";
 
 interface AuthContextType {
@@ -9,6 +19,8 @@ interface AuthContextType {
   displayName?: string | null;
   logout: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
   refreshUserData: () => Promise<void>;
   loading: boolean;
   error: string | null;
@@ -88,6 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
 	  try {
 		if (currentUser) {
+		  // Set user even if email is not verified (we'll handle protection in routes)
 		  setUser(currentUser);
 
 		  const userRole = await fetchUserRole(currentUser.uid);
@@ -150,8 +163,78 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	}
   };
 
+  const signInWithEmail = async (email: string, password: string) => {
+	try {
+	  setError(null);
+	  const result = await signInWithEmailAndPassword(auth, email, password);
+
+	  // Check if email is verified
+	  if (!result.user.emailVerified) {
+		await signOut(auth);
+		throw new Error("Veuillez vérifier votre email avant de vous connecter. Un email de vérification vous a été envoyé.");
+	  }
+	  const userRole = await fetchUserRole(result.user.uid);
+	  if (userRole) {
+		setRole(userRole);
+	  }
+	  
+	} catch (err: any) {
+	  console.error("Error signing in with email:", err);
+	  setError(err.message || "Error signing in with email");
+	  throw err;
+	}
+  };
+
+  const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+	try {
+	  setError(null);
+
+	  // Create user account
+	  console.log('Creating user account...');
+	  const result = await createUserWithEmailAndPassword(auth, email, password);
+	  console.log('User account created:', result.user.uid);
+
+	  // Update profile with display name
+	  console.log('Updating profile with display name...');
+	  await updateProfile(result.user, {
+		displayName: displayName
+	  });
+
+	  // Send verification email via EmailJS
+	  console.log('Sending verification email via EmailJS to:', email);
+	  const { sendVerificationEmail: sendEmailViaEmailJS } = await import('@/services/emailService');
+	  await sendEmailViaEmailJS(email, displayName, result.user.uid);
+	  console.log('✅ Verification email sent successfully via EmailJS!');
+
+	  // Create user in Firestore
+	  console.log('Creating user document in Firestore...');
+	  await createUserInFirestore(result.user.uid, email, displayName);
+	  console.log('User document created in Firestore');
+
+	  // Don't sign out - let the user stay logged in but restrict access to protected routes
+	  console.log('User remains logged in but email not verified yet');
+	} catch (err: any) {
+	  console.error("❌ Error signing up with email:", err);
+	  console.error("Error code:", err.code);
+	  console.error("Error message:", err.message);
+	  setError(err.message || "Error signing up with email");
+	  throw err;
+	}
+  };
+
   return (
-	<AuthContext.Provider value={{ user, role, displayName, logout, signInWithGoogle, refreshUserData, loading, error }}>
+	<AuthContext.Provider value={{
+	  user,
+	  role,
+	  displayName,
+	  logout,
+	  signInWithGoogle,
+	  signInWithEmail,
+	  signUpWithEmail,
+	  refreshUserData,
+	  loading,
+	  error
+	}}>
 	  {children}
 	</AuthContext.Provider>
   );

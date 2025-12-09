@@ -79,16 +79,6 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-.p-button {
-  background-color: var(--button-bg) !important;
-  border: none !important;
-  color: var(--button-text) !important;
-}
-
-.p-multiselect .p-multiselect-label {
-  color: var(--text-color);
-}
-
 /* Pour les très grands écrans (PC) */
 @media (min-width: 1200px) {
   :root{

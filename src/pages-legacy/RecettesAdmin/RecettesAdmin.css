@@ -24,21 +24,6 @@
   align-items: center;
 }
 
-.recipes-header-actions .p-input-icon-left {
-  width: 100%;
-  max-width: 300px;
-}
-
-.recipes-header-actions .p-input-icon-left input {
-  width: 100%;
-  background: var(--surface-card);
-  border: 1px solid var(--surface-border);
-}
-
-.recipes-header-actions .sort-dropdown {
-  min-width: 200px;
-}
-
 /* Recipe Card Styling */
 .recipe-card-admin {
   background: var(--surface-card);
@@ -258,13 +243,7 @@
 	flex-direction: column;
 	width: 100%;
   }
-
-  .recipes-header-actions .p-input-icon-left,
-  .recipes-header-actions .sort-dropdown {
-	max-width: none;
-	width: 100%;
-  }
-
+  
   .recipe-card {
 	padding: 1rem;
   }

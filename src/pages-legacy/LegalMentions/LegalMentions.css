@@ -3,33 +3,33 @@
   margin: 2rem auto;
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+  color: var(--text-color);
   line-height: 1.7;
-  background-color: #fff;
+  background-color: var(--surface-card);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--card-shadow);
 }
 
 .LegalMentions-container h1 {
   text-align: center;
   font-size: 2.2rem;
   margin-bottom: 2rem;
-  color: #2c3e50;
+  color: var(--text-color);
 }
 
 .LegalMentions-container h2 {
   font-size: 1.5rem;
   margin-top: 1.8rem;
   margin-bottom: 1rem;
-  color: #34495e;
-  border-bottom: 2px solid #e0e0e0;
+  color: var(--text-color);
+  border-bottom: 2px solid var(--surface-border);
   padding-bottom: 0.3rem;
 }
 
 .LegalMentions-container p {
   margin-bottom: 1rem;
   font-size: 1rem;
-  color: #555;
+  color: var(--text-color-secondary);
 }
 
 .LegalMentions-container ul {
@@ -43,7 +43,7 @@
 }
 
 .LegalMentions-container a {
-  color: #2980b9;
+  color: var(--link-color);
   text-decoration: none;
 }
 
@@ -54,12 +54,12 @@
 .LegalMentions-container section {
   margin-bottom: 2rem;
   padding: 1rem 1.2rem;
-  background-color: #f9f9f9;
-  border-left: 4px solid #2980b9;
+  background-color: var(--surface-section);
+  border-left: 4px solid var(--primary-color);
   border-radius: 8px;
   transition: background 0.3s ease;
 }
 
 .LegalMentions-container section:hover {
-  background-color: #f0f4f8;
+  background-color: var(--surface-hover);
 }

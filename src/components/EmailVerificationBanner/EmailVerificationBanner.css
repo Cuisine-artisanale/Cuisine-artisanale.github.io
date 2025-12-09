@@ -1,0 +1,67 @@
+.email-verification-banner {
+  color: var(--text-color-inverted);
+  padding: 1rem;
+  box-shadow: var(--card-shadow);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 2px solid var(--primary-dark);
+}
+
+.banner-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.banner-content > i {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.banner-text {
+  flex: 1;
+}
+
+.banner-text strong {
+  font-weight: 700;
+}
+
+.banner-text p {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+}
+
+.banner-content .p-button {
+  background: var(--primary-dark) !important;
+  border-color: var(--primary-dark) !important;
+  color: var(--text-color-inverted) !important;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.banner-content .p-button:hover {
+  background: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(44, 24, 16, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .banner-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .banner-content .p-button {
+    width: 100%;
+  }
+
+  .banner-text p {
+    font-size: 0.85rem;
+  }
+}
