@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: NextRequest) {
   try {
     const { email, resetUrl } = await request.json();
+
+    // Initialize Resend only when the route is called (not at module level)
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const { data, error } = await resend.emails.send({
       from: 'Cuisine Artisanale <onboarding@resend.dev>', // Remplace par ton domaine vérifié
