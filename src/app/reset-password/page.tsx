@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
@@ -7,7 +7,7 @@ import { Toast } from 'primereact/toast';
 import { verifyPasswordResetToken } from '@/services/emailService';
 import './reset-password.css';
 
-export default function ResetPassword() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toastRef = useRef<Toast>(null);
@@ -263,5 +263,13 @@ export default function ResetPassword() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

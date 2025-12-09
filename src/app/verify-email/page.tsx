@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth } from '@firebaseModule';
 import { Button } from 'primereact/button';
@@ -7,7 +7,7 @@ import { Toast } from 'primereact/toast';
 import { verifyEmailToken } from '@/services/emailService';
 import './verify-email.css';
 
-export default function VerifyEmail() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toastRef = useRef<Toast>(null);
@@ -235,5 +235,13 @@ export default function VerifyEmail() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmail() {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
