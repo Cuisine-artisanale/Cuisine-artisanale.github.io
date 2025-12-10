@@ -25,7 +25,7 @@ async function generateSitemap() {
 	const writeStream = createWriteStream("./public/sitemap.xml");
 	sitemapStream.pipe(writeStream);
 
-	const basePath = "/";
+	const basePath = "";
 
 	// Static routes (public pages only)
 	const staticRoutes = [
