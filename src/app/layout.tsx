@@ -56,6 +56,28 @@ export const metadata = {
 			{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
 		],
 	},
+	openGraph: {
+		type: 'website',
+		locale: 'fr_FR',
+		url: 'https://www.aymeric-sabatier.fr/Cuisine-artisanale/',
+		siteName: 'Cuisine Artisanale',
+		title: 'Cuisine artisanale',
+		description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
+		images: [
+			{
+				url: '/icon-512.png',
+				width: 512,
+				height: 512,
+				alt: 'Cuisine Artisanale',
+			},
+		],
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'Cuisine artisanale',
+		description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
+		images: ['/icon-512.png'],
+	},
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

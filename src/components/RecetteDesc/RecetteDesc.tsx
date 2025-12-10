@@ -5,6 +5,7 @@ import VideoEmbed from '@components/VideoEmbed/VideoEmbed';
 import Image from 'next/image';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { doc, getDoc, deleteDoc, onSnapshot, query, where, getDocs, collection, orderBy, serverTimestamp, addDoc } from '@firebase/firestore';
 import { db } from '@firebaseModule';
 import { Button } from 'primereact/button';
@@ -557,6 +558,7 @@ const RecetteDesc: React.FC = () => {
 	<>
 		{recette && (
 			<RecipeMetadata
+				recipeId={id || undefined}
 				title={recette.title}
 				type={recette.type}
 				image={recette.images?.[0]}
@@ -836,20 +838,19 @@ const RecetteDesc: React.FC = () => {
 				) : (
 					<div className="similar-recipes-grid">
 						{similarRecipes.map((recipe) => (
-							<div
+							<Link
 								key={recipe.id}
+								href={`/recettes?id=${recipe.id}`}
 								className="similar-recipe-card"
 								onClick={() => {
 									setId(recipe.id);
-									router.push(`/recettes?id=${recipe.id}`);
 									window.scrollTo(0, 0);
 								}}
-								style={{ cursor: 'pointer' }}
 							>
 								{recipe.images && recipe.images.length > 0 && (
 									<Image
 										src={recipe.images[0]}
-										alt={recipe.title}
+										alt={`${recipe.title} - Recette similaire`}
 										className="similar-recipe-image"
 										width={300}
 										height={200}
@@ -867,7 +868,7 @@ const RecetteDesc: React.FC = () => {
 										</p>
 									)}
 								</div>
-							</div>
+							</Link>
 						))}
 					</div>
 				)}
