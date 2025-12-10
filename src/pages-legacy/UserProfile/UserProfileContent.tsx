@@ -45,8 +45,14 @@ const UserProfileContent: React.FC<UserProfileContentProps> = ({ userId }) => {
 
   useEffect(() => {
 	if (userId) {
+	  setLoading(true);
+	  setError(null);
 	  fetchUserProfile();
 	  fetchUserRecipes(0);
+	} else {
+	  // Si pas d'ID utilisateur, afficher une erreur
+	  setError('Aucun utilisateur spécifié');
+	  setLoading(false);
 	}
   }, [userId]);
 
@@ -57,15 +63,23 @@ const UserProfileContent: React.FC<UserProfileContentProps> = ({ userId }) => {
   }, [first, userId]);
 
   const fetchUserProfile = async () => {
-	if (!userId) return;
+	if (!userId) {
+	  setError('Aucun utilisateur spécifié');
+	  setLoading(false);
+	  return;
+	}
 
 	try {
+	  setLoading(true);
+	  setError(null);
+
 	  const userRef = doc(db, 'users', userId);
 	  const userSnap = await getDoc(userRef);
 
 	  if (!userSnap.exists()) {
 		setError('Utilisateur non trouvé');
 		setLoading(false);
+		setUser(null);
 		return;
 	  }
 
@@ -79,6 +93,7 @@ const UserProfileContent: React.FC<UserProfileContentProps> = ({ userId }) => {
 	} catch (err) {
 	  console.error('Error fetching user:', err);
 	  setError('Erreur lors du chargement du profil');
+	  setUser(null);
 	} finally {
 	  setLoading(false);
 	}
@@ -127,18 +142,28 @@ const UserProfileContent: React.FC<UserProfileContentProps> = ({ userId }) => {
 
   if (loading) {
 	return (
-	  <div className="user-profile-loading">
-		<ProgressSpinner />
-		<p>Chargement du profil...</p>
+	  <div className="user-profile-container">
+		<Breadcrumb />
+		<div className="user-profile-loading" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem' }}>
+		  <ProgressSpinner />
+		  <p style={{ marginTop: '1rem' }}>Chargement du profil...</p>
+		</div>
 	  </div>
 	);
   }
 
-  if (error || !user) {
+  if (error || !user || !userId) {
 	return (
 	  <div className="user-profile-container">
 		<Breadcrumb />
-		<Message severity="error" text={error || 'Profil non trouvé'} className="error-message" />
+		<Card style={{ margin: '2rem', padding: '2rem' }}>
+		  <Message
+			severity="error"
+			text={error || 'Profil non trouvé. Veuillez spécifier un utilisateur.'}
+			className="error-message"
+			style={{ width: '100%' }}
+		  />
+		</Card>
 	  </div>
 	);
   }

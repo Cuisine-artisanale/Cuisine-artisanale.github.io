@@ -641,7 +641,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 					{recette.createdBy && creatorInfo && (
 						<div className="recette-creator-info">
 							<p>
-								Créée par <a href={`/Cuisine-artisanale/profil?id=${recette.createdBy}`} className="creator-link">
+								Créée par <a href={`/profil?id=${recette.createdBy}`} className="creator-link">
 									{creatorInfo.displayName || "Utilisateur"}
 								</a>
 							</p>
@@ -811,7 +811,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 									<li key={r.id} className="recette-review">
 										<div className="recette-review-header">
 											<div className="review-user-info">
-												<strong ><a href={`/Cuisine-artisanale/profil?id=${r.userId}`}>{r.userName}</a></strong>
+												<strong ><a href={`/profil?id=${r.userId}`}>{r.userName}</a></strong>
 												<Rating value={r.rating} readOnly cancel={false} />
 											</div>
 											{user && role == "admin" && (
