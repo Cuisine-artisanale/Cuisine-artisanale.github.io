@@ -42,9 +42,10 @@ async function generateSitemap() {
 	try {
 		const recettesSnap = await getDocs(collection(db, "recipes"));
 		recettesSnap.forEach(doc => {
-			const recetteId = doc.id;
+			const recette = doc.data();
+			const slug = recette.url || doc.id; // Utiliser le slug si disponible, sinon l'ID
 			sitemapStream.write({
-				url: `${basePath}/recettes?id=${recetteId}`,
+				url: `${basePath}/recettes/${slug}`,
 				changefreq: "weekly",
 				priority: 0.9
 			});

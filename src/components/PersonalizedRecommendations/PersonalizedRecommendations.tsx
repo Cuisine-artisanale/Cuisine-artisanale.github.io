@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { getPersonalizedRecommendations } from '@/services/RecetteService/RecetteService';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
+import { getRecipeUrl } from '@/utils/recipeUrl';
 import './PersonalizedRecommendations.css';
 
 interface RecommendedRecipe {
@@ -11,6 +12,7 @@ interface RecommendedRecipe {
   type: string;
   cookingTime?: number;
   images?: string[];
+  url?: string;
 }
 
 const PersonalizedRecommendations: React.FC = () => {
@@ -73,7 +75,7 @@ const PersonalizedRecommendations: React.FC = () => {
 		  <div
 			key={recipe.id}
 			className="personalized-recipe-card"
-			onClick={() => router.push(`/recettes?id=${recipe.id}`)}
+			onClick={() => router.push(getRecipeUrl(recipe))}
 		  >
 			{recipe.images && recipe.images.length > 0 && (
 			  <img

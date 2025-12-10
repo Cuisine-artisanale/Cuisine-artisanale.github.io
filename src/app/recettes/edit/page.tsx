@@ -6,6 +6,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { doc, getDoc, updateDoc } from '@firebase/firestore';
 import { db, storage } from '@firebaseModule';
 import { Button } from 'primereact/button';
+import { slugify } from '@/utils/slug';
+import { getRecipeUrl } from '@/utils/recipeUrl';
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import '@/components/Breadcrumb/Breadcrumb.css';
 import { InputText } from 'primereact/inputtext';
@@ -105,13 +107,16 @@ function EditRecetteContent() {
 	  recipeParts,
 	  video,
 	  images: imageURLs,
+	  // Mettre à jour le slug si le titre a changé
+	  url: slugify(title),
 	};
 
 	const recetteRef = doc(db, 'recipes', id);
 
 	try {
 	  await updateDoc(recetteRef, updatedRecette);
-	  router.push(`/recettes?id=${id}`);
+	  // Rediriger vers la nouvelle URL avec slug
+	  router.push(getRecipeUrl({ id, title, url: updatedRecette.url }));
 	} catch (error) {
 	  console.error("Erreur lors de la mise à jour de la recette :", error);
 	}

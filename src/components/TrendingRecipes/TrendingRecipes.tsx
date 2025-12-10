@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { getTrendingRecipes } from '@/services/RecetteService/RecetteService';
 import { useRouter } from 'next/navigation';
+import { getRecipeUrl } from '@/utils/recipeUrl';
 import './TrendingRecipes.css';
 
 interface TrendingRecipe {
@@ -11,6 +12,7 @@ interface TrendingRecipe {
   cookingTime?: number;
   images?: string[];
   likesCount?: number;
+  url?: string;
 }
 
 const TrendingRecipes: React.FC = () => {
@@ -56,7 +58,7 @@ const TrendingRecipes: React.FC = () => {
 		  <div
 			key={recipe.id}
 			className="trending-recipe-card"
-			onClick={() => router.push(`/recettes?id=${recipe.id}`)}
+			onClick={() => router.push(getRecipeUrl(recipe))}
 		  >
 			{recipe.images && recipe.images.length > 0 && (
 			  	<div className="trending-recipe-image-wrapper">

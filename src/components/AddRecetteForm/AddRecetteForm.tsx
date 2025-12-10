@@ -215,13 +215,18 @@ const AddRecetteForm: React.FC = () => {
 	return title.toLowerCase().split(" ");
   }
 
-  const slugify = (str: string) =>
-	str.normalize("NFD")
+  // Utiliser la fonction slugify centralisée
+  const slugify = (str: string) => {
+	const slug = str
+	  .normalize("NFD")
 	  .replace(/[\u0300-\u036f]/g, "")
 	  .replace(/[^\w\s-]/g, "")
 	  .trim()
-	  .replace(/\s+/g, "_")
+	  .replace(/\s+/g, "-") // Utiliser des tirets au lieu d'underscores
+	  .replace(/-+/g, "-") // Remplacer les tirets multiples par un seul
 	  .toLowerCase();
+	return slug;
+  };
 
   function generateUrl(title: string): string {
 	return slugify(title);

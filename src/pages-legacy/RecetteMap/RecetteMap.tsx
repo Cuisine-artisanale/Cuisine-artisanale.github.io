@@ -9,6 +9,7 @@ import departementsCoordinates from '@assets/departementsCoord.json';
 import { MapContainer, Marker, Polygon, Popup, TileLayer, Polyline, useMap } from 'react-leaflet';
 import L from "leaflet";
 import { Button } from "primereact/button";
+import { getRecipeUrl } from '@/utils/recipeUrl';
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 
@@ -311,7 +312,7 @@ const RecetteMap: React.FC = () => {
 						label="Voir la recette"
 						onClick={(e) => {
 						  e.stopPropagation();
-						  router.push(`/recettes?id=${positionRecettes[0].recetteId}`);
+						  router.push(getRecipeUrl(positionRecettes[0]));
 						}}
 					  />
 					</div>
@@ -390,7 +391,7 @@ const RecetteMap: React.FC = () => {
 							label="Voir la recette"
 							onClick={(e) => {
 							  e.stopPropagation();
-							  router.push(`/recettes?id=${recette.recetteId}`);
+							  router.push(getRecipeUrl(recette));
 							}}
 						  />
 						</div>
@@ -451,7 +452,7 @@ const RecetteMap: React.FC = () => {
 				  className={`recipe-item ${hoveredRecette === recette.recetteId ? 'hovered' : ''}`}
 				  onMouseEnter={() => setHoveredRecette(recette.recetteId)}
 				  onMouseLeave={() => setHoveredRecette(null)}
-				  onClick={() => router.push(`/recettes?id=${recette.recetteId}`)}
+				  onClick={() => router.push(getRecipeUrl(recette))}
 				>
 				  <div className="recipe-item-content">
 					{recette.images?.[0] && (

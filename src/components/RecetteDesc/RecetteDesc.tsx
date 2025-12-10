@@ -6,6 +6,7 @@ import Image from 'next/image';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { getRecipeUrl } from '@/utils/recipeUrl';
 import { doc, getDoc, deleteDoc, onSnapshot, query, where, getDocs, collection, orderBy, serverTimestamp, addDoc } from '@firebase/firestore';
 import { db } from '@firebaseModule';
 import { Button } from 'primereact/button';
@@ -46,10 +47,15 @@ interface Ingredient {
   unit: string;
 }
 
-const RecetteDesc: React.FC = () => {
+interface RecetteDescProps {
+	recipeId?: string;
+}
+
+const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => {
 	const [id, setId] = useState<string | null>(null);
 	const searchParams = useSearchParams();
-	const recipeId = searchParams?.get('id');
+	const queryRecipeId = searchParams?.get('id');
+	const recipeId = propRecipeId || queryRecipeId;
 	const router = useRouter();
 	const {role, user} = useAuth();
 	const { showToast } = useToast();
@@ -840,7 +846,7 @@ const RecetteDesc: React.FC = () => {
 						{similarRecipes.map((recipe) => (
 							<Link
 								key={recipe.id}
-								href={`/recettes?id=${recipe.id}`}
+								href={getRecipeUrl(recipe)}
 								className="similar-recipe-card"
 								onClick={() => {
 									setId(recipe.id);

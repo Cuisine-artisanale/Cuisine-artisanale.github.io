@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
+import { getRecipeUrl } from '@/utils/recipeUrl';
 import { toggleLikeRecipes, unlikeRecipes, countRecipeLikes, hasUserLikedRecipe } from '@/services/RecetteService/RecetteService';
 import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, query, where, orderBy } from '@firebase/firestore';
 import { db } from '@firebaseModule';
@@ -189,7 +190,7 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 					<div className="main-actions">
 						{!fromRequest && (
 							<div className='Post_admin_actions'>
-								<Link href={`/recettes?id=${recetteId}`} className="view-recipe">
+								<Link href={getRecipeUrl({ id: recetteId, title })} className="view-recipe">
 									<Button
 										label="Voir la recette"
 										icon="pi pi-eye"
