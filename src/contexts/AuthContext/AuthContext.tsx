@@ -177,7 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  if (userRole) {
 		setRole(userRole);
 	  }
-	  
+
 	} catch (err: any) {
 	  console.error("Error signing in with email:", err);
 	  setError(err.message || "Error signing in with email");
@@ -200,11 +200,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		displayName: displayName
 	  });
 
-	  // Send verification email via EmailJS
-	  console.log('Sending verification email via EmailJS to:', email);
-	  const { sendVerificationEmail: sendEmailViaEmailJS } = await import('@/services/emailService');
-	  await sendEmailViaEmailJS(email, displayName, result.user.uid);
-	  console.log('✅ Verification email sent successfully via EmailJS!');
+	  // Send verification email via Firebase (plus rapide et fiable)
+	  console.log('Sending verification email via Firebase to:', email);
+	  try {
+		await sendEmailVerification(result.user);
+		console.log('✅ Verification email sent successfully via Firebase!');
+	  } catch (emailError: any) {
+		console.error("❌ Erreur lors de l'envoi de l'email de vérification:", emailError);
+		// Si l'envoi d'email échoue, on continue quand même pour créer l'utilisateur
+		// L'utilisateur pourra demander un renvoi d'email plus tard
+		if (emailError.code === 'auth/too-many-requests') {
+		  throw new Error('Trop de demandes. Veuillez réessayer dans quelques minutes.');
+		}
+		throw new Error('Erreur lors de l\'envoi de l\'email de vérification. Veuillez réessayer.');
+	  }
 
 	  // Create user in Firestore
 	  console.log('Creating user document in Firestore...');

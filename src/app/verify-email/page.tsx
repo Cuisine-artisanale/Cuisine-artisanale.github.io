@@ -2,9 +2,9 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth } from '@firebaseModule';
+import { sendEmailVerification, applyActionCode } from 'firebase/auth';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { verifyEmailToken } from '@/services/emailService';
 import './verify-email.css';
 
 function VerifyEmailContent() {
@@ -18,11 +18,13 @@ function VerifyEmailContent() {
   const [email, setEmail] = useState('');
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    // Vérifier si un code Firebase (oobCode) est présent dans l'URL
+    const oobCode = searchParams.get('oobCode');
+    const mode = searchParams.get('mode');
 
-    // Si un token est présent dans l'URL, vérifier automatiquement
-    if (token) {
-      handleTokenVerification(token);
+    // Si un code Firebase est présent, vérifier automatiquement
+    if (oobCode && mode === 'verifyEmail') {
+      handleFirebaseVerification(oobCode);
     } else {
       // Sinon, vérifier si l'utilisateur est connecté
       const currentUser = auth.currentUser;
@@ -39,22 +41,19 @@ function VerifyEmailContent() {
     }
   }, [searchParams, router]);
 
-  const handleTokenVerification = async (token: string) => {
+  const handleFirebaseVerification = async (oobCode: string) => {
     setIsVerifying(true);
     setError('');
 
     try {
-      const userId = await verifyEmailToken(token);
-
-      if (!userId) {
-        setError('Le lien de vérification est invalide ou a expiré. Veuillez demander un nouvel email.');
-        return;
-      }
+      // Appliquer le code de vérification Firebase
+      await applyActionCode(auth, oobCode);
 
       // Rafraîchir l'utilisateur Firebase pour mettre à jour emailVerified
       const currentUser = auth.currentUser;
       if (currentUser) {
         await currentUser.reload();
+        setEmail(currentUser.email || '');
       }
 
       setVerified(true);
@@ -68,9 +67,17 @@ function VerifyEmailContent() {
       setTimeout(() => {
         router.push('/account');
       }, 2000);
-    } catch (error) {
-      console.error('Error verifying token:', error);
-      setError('Une erreur est survenue lors de la vérification. Veuillez réessayer.');
+    } catch (error: any) {
+      console.error('Error verifying email:', error);
+      let errorMessage = 'Une erreur est survenue lors de la vérification. Veuillez réessayer.';
+
+      if (error.code === 'auth/invalid-action-code') {
+        errorMessage = 'Le lien de vérification est invalide ou a expiré. Veuillez demander un nouvel email.';
+      } else if (error.code === 'auth/expired-action-code') {
+        errorMessage = 'Le lien de vérification a expiré. Veuillez demander un nouvel email.';
+      }
+
+      setError(errorMessage);
     } finally {
       setIsVerifying(false);
     }
@@ -85,12 +92,8 @@ function VerifyEmailContent() {
 
     try {
       setIsLoading(true);
-      const { sendVerificationEmail } = await import('@/services/emailService');
-      await sendVerificationEmail(
-        currentUser.email || '',
-        currentUser.displayName || 'Utilisateur',
-        currentUser.uid
-      );
+      // Utiliser directement sendEmailVerification de Firebase (plus rapide)
+      await sendEmailVerification(currentUser);
 
       toastRef.current?.show({
         severity: 'success',
@@ -100,10 +103,18 @@ function VerifyEmailContent() {
       });
     } catch (error: any) {
       console.error('Resend verification email error:', error);
+      let errorMessage = 'Une erreur est survenue lors de l\'envoi de l\'email';
+
+      if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Trop de demandes. Veuillez réessayer dans quelques minutes.';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
+      }
+
       toastRef.current?.show({
         severity: 'error',
         summary: 'Erreur',
-        detail: 'Une erreur est survenue lors de l\'envoi de l\'email',
+        detail: errorMessage,
         life: 5000
       });
     } finally {

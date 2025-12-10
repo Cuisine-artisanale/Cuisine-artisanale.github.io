@@ -28,10 +28,12 @@ const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = ({ email
       });
     } catch (error: any) {
       console.error('Resend verification email error:', error);
-      let errorMessage = 'Une erreur est survenue';
+      let errorMessage = 'Une erreur est survenue lors de l\'envoi de l\'email';
 
       if (error.code === 'auth/too-many-requests') {
-        errorMessage = 'Trop de demandes. Veuillez réessayer plus tard.';
+        errorMessage = 'Trop de demandes. Veuillez réessayer dans quelques minutes.';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
       }
 
       toastRef.current?.show({
