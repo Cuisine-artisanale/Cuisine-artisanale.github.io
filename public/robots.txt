@@ -20,4 +20,4 @@ Allow: /recettes/?id=*
 Crawl-delay: 1
 
 # Sitemap
-Sitemap: https://www.aymeric-sabatier.fr/Cuisine-artisanale/sitemap.xml
+Sitemap: https://cuisine-artisanale/sitemap.xml
