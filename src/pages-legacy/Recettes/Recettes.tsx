@@ -1,11 +1,8 @@
 "use client";
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import Filtre from '@components/Filtre/Filtre';
-import Recette from '@components/Recette/Recette';
-import AddRecette from '@components/AddRecette/AddRecette';
-import SkeletonLoader from '@components/SkeletonLoader/SkeletonLoader';
-
-import { db } from '@firebaseModule';
+import { Filtre, Recette, AddRecette } from '@/components/features';
+import { SkeletonLoader } from '@/components/ui';
+import { db } from '@/lib/config/firebase';
 import { collection, getDocs, query, where, limit, startAfter, orderBy, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { useSearchParams } from 'next/navigation';
 

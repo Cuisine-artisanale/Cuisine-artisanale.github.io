@@ -7,21 +7,19 @@ import '@/styles/theme.css';
 import '@/styles/mobile.css';
 import '@/styles/accessibility.css';
 import '@/index.css';
-import Navbar from '@/components/Navbar/Navbar';
-import LegalMention from '@/components/LegalMention/LegalMention';
-import PWAProvider from '@/components/PWAProvider/PWAProvider';
-import SkipToMain from '@/components/SkipToMain/SkipToMain';
+import { Navbar, LegalMention, SkipToMain } from '@/components/layout';
+import { PWAProvider } from '@/components/ui';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Lazy-load components that are not critical for FCP
-const NewsletterPopup = dynamic(
-	() => import('@/components/NewsletterPopup/NewsletterPopup'),
+const NewsletterPopupLazy = dynamic(
+	() => import('@/components/ui/NewsletterPopup/NewsletterPopup'),
 	{ ssr: true, loading: () => null }
 );
 
-const CookieConsent = dynamic(
-	() => import('@/components/CookiesConsent/CookiesConsent'),
+const CookieConsentLazy = dynamic(
+	() => import('@/components/ui/CookiesConsent/CookiesConsent'),
 	{ ssr: true, loading: () => null }
 );
 
@@ -92,8 +90,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 						{children}
 					</div>
 					<LegalMention />
-					<NewsletterPopup />
-					<CookieConsent />
+					<NewsletterPopupLazy />
+					<CookieConsentLazy />
 					<ToastContainer />
 				</Providers>
 			</body>

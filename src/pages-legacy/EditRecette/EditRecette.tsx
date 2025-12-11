@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './EditRecette.css';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from '@firebase/firestore';
-import { db, storage } from '@firebaseModule';
+import { db, storage } from '@/lib/config/firebase';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';

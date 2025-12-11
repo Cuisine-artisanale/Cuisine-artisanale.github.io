@@ -2,15 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import './UserProfile.css';
 import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@firebaseModule';
+import { db } from '@/lib/config/firebase';
 import { Card } from 'primereact/card';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Message } from 'primereact/message';
 import { Avatar } from 'primereact/avatar';
 import { Paginator } from 'primereact/paginator';
-import UserStats from '@/components/UserStats/UserStats';
-import Recette from '@/components/Recette/Recette';
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
+import { UserStats, Recette } from '@/components/features';
+import { Breadcrumb } from '@/components/layout';
 import '@/components/Breadcrumb/Breadcrumb.css';
 
 interface UserData {

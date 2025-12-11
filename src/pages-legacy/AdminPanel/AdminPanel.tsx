@@ -2,11 +2,11 @@
 import React, { ReactNode, useEffect } from "react";
 import "./AdminPanel.css";
 import { useAuth } from "@/contexts/AuthContext/AuthContext";
-import Sidebar from "@/components/SideBarAdminPanel/SideBarAdminPanel";
+import { SideBarAdminPanel as Sidebar } from "@/components/layout";
 import { Card } from "primereact/card";
 import { Message } from "primereact/message";
 import { useRouter } from "next/navigation";
-import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
+import { Breadcrumb } from "@/components/layout";
 
 type AdminPanelProps = {
   children: ReactNode;

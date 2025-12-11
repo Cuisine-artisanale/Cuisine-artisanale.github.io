@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import './LegalMentions.css';
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
+import { Breadcrumb } from '@/components/layout';
 
 const LegalMentions: React.FC = () => {
   return (

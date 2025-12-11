@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import './AccountRecetteFavoris.css';
 import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import { db } from '@firebaseModule';
-import Recette from '@/components/Recette/Recette';
+import { db } from '@/lib/config/firebase';
+import { Recette } from '@/components/features';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Message } from 'primereact/message';

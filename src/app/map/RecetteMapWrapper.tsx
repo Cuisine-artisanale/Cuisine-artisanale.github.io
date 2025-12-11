@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
-import "@/components/Breadcrumb/Breadcrumb.css";
+import { Breadcrumb } from "@/components/layout";
+import "@/components/layout/Breadcrumb/Breadcrumb.css";
 
 export default function RecetteMapWrapper() {
 	const [RecetteMap, setRecetteMap] = useState(null);

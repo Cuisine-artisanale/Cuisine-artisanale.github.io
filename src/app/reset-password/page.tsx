@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { verifyPasswordResetToken } from '@/services/emailService';
+import { verifyPasswordResetToken } from '@/lib/services/email.service';
 import './reset-password.css';
 
 function ResetPasswordContent() {

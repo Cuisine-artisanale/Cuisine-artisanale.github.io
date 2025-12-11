@@ -1,24 +1,14 @@
 "use client";
 import React, { useEffect, useState, useMemo, Suspense } from 'react';
 import './Posts.css';
-import AddPost from '@/components/AddPost/AddPost';
-import { db } from '@firebaseModule';
+import { AddPost, Post as PostComponent } from '@/components/features';
+import { db } from '@/lib/config/firebase';
 import { collection, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore';
 import { Button } from 'primereact/button';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
-
-const PostComponent = React.lazy(() => import('@/components/Post/Post'));
-
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: Date;
-  visible?: boolean;
-  userName: string;
-}
+import { SkeletonLoader } from '@/components/ui';
+import type { Post } from '@/types';
 
 const nbPostsToDisplay = 5;
 

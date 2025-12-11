@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './PostsAdmin.css';
 import { collection, onSnapshot, orderBy, query, deleteDoc, doc, addDoc, limit } from 'firebase/firestore';
-import { db } from '@firebaseModule';
+import { db } from '@/lib/config/firebase';
 import { DataView } from 'primereact/dataview';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
@@ -10,21 +10,17 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { toastMessages } from '@/utils/toast';
+import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Paginator } from 'primereact/paginator';
+import type { Post } from '@/types';
 
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: Date;
-  author?: string;
+interface PostAdmin extends Post {
   status?: 'pending' | 'approved' | 'rejected';
 }
 
 const PostsAdmin: React.FC = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostAdmin[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [globalFilter, setGlobalFilter] = useState<string>('');
   const [sortField, setSortField] = useState<string>('createdAt');
@@ -62,7 +58,7 @@ const PostsAdmin: React.FC = () => {
 	  );
 
 	  const unsubscribe = onSnapshot(postsQuery, (querySnapshot) => {
-		const postsData: Post[] = querySnapshot.docs.map((doc) => {
+		const postsData: PostAdmin[] = querySnapshot.docs.map((doc) => {
 		  const data = doc.data();
 		  return {
 			id: doc.id,
@@ -71,7 +67,7 @@ const PostsAdmin: React.FC = () => {
 			createdAt: data.createdAt?.toDate(),
 			author: data.author,
 			status: data.status
-		  } as Post;
+		  } as PostAdmin;
 		});
 
 		// Sort based on current sort settings

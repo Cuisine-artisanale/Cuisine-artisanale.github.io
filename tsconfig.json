@@ -26,12 +26,14 @@
 	"baseUrl": ".",
 	"paths": {
 	  "@/*": ["src/*"],
-	  "@components/*": ["src/components/*"],
-	  "@pages/*": ["src/pages-legacy/*"],
-	  "@services/*": ["src/services/*"],
-	  "@contexts/*": ["src/contexts/*"],
-	  "@assets/*": ["src/assets/*"],
-	  "@firebaseModule": ["src/firebase"]
+	  "@/components/*": ["src/components/*"],
+	  "@/lib/*": ["src/lib/*"],
+	  "@/hooks/*": ["src/hooks/*"],
+	  "@/types/*": ["src/types/*"],
+	  "@/contexts/*": ["src/contexts/*"],
+	  "@/assets/*": ["src/assets/*"],
+	  "@/styles/*": ["src/styles/*"],
+	  "@/app/*": ["src/app/*"]
 	}
   },
   "include": [

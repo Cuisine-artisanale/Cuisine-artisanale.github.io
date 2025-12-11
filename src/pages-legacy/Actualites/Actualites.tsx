@@ -1,22 +1,15 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import './Actualites.css';
-import { db } from '@firebaseModule';
+import { db } from '@/lib/config/firebase';
 import { doc, getDoc} from 'firebase/firestore';
 import Link from 'next/link';
 import Image from 'next/image';
-import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
-
-interface RecetteData {
-  id: string;
-  title: string;
-  type: string;
-  images?: string[];
-  position: string;
-}
+import { SkeletonLoader } from '@/components/ui';
+import type { Recipe } from '@/types';
 
 const Actualites: React.FC = () => {
-  const [featuredRecette, setFeaturedRecette] = useState<RecetteData | null>(null);
+  const [featuredRecette, setFeaturedRecette] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,7 +23,7 @@ const Actualites: React.FC = () => {
 
 
 	  if (weeklySnap.exists()) {
-		setFeaturedRecette(weeklySnap.data() as RecetteData);
+		setFeaturedRecette(weeklySnap.data() as Recipe);
 		setLoading(false);
 		return;
 

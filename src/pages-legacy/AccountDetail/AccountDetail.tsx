@@ -2,10 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import './AccountDetail.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import PersonalizedRecommendations from '@/components/PersonalizedRecommendations/PersonalizedRecommendations';
-import UserStats from '@/components/UserStats/UserStats';
+import { PersonalizedRecommendations, UserStats } from '@/components/features';
 import { doc, collection, getDocs, query, where, updateDoc } from 'firebase/firestore';
-import { db } from '@firebaseModule';
+import { db } from '@/lib/config/firebase';
 import { Card } from 'primereact/card';
 import { Timeline } from 'primereact/timeline';
 import { Button } from 'primereact/button';

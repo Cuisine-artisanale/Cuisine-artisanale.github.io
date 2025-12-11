@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
 import './RecettesAdmin.css';
-import { db } from '@firebaseModule';
+import { db } from '@/lib/config/firebase';
 import { collection, onSnapshot, orderBy, query, deleteDoc, doc, getDoc, addDoc, updateDoc, limit } from '@firebase/firestore';
 import { DataView } from 'primereact/dataview';
 import { Button } from 'primereact/button';
@@ -12,22 +12,10 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Tag } from 'primereact/tag';
 import { Image } from 'primereact/image';
-import { toastMessages } from '@/utils/toast';
+import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Paginator } from 'primereact/paginator';
-
-interface RecipePart {
-  title: string;
-  steps: string[];
-  ingredients: Ingredient[];
-}
-
-interface Ingredient {
-  id: string;
-  name: string;
-  quantity: string;
-  unit: string;
-}
+import type { RecipePart, Ingredient, Recipe } from '@/types';
 
 interface RecetteInterface {
   recetteId: string;

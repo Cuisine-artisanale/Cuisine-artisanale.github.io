@@ -1,17 +1,17 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
 import './UnitsAdmin.css';
-import AddUnit from '@components/AddUnit/AddUnit';
+import { AddUnit } from '@/components/features';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from '@firebase/firestore';
-import { db } from '@firebaseModule';
+import { db } from '@/lib/config/firebase';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
-import { toastMessages } from '@/utils/toast';
+import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 
 interface Unit {

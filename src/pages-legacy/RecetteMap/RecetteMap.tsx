@@ -9,7 +9,7 @@ import departementsCoordinates from '@assets/departementsCoord.json';
 import { MapContainer, Marker, Polygon, Popup, TileLayer, Polyline, useMap } from 'react-leaflet';
 import L from "leaflet";
 import { Button } from "primereact/button";
-import { getRecipeUrl } from '@/utils/recipeUrl';
+import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 

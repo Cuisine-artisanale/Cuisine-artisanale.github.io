@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@firebaseModule';
+import { auth } from '@/lib/config/firebase';
 import { deleteUser } from 'firebase/auth';
 import { getFirestore, doc, deleteDoc } from 'firebase/firestore';
 import { Button } from 'primereact/button';

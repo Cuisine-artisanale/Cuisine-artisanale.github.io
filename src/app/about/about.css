@@ -1,0 +1,163 @@
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Divider style (remplace PrimeReact Divider) */
+.about-divider {
+  border: none;
+  border-top: 1px solid var(--surface-border, #e0e0e0);
+  margin: 2rem 0;
+  width: 100%;
+}
+
+/* Card base style (remplace PrimeReact Card) */
+.card {
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--surface-border);
+  padding: 1.5rem;
+}
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.about-hero h1 {
+  font-size: 2.5rem;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+.about-hero .highlight {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.about-hero .subtitle {
+  font-size: 1.2rem;
+  color: var(--text-color-secondary);
+  margin: 0;
+}
+
+.about-mission {
+  margin-bottom: 3rem;
+}
+
+.mission-card {
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+}
+
+.mission-card h2 {
+  color: var(--primary-color);
+  margin-top: 0;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 2rem;
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  color: var(--text-color);
+  margin: 1rem 0;
+}
+
+.feature-card p {
+  color: var(--text-color-secondary);
+  margin: 0;
+}
+
+.about-story {
+  margin-bottom: 3rem;
+}
+
+.story-card h2 {
+  color: var(--primary-color);
+  margin-top: 0;
+}
+
+.story-card p {
+  color: var(--text-color-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.about-connect {
+  margin-bottom: 2rem;
+}
+
+.connect-card h2 {
+  color: var(--primary-color);
+  margin-top: 0;
+}
+
+.connect-card p {
+  color: var(--text-color-secondary);
+  margin-bottom: 2rem;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-hero h1 {
+	font-size: 2rem;
+  }
+
+  .about-hero .subtitle {
+	font-size: 1rem;
+  }
+
+  .features-grid {
+	grid-template-columns: 1fr;
+  }
+
+  .feature-card {
+	padding: 1.5rem;
+  }
+}
+
+/* Dark Theme Support */
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .mission-card,
+[data-theme="dark"] .story-card,
+[data-theme="dark"] .connect-card {
+  background: var(--surface-card);
+}
+
+/* Card Shadows */
+.feature-card,
+.mission-card,
+.story-card,
+.connect-card {
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--surface-border);
+}
+

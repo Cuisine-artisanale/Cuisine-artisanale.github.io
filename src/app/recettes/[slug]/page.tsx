@@ -1,9 +1,9 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import RecetteDesc from '@/components/RecetteDesc/RecetteDesc';
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
-import '@/components/Breadcrumb/Breadcrumb.css';
-import { db } from '@firebaseModule';
+import { RecetteDesc } from '@/components/features';
+import { Breadcrumb } from '@/components/layout';
+import '@/components/layout/Breadcrumb/Breadcrumb.css';
+import { db } from '@/lib/config/firebase';
 import { collection, query, where, getDocs, limit } from '@firebase/firestore';
 import type { Metadata } from 'next';
 

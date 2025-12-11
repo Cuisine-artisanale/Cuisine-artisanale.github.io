@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { Avatar } from 'primereact/avatar';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
+import { Breadcrumb } from '@/components/layout';
 import '@/components/Breadcrumb/Breadcrumb.css';
 
 type AccountProps = {

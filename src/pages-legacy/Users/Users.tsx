@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './Users.css';
 import { collection, deleteDoc, doc, getDocs, updateDoc } from '@firebase/firestore';
-import { db } from '@firebaseModule';
+import { db } from '@/lib/config/firebase';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -11,7 +11,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { toastMessages } from '@/utils/toast';
+import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 
 interface User {

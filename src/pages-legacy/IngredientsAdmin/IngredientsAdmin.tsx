@@ -3,15 +3,15 @@ import React, { useEffect, useState } from 'react';
 import './IngredientsAdmin.css';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import AddIngredient from '@/components/AddIngredient/AddIngredient';
+import { AddIngredient } from '@/components/features';
 import { collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
-import { db } from '@firebaseModule';
+import { db } from '@/lib/config/firebase';
 import { Button } from 'primereact/button';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 import { InputNumber } from 'primereact/inputnumber';
-import { toastMessages } from '@/utils/toast';
+import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 
 interface Ingredient {
@@ -39,7 +39,7 @@ const IngredientsAdmin: React.FC = () => {
 	  );
 
 	  const unsubscribe = onSnapshot(ingredientsQuery, (querySnapshot) => {
-		const ingredientsData: Ingredient[] = querySnapshot.docs.map((doc) => {
+		const ingredientsData: IngredientAdmin[] = querySnapshot.docs.map((doc) => {
 		  const data = doc.data();
 		  return {
 			name: data.name,
@@ -50,7 +50,7 @@ const IngredientsAdmin: React.FC = () => {
 			createdAt: data.createdAt?.toDate(),
 			updatedAt: data.updatedAt?.toDate(),
 			inStock: data.inStock ?? true
-		  } as Ingredient;
+		  } as IngredientAdmin;
 		});
 
 		setIngredients(ingredientsData);

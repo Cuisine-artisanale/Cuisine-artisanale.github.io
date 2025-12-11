@@ -1,10 +1,10 @@
 "use client";
 import React from 'react';
 import './About.css';
-import LienUtiles from '@components/LienUtiles/LienUtiles';
+import { LienUtiles } from '@/components/layout';
 import { Card } from 'primereact/card';
 import { Divider } from 'primereact/divider';
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
+import { Breadcrumb } from '@/components/layout';
 
 const About: React.FC = () => {
   const features = [
