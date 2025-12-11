@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './AddPost.css';
 import { Button } from 'primereact/button';
 import { AddPostForm } from '@/components/features';
-import { useAuth } from '@contexts/AuthContext/AuthContext';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
 
 const AddPost: React.FC = () => {
   const [showForm, setShowForm] = useState(false);

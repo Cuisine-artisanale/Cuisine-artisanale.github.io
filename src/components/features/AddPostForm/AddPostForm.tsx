@@ -8,7 +8,7 @@ import { Message } from 'primereact/message';
 
 import { db } from '@/lib/config/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { useAuth } from '@contexts/AuthContext/AuthContext';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
 
 interface AddPostFormProps {
   closeForm: () => void;

@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "primereact/button";
 import { auth } from "@/lib/config/firebase";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { useAuth } from "@contexts/AuthContext/AuthContext";
+import { useAuth } from "@/contexts/AuthContext/AuthContext";
 
 interface AuthButtonProps {
   onClick?: () => void; // Ajout de la prop onClick

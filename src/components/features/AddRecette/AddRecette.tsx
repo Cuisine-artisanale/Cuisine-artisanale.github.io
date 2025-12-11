@@ -3,7 +3,7 @@ import React from 'react';
 import './AddRecette.css';
 import { Button } from 'primereact/button';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@contexts/AuthContext/AuthContext';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
 
 const AddRecette: React.FC = () => {
   const {user } = useAuth();
