@@ -28,12 +28,12 @@ const LegalMentions: React.FC = () => {
 	  <section>
 		<h2>Hébergement</h2>
 		<p>
-		  Le site est actuellement hébergé sur <strong>GitHub Pages</strong> :
+		  Le site est actuellement hébergé sur <strong>Vercel</strong> :
 		</p>
 		<ul>
-		  <li>GitHub, Inc.</li>
-		  <li>88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis</li>
-		  <li>Site web : <a href="https://pages.github.com" target="_blank" rel="noopener noreferrer">https://pages.github.com</a></li>
+		  <li>Vercel Inc.</li>
+		  <li>340 S Lemon Ave #4133, Walnut, CA 91789, États-Unis</li>
+		  <li>Site web : <a href="https://vercel.com" target="_blank" rel="noopener noreferrer">https://vercel.com</a></li>
 		</ul>
 		<p>
 		  Le site pourra ultérieurement être hébergé sur un NAS personnel.
