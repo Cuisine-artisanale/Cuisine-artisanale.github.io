@@ -200,19 +200,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		displayName: displayName
 	  });
 
-	  // Send verification email via Firebase (plus rapide et fiable)
-	  console.log('Sending verification email via Firebase to:', email);
+	  // Send verification email via Cloud Function avec Resend (rapide et fiable)
+	  console.log('Sending verification email via Cloud Function (Resend) to:', email);
 	  try {
-		await sendEmailVerification(result.user);
-		console.log('✅ Verification email sent successfully via Firebase!');
+		const cloudFunctionUrl = 'https://us-central1-recettes-cuisine-a1bf2.cloudfunctions.net/sendVerificationEmailFast';
+		const response = await fetch(cloudFunctionUrl, {
+		  method: 'POST',
+		  headers: {
+			'Content-Type': 'application/json',
+		  },
+		  body: JSON.stringify({
+			email: email,
+			displayName: displayName,
+			uid: result.user.uid, // Passer l'UID pour vérifier l'existence de l'utilisateur
+		  }),
+		});
+
+		if (!response.ok) {
+		  const errorData = await response.json();
+		  throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email');
+		}
+
+		console.log('✅ Verification email sent successfully via Cloud Function (Resend)!');
 	  } catch (emailError: any) {
 		console.error("❌ Erreur lors de l'envoi de l'email de vérification:", emailError);
 		// Si l'envoi d'email échoue, on continue quand même pour créer l'utilisateur
 		// L'utilisateur pourra demander un renvoi d'email plus tard
-		if (emailError.code === 'auth/too-many-requests') {
+		if (emailError.message?.includes('Trop de demandes') || emailError.message?.includes('too-many-requests')) {
 		  throw new Error('Trop de demandes. Veuillez réessayer dans quelques minutes.');
 		}
-		throw new Error('Erreur lors de l\'envoi de l\'email de vérification. Veuillez réessayer.');
+		throw new Error(emailError.message || 'Erreur lors de l\'envoi de l\'email de vérification. Veuillez réessayer.');
 	  }
 
 	  // Create user in Firestore

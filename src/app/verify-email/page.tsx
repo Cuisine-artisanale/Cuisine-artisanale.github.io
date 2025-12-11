@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth } from '@firebaseModule';
-import { sendEmailVerification, applyActionCode } from 'firebase/auth';
+import { applyActionCode } from 'firebase/auth';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import './verify-email.css';
@@ -92,8 +92,24 @@ function VerifyEmailContent() {
 
     try {
       setIsLoading(true);
-      // Utiliser directement sendEmailVerification de Firebase (plus rapide)
-      await sendEmailVerification(currentUser);
+      // Utiliser la Cloud Function avec Resend (rapide et fiable)
+      const cloudFunctionUrl = 'https://us-central1-recettes-cuisine-a1bf2.cloudfunctions.net/sendVerificationEmailFast';
+      const response = await fetch(cloudFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: currentUser.email || '',
+          displayName: currentUser.displayName || 'Utilisateur',
+          uid: currentUser.uid, // Passer l'UID pour vérifier l'existence de l'utilisateur
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email');
+      }
 
       toastRef.current?.show({
         severity: 'success',
@@ -105,9 +121,9 @@ function VerifyEmailContent() {
       console.error('Resend verification email error:', error);
       let errorMessage = 'Une erreur est survenue lors de l\'envoi de l\'email';
 
-      if (error.code === 'auth/too-many-requests') {
+      if (error.message?.includes('Trop de demandes') || error.message?.includes('too-many-requests')) {
         errorMessage = 'Trop de demandes. Veuillez réessayer dans quelques minutes.';
-      } else if (error.code === 'auth/user-not-found') {
+      } else if (error.message?.includes('Utilisateur non trouvé') || error.message?.includes('user-not-found')) {
         errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
       }
 

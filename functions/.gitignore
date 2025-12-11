@@ -8,3 +8,10 @@ typings/
 # Node.js dependency directory
 node_modules/
 *.local
+
+# Environment variables
+.env.local
+.env
+
+# Temporary files
+.tmp-secret-*.txt

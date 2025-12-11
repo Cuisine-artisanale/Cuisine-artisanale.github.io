@@ -7,6 +7,14 @@ import { recipesData } from "./recipes";
 import { ingredientsData } from "./ingredients";
 
 import cors from "cors";
+import * as dotenv from "dotenv";
+import * as path from "path";
+
+// Charger les variables d'environnement depuis .env.local en développement local
+// En production, les secrets Firebase seront utilisés via process.env
+if (process.env.NODE_ENV !== "production" || process.env.FUNCTIONS_EMULATOR) {
+	dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
+}
 
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
@@ -615,6 +623,261 @@ export const updateRecipesWithIngredientIds = onRequest((req, res) => {
 				success: false,
 				message: "Erreur interne du serveur",
 				error: error instanceof Error ? error.message : "Erreur inconnue",
+			});
+		}
+	});
+});
+
+// Cloud Function pour envoyer un email de vérification rapidement via Resend
+// Les secrets sont définis via: firebase functions:secrets:set RESEND_API_KEY
+export const sendVerificationEmailFast = onRequest(
+	{
+		secrets: ["RESEND_API_KEY", "RESEND_FROM_EMAIL", "FRONTEND_URL"],
+	},
+	async (req, res) => {
+	corsHandler(req, res, async () => {
+		// Gérer les requêtes OPTIONS (preflight CORS)
+		if (req.method === "OPTIONS") {
+			res.status(200).end();
+			return;
+		}
+
+		// Vérifier que c'est une requête POST
+		if (req.method !== "POST") {
+			res.status(405).json({
+				success: false,
+				message: "Method not allowed. Cette fonction accepte uniquement les requêtes POST.",
+				info: "Cette Cloud Function est appelée automatiquement lors de l'inscription ou du renvoi d'email de vérification.",
+			});
+			return;
+		}
+
+		try {
+			const { email, displayName, uid } = req.body;
+
+			if (!email) {
+				res.status(400).json({
+					success: false,
+					message: "Email manquant",
+				});
+				return;
+			}
+
+			// Vérifier que l'utilisateur existe dans Firebase Auth
+			let userRecord;
+			try {
+				if (uid) {
+					// Si on a l'UID, l'utiliser pour récupérer l'utilisateur
+					userRecord = await admin.auth().getUser(uid);
+				} else {
+					// Sinon, chercher par email
+					userRecord = await admin.auth().getUserByEmail(email);
+				}
+			} catch (authError: any) {
+				console.error("Erreur lors de la récupération de l'utilisateur:", authError);
+				// Attendre un peu et réessayer (délai de propagation)
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				try {
+					if (uid) {
+						userRecord = await admin.auth().getUser(uid);
+					} else {
+						userRecord = await admin.auth().getUserByEmail(email);
+					}
+				} catch (retryError: any) {
+					res.status(404).json({
+						success: false,
+						message: "Utilisateur non trouvé dans Firebase Auth. Veuillez réessayer dans quelques secondes.",
+						error: retryError.message,
+					});
+					return;
+				}
+			}
+
+			// Générer le lien de vérification Firebase
+			const frontendUrl = process.env.FRONTEND_URL || "https://www.cuisine-artisanale.fr";
+
+			// Valider que l'URL est valide
+			if (!frontendUrl || !frontendUrl.startsWith("http://") && !frontendUrl.startsWith("https://")) {
+				res.status(500).json({
+					success: false,
+					message: "Configuration invalide : FRONTEND_URL doit être une URL valide (commence par http:// ou https://)",
+					error: `FRONTEND_URL actuel: "${frontendUrl}"`,
+				});
+				return;
+			}
+
+			const continueUrl = `${frontendUrl}/verify-email`;
+
+			const verificationLink = await admin
+				.auth()
+				.generateEmailVerificationLink(userRecord.email || email, {
+					url: continueUrl,
+				});
+
+			// Vérifier que FRONTEND_URL est bien défini
+			if (!process.env.FRONTEND_URL) {
+				console.error("FRONTEND_URL n'est pas configurée dans les secrets Firebase");
+				res.status(500).json({
+					success: false,
+					message: "Configuration manquante : FRONTEND_URL n'est pas définie",
+					error: "Veuillez configurer le secret FRONTEND_URL dans Firebase Functions (ex: https://www.cuisine-artisanale.fr)",
+					hint: "Utilisez: firebase functions:secrets:set FRONTEND_URL",
+				});
+				return;
+			}
+
+			// Envoyer l'email via Resend (rapide et fiable)
+			const resendApiKey = process.env.RESEND_API_KEY;
+			if (!resendApiKey) {
+				console.error("RESEND_API_KEY n'est pas configurée dans les secrets Firebase");
+				res.status(500).json({
+					success: false,
+					message: "Configuration manquante : RESEND_API_KEY n'est pas définie",
+					error: "Veuillez configurer le secret RESEND_API_KEY dans Firebase Functions",
+					hint: "Utilisez: firebase functions:secrets:set RESEND_API_KEY",
+				});
+				return;
+			}
+
+			const { Resend } = require("resend");
+			const resend = new Resend(resendApiKey);
+
+			const emailHtml = `
+				<!DOCTYPE html>
+				<html>
+				<head>
+					<style>
+						body {
+							font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+							background-color: #f5f5f5;
+							margin: 0;
+							padding: 20px;
+						}
+						.container {
+							max-width: 600px;
+							margin: 0 auto;
+							background-color: #ffffff;
+							border-radius: 12px;
+							overflow: hidden;
+							box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+						}
+						.header {
+							background: linear-gradient(135deg, #8B4513, #CD853F);
+							color: white;
+							padding: 30px;
+							text-align: center;
+						}
+						.header h1 {
+							margin: 0;
+							font-size: 28px;
+						}
+						.content {
+							padding: 40px 30px;
+						}
+						.content p {
+							font-size: 16px;
+							line-height: 1.6;
+							color: #333;
+							margin-bottom: 20px;
+						}
+						.button {
+							display: inline-block;
+							background-color: #8B4513;
+							color: white;
+							padding: 15px 40px;
+							text-decoration: none;
+							border-radius: 8px;
+							font-weight: bold;
+							font-size: 16px;
+							margin: 20px 0;
+						}
+						.button:hover {
+							background-color: #CD853F;
+						}
+						.footer {
+							background-color: #f9f9f9;
+							padding: 20px;
+							text-align: center;
+							font-size: 14px;
+							color: #666;
+						}
+						.warning {
+							background-color: #fff3cd;
+							border-left: 4px solid #ffc107;
+							padding: 15px;
+							margin: 20px 0;
+							border-radius: 4px;
+						}
+					</style>
+				</head>
+				<body>
+					<div class="container">
+						<div class="header">
+							<h1>✉️ Vérification de votre email</h1>
+						</div>
+						<div class="content">
+							<p>Bonjour <strong>${displayName || "Utilisateur"}</strong>,</p>
+							<p>Merci de vous être inscrit sur <strong>Cuisine Artisanale</strong> !</p>
+							<p>Pour finaliser votre inscription, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous :</p>
+							<center>
+								<a href="${verificationLink}" class="button">Vérifier mon email</a>
+							</center>
+							<div class="warning">
+								<p style="margin: 0; font-size: 14px;">
+									⚠️ <strong>Important :</strong> Ce lien est valable pendant <strong>1 heure</strong> uniquement.
+								</p>
+							</div>
+							<p style="font-size: 14px; color: #666;">
+								Si vous n'avez pas créé de compte, vous pouvez ignorer cet email en toute sécurité.
+							</p>
+						</div>
+						<div class="footer">
+							<p>© 2025 Cuisine Artisanale. Tous droits réservés.</p>
+						</div>
+					</div>
+				</body>
+				</html>
+			`;
+
+			const { data, error } = await resend.emails.send({
+				from: process.env.RESEND_FROM_EMAIL || "Cuisine Artisanale <onboarding@resend.dev>",
+				to: [email],
+				subject: "Vérifiez votre email - Cuisine Artisanale",
+				html: emailHtml,
+			});
+
+			if (error) {
+				console.error("Resend error:", error);
+
+				// Message d'erreur plus explicite pour les limitations Resend
+				let errorMessage = error.message;
+				if (error.message?.includes("You can only send testing emails")) {
+					errorMessage = "Limitation Resend : Vous devez vérifier un domaine pour envoyer à d'autres adresses. Voir resend.com/domains";
+				}
+
+				res.status(500).json({
+					success: false,
+					message: "Erreur lors de l'envoi de l'email",
+					error: errorMessage,
+					hint: error.message?.includes("You can only send testing emails")
+						? "Pour envoyer à d'autres adresses, vérifiez un domaine dans Resend (resend.com/domains)"
+						: undefined,
+				});
+				return;
+			}
+
+			console.log("✅ Email de vérification envoyé rapidement via Resend à:", email);
+			res.status(200).json({
+				success: true,
+				message: "Email envoyé avec succès",
+				data,
+			});
+		} catch (error: any) {
+			console.error("Erreur dans sendVerificationEmailFast:", error);
+			res.status(500).json({
+				success: false,
+				message: "Erreur interne du serveur",
+				error: error.message,
 			});
 		}
 	});

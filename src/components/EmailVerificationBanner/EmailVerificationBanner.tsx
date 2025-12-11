@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useRef } from 'react';
-import { sendEmailVerification } from 'firebase/auth';
 import { auth } from '@firebaseModule';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
@@ -19,20 +18,38 @@ const EmailVerificationBanner: React.FC<EmailVerificationBannerProps> = ({ email
 
     try {
       setIsLoading(true);
-      await sendEmailVerification(auth.currentUser);
+      // Utiliser la Cloud Function avec Resend (rapide et fiable)
+      const cloudFunctionUrl = 'https://us-central1-recettes-cuisine-a1bf2.cloudfunctions.net/sendVerificationEmailFast';
+      const response = await fetch(cloudFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: auth.currentUser.email || '',
+          displayName: auth.currentUser.displayName || 'Utilisateur',
+          uid: auth.currentUser.uid, // Passer l'UID pour vérifier l'existence de l'utilisateur
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email');
+      }
+
       toastRef.current?.show({
         severity: 'success',
         summary: 'Email envoyé',
-        detail: 'Un nouvel email de vérification a été envoyé.',
+        detail: 'Un nouvel email de vérification a été envoyé instantanément.',
         life: 5000
       });
     } catch (error: any) {
       console.error('Resend verification email error:', error);
       let errorMessage = 'Une erreur est survenue lors de l\'envoi de l\'email';
 
-      if (error.code === 'auth/too-many-requests') {
+      if (error.message?.includes('Trop de demandes') || error.message?.includes('too-many-requests')) {
         errorMessage = 'Trop de demandes. Veuillez réessayer dans quelques minutes.';
-      } else if (error.code === 'auth/user-not-found') {
+      } else if (error.message?.includes('Utilisateur non trouvé') || error.message?.includes('user-not-found')) {
         errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
       }
 
