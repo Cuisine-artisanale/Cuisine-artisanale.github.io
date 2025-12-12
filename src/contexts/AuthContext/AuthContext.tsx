@@ -137,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  setError(null);
 	  await signOut(auth);
 	  setRole(null);
-	  window.location.href = "/Cuisine-artisanale/";
+	  window.location.href = "/";
 	} catch (err) {
 	  console.error("Error signing out:", err);
 	  setError(err instanceof Error ? err.message : "Error signing out");
