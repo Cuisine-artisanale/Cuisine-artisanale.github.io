@@ -49,7 +49,7 @@ export const metadata = {
 	openGraph: {
 		type: 'website',
 		locale: 'fr_FR',
-		url: 'https://www.aymeric-sabatier.fr/Cuisine-artisanale/',
+		url: 'https://www.cuisine-artisanale.fr/',
 		siteName: 'Cuisine Artisanale',
 		title: 'Cuisine artisanale',
 		description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
