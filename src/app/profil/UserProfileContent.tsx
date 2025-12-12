@@ -1,121 +1,134 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import './mes-favoris.css';
-import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import './user-profile.css';
+import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
-import { Recette } from '@/components/features';
-import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import { useRouter } from 'next/navigation';
-import { RequireEmailVerification } from '@/components/ui';
+import { UserStats, Recette } from '@/components/features';
+import { Breadcrumb } from '@/components/layout';
+
+interface UserData {
+  displayName: string;
+  email: string;
+  photoURL?: string;
+  uid: string;
+}
 
 interface RecetteInterface {
   recetteId: string;
   title: string;
   type: string;
   images?: string[];
-  position?: string;
+  position: string;
+  createdAt?: Date;
 }
 
-export default function MesFavorisPage() {
-  const [recettes, setRecettes] = useState<RecetteInterface[]>([]);
-  const [allRecettes, setAllRecettes] = useState<RecetteInterface[]>([]);
+interface UserProfileContentProps {
+  userId: string | null;
+}
+
+export default function UserProfileContent({ userId }: UserProfileContentProps) {
+  const [user, setUser] = useState<UserData | null>(null);
+  const [recipes, setRecipes] = useState<RecetteInterface[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [first, setFirst] = useState(0);
-  const [rows] = useState(9);
+  const [rows] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
-  const { user } = useAuth();
-  const router = useRouter();
 
   useEffect(() => {
-    if (user) {
-      setFirst(0);
-      fetchRecettes(0);
+    if (userId) {
+      setLoading(true);
+      setError(null);
+      fetchUserProfile();
+      fetchUserRecipes(0);
+    } else {
+      setError('Aucun utilisateur spécifié');
+      setLoading(false);
     }
-  }, [user]);
+  }, [userId]);
 
   useEffect(() => {
-    if (allRecettes.length > 0) {
-      const paginatedRecettes = allRecettes.slice(first, first + rows);
-      setRecettes(paginatedRecettes);
+    if (userId) {
+      fetchUserRecipes(first);
     }
-  }, [first, allRecettes]);
+  }, [first, userId]);
 
-  const fetchRecettes = async (pageIndex: number) => {
+  const fetchUserProfile = async () => {
+    if (!userId) {
+      setError('Aucun utilisateur spécifié');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
 
-      if (!user) {
-        setError("Utilisateur non connecté");
-        return;
-      }
-
-      // Récupérer le document utilisateur
-      const userRef = doc(db, "users", user.uid);
+      const userRef = doc(db, 'users', userId);
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        setError("Utilisateur non trouvé");
+        setError('Utilisateur non trouvé');
+        setLoading(false);
+        setUser(null);
         return;
       }
 
       const userData = userSnap.data();
-      const likedRecipesIds: string[] = userData.likedRecipes || [];
-
-      if (likedRecipesIds.length === 0) {
-        setAllRecettes([]);
-        setRecettes([]);
-        setTotalRecords(0);
-        return;
-      }
-
-      // Récupérer toutes les recettes correspondant aux IDs en chunks de 10
-      const recipesCollection = collection(db, "recipes");
-      const allRecettesData: RecetteInterface[] = [];
-
-      for (let i = 0; i < likedRecipesIds.length; i += 10) {
-        const chunk = likedRecipesIds.slice(i, i + 10);
-        const recettesQuery = query(
-          recipesCollection,
-          where("__name__", "in", chunk)
-        );
-
-        const querySnapshot = await getDocs(recettesQuery);
-        querySnapshot.docs.forEach(doc => {
-          const data = doc.data();
-          allRecettesData.push({
-            recetteId: doc.id,
-            title: data.title,
-            type: data.type,
-            images: data.images,
-            position: data.position
-          });
-        });
-      }
-
-      // Trier selon l'ordre des IDs dans likedRecipes
-      allRecettesData.sort((a, b) => {
-        return likedRecipesIds.indexOf(a.recetteId) - likedRecipesIds.indexOf(b.recetteId);
+      setUser({
+        displayName: userData.displayName || 'Utilisateur',
+        email: userData.email || '',
+        photoURL: userData.photoURL,
+        uid: userId
       });
-
-      setAllRecettes(allRecettesData);
-      setTotalRecords(allRecettesData.length);
-
-      // Afficher la première page
-      const paginatedRecettes = allRecettesData.slice(pageIndex, pageIndex + rows);
-      setRecettes(paginatedRecettes);
-
-    } catch (error) {
-      console.error("Erreur lors du chargement des recettes favorites: ", error);
-      setError("Erreur lors du chargement des recettes favorites");
+    } catch (err) {
+      console.error('Error fetching user:', err);
+      setError('Erreur lors du chargement du profil');
+      setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleExploreRecipes = () => {
-    router.push('/recettes');
+  const fetchUserRecipes = async (pageIndex: number) => {
+    if (!userId) return;
+
+    try {
+      const recipesCollection = collection(db, 'recipes');
+
+      if (pageIndex === 0) {
+        const countQuery = query(
+          recipesCollection,
+          where('createdBy', '==', userId)
+        );
+        const countSnapshot = await getDocs(countQuery);
+        setTotalRecords(countSnapshot.size);
+      }
+
+      const allRecettesQuery = query(
+        recipesCollection,
+        where('createdBy', '==', userId)
+      );
+      const querySnapshot = await getDocs(allRecettesQuery);
+
+      const allRecettesData: RecetteInterface[] = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          title: data.title,
+          type: data.type,
+          position: data.position,
+          recetteId: doc.id,
+          images: data.images,
+          createdAt: data.createdAt?.toDate(),
+        } as RecetteInterface;
+      });
+
+      const paginatedRecettes = allRecettesData.slice(pageIndex, pageIndex + rows);
+      setRecipes(paginatedRecettes);
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+      setError('Erreur lors du chargement des recettes');
+    }
   };
 
   const handlePageChange = (newFirst: number) => {
@@ -129,53 +142,75 @@ export default function MesFavorisPage() {
 
   if (loading) {
     return (
-      <RequireEmailVerification>
-        <div className="favorites-loading">
+      <div className="user-profile-container">
+        <Breadcrumb />
+        <div className="user-profile-loading">
           <div className="spinner"></div>
-          <p>Chargement de vos recettes favorites...</p>
+          <p>Chargement du profil...</p>
         </div>
-      </RequireEmailVerification>
+      </div>
+    );
+  }
+
+  if (error || !user || !userId) {
+    return (
+      <div className="user-profile-container">
+        <Breadcrumb />
+        <div className="error-card">
+          <div className="error-message">
+            <i className="pi pi-exclamation-triangle"></i>
+            <span>{error || 'Profil non trouvé. Veuillez spécifier un utilisateur.'}</span>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <RequireEmailVerification>
-      <div className="account-favorites">
-        <div className="favorites-header">
-          <h2>Mes Recettes Favorites</h2>
-          <button
-            className="explore-recipes-btn"
-            onClick={handleExploreRecipes}
-          >
-            <i className="pi pi-search"></i>
-            Explorer les recettes
-          </button>
+    <div className="user-profile-container">
+      <Breadcrumb />
+
+      <div className="profile-header-card">
+        <div className="profile-header">
+          <div className="profile-info">
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={user.displayName}
+                className="user-avatar"
+              />
+            ) : (
+              <div
+                className="user-avatar user-avatar-placeholder"
+                style={{ backgroundColor: 'var(--primary-color)' }}
+              >
+                {user.displayName?.charAt(0) || 'U'}
+              </div>
+            )}
+            <div className="profile-details">
+              <h1>{user.displayName}</h1>
+              <p className="profile-email">{user.email}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {user && <UserStats userId={user.uid} isPublicProfile={true} />}
+
+      <div className="recipes-card">
+        <div className="recipes-header">
+          <h2>Recettes créées par {user.displayName}</h2>
         </div>
 
-        {error && (
-          <div className="error-message">
-            <i className="pi pi-exclamation-triangle"></i>
-            <span>{error}</span>
-          </div>
-        )}
-
-        {!error && recettes.length === 0 ? (
+        {totalRecords === 0 ? (
           <div className="empty-state">
-            <i className="pi pi-heart empty-icon"></i>
-            <h3>Aucune recette favorite pour le moment</h3>
-            <p>Explorez notre collection de recettes et ajoutez vos favorites à votre collection !</p>
-            <button
-              className="btn-primary"
-              onClick={handleExploreRecipes}
-            >
-              <i className="pi pi-search"></i>
-              Découvrir des recettes
-            </button>
+            <i className="pi pi-book empty-icon"></i>
+            <h3>{user.displayName} n'a pas encore créé de recettes</h3>
           </div>
         ) : (
           <>
-            <div className="favorites-grid">
-              {recettes.map((recette) => (
+            <div className="recipes-grid">
+              {recipes.map((recette) => (
                 <Recette
                   key={recette.recetteId}
                   recetteId={recette.recetteId}
@@ -254,6 +289,7 @@ export default function MesFavorisPage() {
           </>
         )}
       </div>
-    </RequireEmailVerification>
+    </div>
   );
 }
+

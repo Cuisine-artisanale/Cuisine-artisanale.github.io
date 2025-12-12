@@ -1,0 +1,121 @@
+.admin-panel {
+  display: flex;
+  min-height: 100vh;
+  background: var(--surface-ground);
+}
+
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 1.5rem;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-breadcrumb {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.admin-user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.welcome-text {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.admin-content {
+  flex: 1;
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  overflow: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.access-denied {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--surface-ground);
+}
+
+.error-message {
+  padding: 1rem 1.5rem;
+  background: var(--red-50);
+  border-left: 4px solid var(--red-500);
+  border-radius: var(--border-radius);
+  color: var(--red-700);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 600px;
+}
+
+.error-message i {
+  font-size: 1.25rem;
+  color: var(--red-500);
+  flex-shrink: 0;
+}
+
+.error-message span {
+  font-weight: 500;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .admin-header,
+[data-theme="dark"] .admin-content {
+  background: var(--surface-card);
+}
+
+[data-theme="dark"] .error-message {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--red-300);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .admin-panel {
+    flex-direction: column;
+  }
+
+  .admin-main {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .admin-breadcrumb {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .admin-content {
+    padding: 1rem;
+  }
+}
+

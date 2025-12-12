@@ -9,4 +9,6 @@ export { default as EmailVerificationBanner } from './EmailVerificationBanner/Em
 export { default as NewsletterPopup } from './NewsletterPopup/NewsletterPopup';
 export { default as PWAProvider } from './PWAProvider/PWAProvider';
 export { default as RequireEmailVerification } from './RequireEmailVerification/RequireEmailVerification';
+export { ConfirmDialog } from './ConfirmDialog/ConfirmDialog';
+export { Password } from './Password/Password';
 

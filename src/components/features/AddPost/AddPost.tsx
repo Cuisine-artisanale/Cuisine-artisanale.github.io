@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import './AddPost.css';
 import { Button } from 'primereact/button';

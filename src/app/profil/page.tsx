@@ -1,15 +1,26 @@
+"use client";
 import { Suspense } from 'react';
-import UserProfileWrapper from '@/pages-legacy/UserProfile/UserProfileWrapper';
-
-export const metadata = {
-  title: 'Profil Utilisateur | Cuisine Artisanale',
-  description: 'Voir le profil public d\'un utilisateur et ses recettes créées',
-};
+import { useSearchParams } from 'next/navigation';
+import UserProfileContent from './UserProfileContent';
 
 export default function ProfilPage() {
   return (
-	<Suspense fallback={<div>Chargement du profil...</div>}>
-	  <UserProfileWrapper />
-	</Suspense>
+    <Suspense fallback={
+      <div className="user-profile-container">
+        <div className="user-profile-loading">
+          <div className="spinner"></div>
+          <p>Chargement du profil...</p>
+        </div>
+      </div>
+    }>
+      <UserProfileWrapper />
+    </Suspense>
   );
+}
+
+function UserProfileWrapper() {
+  const searchParams = useSearchParams();
+  const userId = searchParams?.get('id');
+
+  return <UserProfileContent userId={userId} />;
 }

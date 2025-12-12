@@ -3,8 +3,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 import './RecetteMapClient.css';
-import geojsonData from '@assets/departementsGeoJson.json';
-import departementsCoordinates from '@assets/departementsCoord.json';
+import geojsonData from '@/assets/departementsGeoJson.json';
+import departementsCoordinates from '@/assets/departementsCoord.json';
 
 import { MapContainer, Marker, Polygon, Popup, TileLayer, Polyline, useMap } from 'react-leaflet';
 import L from "leaflet";

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useRef, useEffect } from 'react';
 import './BurgerMenu.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';

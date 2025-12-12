@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useRef, useEffect } from 'react';
 import './AddUnitForm.css';
 import { InputText } from 'primereact/inputtext';
