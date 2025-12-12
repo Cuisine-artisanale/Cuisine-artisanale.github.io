@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useRef } from 'react';
 import { Toast } from 'primereact/toast';
-import { showToast } from '@/utils/toast';
+import { showToast } from '@/lib/utils/toast';
 
 interface ToastContextType {
   showToast: (options: {

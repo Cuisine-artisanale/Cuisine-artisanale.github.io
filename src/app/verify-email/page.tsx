@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { auth } from '@firebaseModule';
+import { auth } from '@/lib/config/firebase';
 import { applyActionCode } from 'firebase/auth';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';

@@ -1,0 +1,360 @@
+.ingredients-admin {
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--surface-border);
+}
+
+.table-header h2 {
+  color: var(--text-color);
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.table-header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input-icon-left {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-left i {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-color-secondary);
+  z-index: 1;
+}
+
+.search-input {
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  background: var(--surface-ground);
+  color: var(--text-color);
+  width: 250px;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+.table-container {
+  background-color: var(--surface-card);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+
+.ingredients-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--surface-card);
+  color: var(--text-color);
+}
+
+.ingredients-table thead {
+  background-color: var(--primary-color);
+}
+
+.ingredients-table th {
+  color: var(--text-color-inverted);
+  font-weight: 600;
+  padding: 1rem;
+  text-align: left;
+  border: 1px solid var(--surface-border);
+  white-space: nowrap;
+}
+
+.ingredients-table tbody tr {
+  background-color: var(--surface-card);
+  transition: all 0.2s ease;
+}
+
+.ingredients-table tbody tr:nth-child(even) {
+  background-color: var(--surface-ground);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ingredients-table tbody tr:hover {
+    background-color: var(--surface-hover);
+  }
+}
+
+.ingredients-table tbody tr.out-of-stock {
+  opacity: 0.7;
+}
+
+.ingredients-table td {
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--surface-border);
+  color: var(--text-color);
+}
+
+.editable-cell {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: inline-block;
+  min-width: 50px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .editable-cell:hover {
+    background-color: var(--surface-hover);
+    color: var(--primary-color);
+  }
+}
+
+.cell-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cell-input {
+  padding: 0.5rem;
+  border: 2px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  background: var(--surface-card);
+  color: var(--text-color);
+  min-width: 100px;
+}
+
+.cell-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+.cell-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.btn-save,
+.btn-cancel {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.btn-save {
+  background: var(--green-500);
+  color: white;
+}
+
+.btn-cancel {
+  background: var(--red-500);
+  color: white;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-save:hover {
+    background: var(--green-600);
+    transform: scale(1.1);
+  }
+
+  .btn-cancel:hover {
+    background: var(--red-600);
+    transform: scale(1.1);
+  }
+}
+
+.stock-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.stock-badge.in-stock {
+  background-color: var(--green-500);
+  color: white;
+}
+
+.stock-badge.out-of-stock {
+  background-color: var(--red-500);
+  color: white;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stock-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.btn-action {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.btn-action.btn-danger {
+  color: var(--red-500);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-action:hover {
+    background: var(--surface-hover);
+  }
+
+  .btn-action.btn-danger:hover {
+    background: var(--red-50);
+    color: var(--red-700);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .btn-action:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--surface-border);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-container p {
+  color: var(--text-color-secondary);
+}
+
+.empty-message {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-color-secondary);
+  font-size: 1.125rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ingredients-admin {
+    padding: 1rem;
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .table-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .table-header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .input-icon-left {
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .table-container {
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  .ingredients-table {
+    font-size: 0.875rem;
+  }
+
+  .ingredients-table th,
+  .ingredients-table td {
+    padding: 0.5rem;
+  }
+
+  .cell-edit {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cell-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* Dark Theme Support */
+[data-theme="dark"] .ingredients-admin {
+  background-color: var(--surface-ground);
+}
+
+[data-theme="dark"] .table-container {
+  background-color: var(--surface-card);
+}
+
+[data-theme="dark"] .ingredients-table tbody tr {
+  background-color: var(--surface-card);
+}
+
+[data-theme="dark"] .ingredients-table tbody tr:nth-child(even) {
+  background-color: var(--surface-section);
+}
+

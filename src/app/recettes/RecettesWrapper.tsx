@@ -2,11 +2,11 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
-import Recettes from '@/pages-legacy/Recettes/Recettes';
-import RecetteDesc from '@/components/RecetteDesc/RecetteDesc';
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
-import '@/components/Breadcrumb/Breadcrumb.css';
-import { db } from '@firebaseModule';
+import RecettesClient from './RecettesClient';
+import { RecetteDesc } from '@/components/features';
+import { Breadcrumb } from '@/components/layout';
+import '@/components/layout/Breadcrumb/Breadcrumb.css';
+import { db } from '@/lib/config/firebase';
 import { doc, getDoc } from '@firebase/firestore';
 
 export default function RecettesWrapper() {
@@ -41,7 +41,7 @@ export default function RecettesWrapper() {
 		<div>
 			<Breadcrumb />
 			<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Chargement...</div>}>
-				{recipeId ? <RecetteDesc recipeId={recipeId} /> : <Recettes />}
+				{recipeId ? <RecetteDesc recipeId={recipeId} /> : <RecettesClient />}
 			</Suspense>
 		</div>
 	);
