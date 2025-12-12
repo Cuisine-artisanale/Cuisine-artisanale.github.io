@@ -3,10 +3,20 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 import './RecetteMapClient.css';
-
-import { MapContainer, Marker, Polygon, Popup, TileLayer, Polyline, useMap } from 'react-leaflet';
-import L from "leaflet";
+import 'leaflet/dist/leaflet.css';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
+
+// Types pour les composants Leaflet
+type LeafletComponents = {
+	MapContainer: any;
+	Marker: any;
+	Polygon: any;
+	Popup: any;
+	TileLayer: any;
+	Polyline: any;
+	useMap: any;
+	L: any;
+};
 
 interface Recette {
 	recetteId: string;
@@ -43,6 +53,7 @@ export default function RecetteMapClient() {
 	const [geojsonData, setGeojsonData] = useState<any>(null);
 	const [departementsCoordinates, setDepartementsCoordinates] = useState<any>(null);
 	const [dataLoaded, setDataLoaded] = useState(false);
+	const [leafletComponents, setLeafletComponents] = useState<LeafletComponents | null>(null);
 
 	const db = getFirestore();
 	const router = useRouter();
@@ -55,22 +66,38 @@ export default function RecetteMapClient() {
 		{ label: 'Boisson', value: 'Boisson' },
 	], []);
 
-	// Charger les données JSON uniquement côté client
+	// Charger Leaflet et les données JSON uniquement côté client
 	useEffect(() => {
-		const loadJsonData = async () => {
+		const loadData = async () => {
+			if (typeof window === 'undefined') return;
+
 			try {
-				const [geojson, coords] = await Promise.all([
+				const [reactLeaflet, leaflet, geojson, coords] = await Promise.all([
+					import('react-leaflet'),
+					import('leaflet'),
 					import('@/assets/departementsGeoJson.json'),
 					import('@/assets/departementsCoord.json')
 				]);
+
+				setLeafletComponents({
+					MapContainer: reactLeaflet.MapContainer,
+					Marker: reactLeaflet.Marker,
+					Polygon: reactLeaflet.Polygon,
+					Popup: reactLeaflet.Popup,
+					TileLayer: reactLeaflet.TileLayer,
+					Polyline: reactLeaflet.Polyline,
+					useMap: reactLeaflet.useMap,
+					L: leaflet.default
+				});
+
 				setGeojsonData(geojson.default);
 				setDepartementsCoordinates(coords.default);
 				setDataLoaded(true);
 			} catch (error) {
-				console.error('Error loading JSON data:', error);
+				console.error('Error loading data:', error);
 			}
 		};
-		loadJsonData();
+		loadData();
 	}, []);
 
 	const departements = useMemo(() => {
@@ -187,8 +214,9 @@ export default function RecetteMapClient() {
 	};
 
 	const createMarkerIcon = (isHovered: boolean) => {
+		if (!leafletComponents?.L) return null;
 		const radius = isHovered ? 20 : 8;
-		return L.divIcon({
+		return leafletComponents.L.divIcon({
 			html: `
 				<div class="custom-marker ${isHovered ? 'hovered' : ''}"
 					 style="width: ${radius * 2}px; height: ${radius * 2}px;">
@@ -239,7 +267,8 @@ export default function RecetteMapClient() {
 
 	// Composant enfant pour gérer le zoom et le contenu de la map
 	const MapContent = () => {
-		const map = useMap();
+		if (!leafletComponents) return null;
+		const map = leafletComponents.useMap();
 
 		const handleClusterClick = (position: string, centerCoord: [number, number], recetteCount: number) => {
 			if (recetteCount > 1) {
@@ -251,16 +280,18 @@ export default function RecetteMapClient() {
 			}
 		};
 
-		if (!geojsonData || !departementsCoordinates) {
-			return <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />;
+		if (!geojsonData || !departementsCoordinates || !leafletComponents) {
+			return null;
 		}
+
+		const { TileLayer: TL, Polygon: Poly, Popup: Pop, Marker: Mark, Polyline: PolyL, L } = leafletComponents;
 
 		return (
 			<>
-				<TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+				<TL url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
 				{geojsonData.features.map((departement: any, index: number) => (
-					<Polygon
+					<Poly
 						key={index}
 						positions={getDepartementPolygon(departement.properties.nom)}
 						pathOptions={{
@@ -269,8 +300,8 @@ export default function RecetteMapClient() {
 							fillOpacity: 0.2
 						}}
 					>
-						<Popup>{departement.properties.nom}</Popup>
-					</Polygon>
+						<Pop>{departement.properties.nom}</Pop>
+					</Poly>
 				))}
 
 				{Object.entries(groupedRecettes).map(([position, positionRecettes]) => {
@@ -288,7 +319,7 @@ export default function RecetteMapClient() {
 					// Show cluster marker if not expanded or single recette
 					if (!isExpanded) {
 						return (
-							<Marker
+							<Mark
 								key={`cluster-${position}`}
 								position={centerCoord}
 								icon={L.divIcon({
@@ -308,7 +339,7 @@ export default function RecetteMapClient() {
 								}}
 							>
 								{recetteCount === 1 && (
-									<Popup
+									<Pop
 										closeButton={true}
 										closeOnClick={false}
 									>
@@ -332,9 +363,9 @@ export default function RecetteMapClient() {
 												Voir la recette
 											</button>
 										</div>
-									</Popup>
+									</Pop>
 								)}
-							</Marker>
+							</Mark>
 						);
 					}
 
@@ -342,7 +373,7 @@ export default function RecetteMapClient() {
 					return (
 						<React.Fragment key={`expanded-${position}`}>
 							{/* Center cluster marker */}
-							<Marker
+							<Mark
 								position={centerCoord}
 								icon={L.divIcon({
 									html: `
@@ -373,7 +404,7 @@ export default function RecetteMapClient() {
 								return (
 									<React.Fragment key={recette.recetteId}>
 										{/* Spider leg line */}
-										<Polyline
+										<PolyL
 											positions={[centerCoord, spiderfyCoord]}
 											pathOptions={{
 												color: '#ff7800',
@@ -382,14 +413,14 @@ export default function RecetteMapClient() {
 											}}
 										/>
 										{/* Individual marker */}
-										<Marker
+										<Mark
 											position={spiderfyCoord}
 											icon={createMarkerIcon(hoveredRecette === recette.recetteId)}
 											eventHandlers={{
 												mouseover: () => setHoveredRecette(recette.recetteId),
 											}}
 										>
-											<Popup
+											<Pop
 												closeButton={true}
 												closeOnClick={false}
 											>
@@ -413,8 +444,8 @@ export default function RecetteMapClient() {
 														Voir la recette
 													</button>
 												</div>
-											</Popup>
-										</Marker>
+											</Pop>
+										</Mark>
 									</React.Fragment>
 								);
 							})}
@@ -425,7 +456,7 @@ export default function RecetteMapClient() {
 		);
 	};
 
-	if (!dataLoaded || !geojsonData || !departementsCoordinates) {
+	if (!dataLoaded || !geojsonData || !departementsCoordinates || !leafletComponents) {
 		return (
 			<div className="recipe-map-container">
 				<div style={{ padding: '2rem', textAlign: 'center' }}>
@@ -434,6 +465,8 @@ export default function RecetteMapClient() {
 			</div>
 		);
 	}
+
+	const { MapContainer: MC } = leafletComponents;
 
 	return (
 		<div className="recipe-map-container">
@@ -511,14 +544,14 @@ export default function RecetteMapClient() {
 			</aside>
 
 			<main className="map-section">
-				<MapContainer
+				<MC
 					center={[46.603354, 1.888334]}
 					zoom={6}
 					scrollWheelZoom={true}
 					className="map-container"
 				>
 					<MapContent />
-				</MapContainer>
+				</MC>
 			</main>
 		</div>
 	);
