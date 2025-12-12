@@ -8,7 +8,7 @@ import '@/styles/theme.css';
 import '@/styles/mobile.css';
 import '@/styles/accessibility.css';
 import '@/index.css';
-import { Navbar, LegalMention, SkipToMain } from '@/components/layout';
+import { Navbar, LegalMention } from '@/components/layout';
 import { PWAProvider } from '@/components/ui';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -108,7 +108,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 			</head>
 			<body>
 				<Providers>
-					<SkipToMain />
 					<PWAProvider />
 					<Navbar />
 					<div className="wrapper">
