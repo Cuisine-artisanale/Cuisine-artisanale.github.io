@@ -153,7 +153,7 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 				{renderAdminButtons()}
 					<div className="main-actions">
 						{!fromRequest && (
-							<div className='Post_admin_actions'>
+							<div className='recipes-buttons'>
 								<Link href={getRecipeUrl({ id: recetteId, title })} className="view-recipe">
 									<Button
 										label="Voir la recette"
@@ -163,7 +163,7 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 								</Link>
 
 								<Button
-									className='Post_likeButton'
+									className='recipes-likeButton'
 									onClick={handleLike}
 									severity={hasLiked ? "danger" : "secondary"}
 									icon={hasLiked ? "pi pi-heart-fill" : "pi pi-heart"}

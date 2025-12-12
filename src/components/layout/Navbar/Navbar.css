@@ -8,6 +8,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   height: 4rem;
   transform: translateY(0);
+  box-sizing: border-box;
 }
 
 .navbar-scrolled {
@@ -18,8 +19,8 @@
 
 .navbar-container {
   max-width: var(--container-width);
-  margin: 0.5rem auto;
-  padding: 0 var(--container-padding);
+  margin: 0 auto;
+  padding: var(--container-padding);
   height: 100%;
   display: flex;
   align-items: center;
@@ -219,37 +220,6 @@
   }
 }
 
-@media screen and (max-width: 768px) {
-  .navbar-container {
-	padding: 0 1rem;
-  }
-
-  .navbar-navigation {
-	display: none;
-  }
-
-  .page-title {
-	display: none;
-  }
-
-  .auth-buttons {
-	display: none;
-  }
-
-  .user-menu {
-	display: none;
-  }
-
-  .mobile-menu {
-	display: block;
-  }
-
-  .theme-toggle {
-	width: 2.75rem !important;
-	height: 2.75rem !important;
-  }
-}
-
 /* Mobile Menu Toggle */
 .mobile-menu-toggle {
   display: none !important;
@@ -317,7 +287,6 @@
   font-size: 16px !important; /* Évite le zoom iOS */
 }
 
-
 /* OverlayPanel Menu Styles */
 .p-overlaypanel.user-menu-panel {
   background: var(--surface-card);
@@ -371,12 +340,17 @@
 /* Mobile Responsive - Design optimisé */
 @media screen and (max-width: 768px) {
   /* Navbar container mobile */
-  .navbar {
-    height: 3.5rem;
+  .navbar-container {
+    padding: 1rem;
   }
 
-  .navbar-container {
-    padding: 0 1rem;
+  .navbar {
+    height: 3.5rem;
+    position: sticky !important;
+    top: 0 !important;
+    transform: translateY(0) !important;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
   }
 
   /* Masquer les éléments desktop */
@@ -396,10 +370,15 @@
     display: none;
   }
 
+  .mobile-menu {
+    display: block;
+  }
+
   /* Site title mobile plus petit */
   .site-title {
     font-size: 1.125rem;
     padding-right: 0.75rem;
+    border-right-width: 1px;
   }
 
   /* Theme toggle optimisé mobile */
@@ -424,6 +403,11 @@
   }
 
   .user-menu-trigger .pi-chevron-down {
+    display: none;
+  }
+
+  /* Badge admin masqué sur mobile pour économiser l'espace */
+  .user-role {
     display: none;
   }
 
@@ -552,22 +536,3 @@
   }
 }
 
-/* Optimisations additionnelles mobile */
-@media screen and (max-width: 768px) {
-  /* Navbar toujours visible - pas d'auto-hide (frustrant pour UX) */
-  .navbar {
-    position: sticky !important;
-    transform: translateY(0) !important;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  /* Badge admin masqué sur mobile pour économiser l'espace */
-  .user-role {
-    display: none;
-  }
-
-  /* Bordure du site title plus légère sur mobile */
-  .site-title {
-    border-right-width: 1px;
-  }
-}
