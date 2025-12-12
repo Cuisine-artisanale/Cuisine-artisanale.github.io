@@ -20,4 +20,5 @@ Allow: /recettes/?id=*
 Crawl-delay: 1
 
 # Sitemap
-Sitemap: https://cuisine-artisanale/sitemap.xml
+Sitemap: https://www.cuisine-artisanale.fr/sitemap.xml
+
