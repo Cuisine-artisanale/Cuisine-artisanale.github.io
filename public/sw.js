@@ -12,8 +12,7 @@ const CACHE_NAME = `cuisine-artisanale-${CACHE_VERSION}`;
 const STATIC_ASSETS = [
   '/Cuisine-artisanale',
   '/Cuisine-artisanale/manifest.json',
-  '/Cuisine-artisanale/icon-192.png',
-  '/Cuisine-artisanale/icon-512.png',
+  '/Cuisine-artisanale/icon.png',
 ];
 
 // Installation du Service Worker

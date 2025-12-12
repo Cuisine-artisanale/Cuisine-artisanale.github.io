@@ -39,11 +39,11 @@ export const metadata = {
 	icons: {
 		icon: [
 			{ url: '/favicon.ico' },
-			{ url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-			{ url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+			{ url: '/icon.png', sizes: '192x192', type: 'image/png' },
+			{ url: '/icon.png', sizes: '512x512', type: 'image/png' },
 		],
 		apple: [
-			{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+			{ url: '/icon.png', sizes: '180x180', type: 'image/png' },
 		],
 	},
 	openGraph: {
@@ -55,7 +55,7 @@ export const metadata = {
 		description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
 		images: [
 			{
-				url: '/icon-512.png',
+				url: '/icon.png',
 				width: 512,
 				height: 512,
 				alt: 'Cuisine Artisanale',
@@ -66,7 +66,7 @@ export const metadata = {
 		card: 'summary_large_image',
 		title: 'Cuisine artisanale',
 		description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
-		images: ['/icon-512.png'],
+		images: ['/icon.png'],
 	},
 };
 
