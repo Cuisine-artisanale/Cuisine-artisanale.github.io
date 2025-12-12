@@ -1,10 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 import './RecetteMapClient.css';
-import 'leaflet/dist/leaflet.css';
-import { getRecipeUrl } from '@/lib/utils/recipe-url';
 
 // Types pour les composants Leaflet
 type LeafletComponents = {
@@ -54,8 +51,9 @@ export default function RecetteMapClient() {
 	const [departementsCoordinates, setDepartementsCoordinates] = useState<any>(null);
 	const [dataLoaded, setDataLoaded] = useState(false);
 	const [leafletComponents, setLeafletComponents] = useState<LeafletComponents | null>(null);
+	const [getRecipeUrl, setGetRecipeUrl] = useState<((recipe: any) => string) | null>(null);
+	const [firestoreModule, setFirestoreModule] = useState<any>(null);
 
-	const db = getFirestore();
 	const router = useRouter();
 
 	const recetteTypes = useMemo(() => [
@@ -72,11 +70,16 @@ export default function RecetteMapClient() {
 			if (typeof window === 'undefined') return;
 
 			try {
-				const [reactLeaflet, leaflet, geojson, coords] = await Promise.all([
+				// Charger le CSS de Leaflet dynamiquement
+				await import('leaflet/dist/leaflet.css');
+
+				const [reactLeaflet, leaflet, geojson, coords, recipeUrlModule, firestore] = await Promise.all([
 					import('react-leaflet'),
 					import('leaflet'),
 					import('@/assets/departementsGeoJson.json'),
-					import('@/assets/departementsCoord.json')
+					import('@/assets/departementsCoord.json'),
+					import('@/lib/utils/recipe-url'),
+					import('firebase/firestore')
 				]);
 
 				setLeafletComponents({
@@ -92,6 +95,8 @@ export default function RecetteMapClient() {
 
 				setGeojsonData(geojson.default);
 				setDepartementsCoordinates(coords.default);
+				setGetRecipeUrl(() => recipeUrlModule.getRecipeUrl);
+				setFirestoreModule(firestore);
 				setDataLoaded(true);
 			} catch (error) {
 				console.error('Error loading data:', error);
@@ -110,14 +115,17 @@ export default function RecetteMapClient() {
 	}, [geojsonData]);
 
 	useEffect(() => {
-		if (dataLoaded) {
+		if (dataLoaded && firestoreModule) {
 			fetchRecettes();
 		}
-	}, [dataLoaded]);
+	}, [dataLoaded, firestoreModule]);
 
 	const fetchRecettes = async () => {
+		if (!firestoreModule) return;
 		try {
-			const querySnapshot = await getDocs(collection(db, "recipes"));
+			const { collection, getDocs } = firestoreModule;
+			const firebaseConfig = await import('@/lib/config/firebase');
+			const querySnapshot = await getDocs(collection(firebaseConfig.db, "recipes"));
 			const recettesData: Recette[] = querySnapshot.docs.map((doc) => ({
 				title: doc.data().title,
 				description: doc.data().description,
@@ -456,7 +464,7 @@ export default function RecetteMapClient() {
 		);
 	};
 
-	if (!dataLoaded || !geojsonData || !departementsCoordinates || !leafletComponents) {
+	if (!dataLoaded || !geojsonData || !departementsCoordinates || !leafletComponents || !getRecipeUrl) {
 		return (
 			<div className="recipe-map-container">
 				<div style={{ padding: '2rem', textAlign: 'center' }}>

@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
 	ignoreBuildErrors: true, // Skip TypeScript errors during build - we'll fix these later
   },
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  // Exclure la page /map du prerendering
+  experimental: {
+	missingSuspenseWithCSRBailout: false,
+  },
 };
 
 export default nextConfig;
