@@ -3,8 +3,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 import './RecetteMapClient.css';
-import geojsonData from '@/assets/departementsGeoJson.json';
-import departementsCoordinates from '@/assets/departementsCoord.json';
 
 import { MapContainer, Marker, Polygon, Popup, TileLayer, Polyline, useMap } from 'react-leaflet';
 import L from "leaflet";
@@ -42,6 +40,9 @@ export default function RecetteMapClient() {
 	const [selectedType, setSelectedType] = useState<string | null>(null);
 	const [selectedDepartement, setSelectedDepartement] = useState<string | null>(null);
 	const [expandedClusters, setExpandedClusters] = useState<Set<string>>(new Set());
+	const [geojsonData, setGeojsonData] = useState<any>(null);
+	const [departementsCoordinates, setDepartementsCoordinates] = useState<any>(null);
+	const [dataLoaded, setDataLoaded] = useState(false);
 
 	const db = getFirestore();
 	const router = useRouter();
@@ -54,17 +55,38 @@ export default function RecetteMapClient() {
 		{ label: 'Boisson', value: 'Boisson' },
 	], []);
 
+	// Charger les données JSON uniquement côté client
+	useEffect(() => {
+		const loadJsonData = async () => {
+			try {
+				const [geojson, coords] = await Promise.all([
+					import('@/assets/departementsGeoJson.json'),
+					import('@/assets/departementsCoord.json')
+				]);
+				setGeojsonData(geojson.default);
+				setDepartementsCoordinates(coords.default);
+				setDataLoaded(true);
+			} catch (error) {
+				console.error('Error loading JSON data:', error);
+			}
+		};
+		loadJsonData();
+	}, []);
+
 	const departements = useMemo(() => {
-		const depts = geojsonData.features.map(feature => ({
+		if (!geojsonData) return [{ label: 'Tous les départements', value: null }];
+		const depts = geojsonData.features.map((feature: any) => ({
 			label: feature.properties.nom,
 			value: feature.properties.code
 		}));
 		return [{ label: 'Tous les départements', value: null }, ...depts];
-	}, []);
+	}, [geojsonData]);
 
 	useEffect(() => {
-		fetchRecettes();
-	}, []);
+		if (dataLoaded) {
+			fetchRecettes();
+		}
+	}, [dataLoaded]);
 
 	const fetchRecettes = async () => {
 		try {
@@ -154,8 +176,9 @@ export default function RecetteMapClient() {
 	}, [recettes, searchTerm, selectedType, selectedDepartement]);
 
 	const getDepartementPolygon = (departementName: string): [number, number][] => {
+		if (!geojsonData) return [];
 		const departement = geojsonData.features.find(
-			(feature) => feature.properties.nom === departementName
+			(feature: any) => feature.properties.nom === departementName
 		) as DepartementFeature | undefined;
 
 		return departement
@@ -228,11 +251,15 @@ export default function RecetteMapClient() {
 			}
 		};
 
+		if (!geojsonData || !departementsCoordinates) {
+			return <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />;
+		}
+
 		return (
 			<>
 				<TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-				{geojsonData.features.map((departement, index) => (
+				{geojsonData.features.map((departement: any, index: number) => (
 					<Polygon
 						key={index}
 						positions={getDepartementPolygon(departement.properties.nom)}
@@ -397,6 +424,16 @@ export default function RecetteMapClient() {
 			</>
 		);
 	};
+
+	if (!dataLoaded || !geojsonData || !departementsCoordinates) {
+		return (
+			<div className="recipe-map-container">
+				<div style={{ padding: '2rem', textAlign: 'center' }}>
+					<p>Chargement de la carte...</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="recipe-map-container">
