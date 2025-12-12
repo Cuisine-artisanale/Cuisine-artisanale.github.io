@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
   experimental: {
 	missingSuspenseWithCSRBailout: false,
   },
+  // Exclure certaines routes du pré-rendu statique
+  generateBuildId: async () => {
+	return 'build-' + Date.now();
+  },
 };
 
 export default nextConfig;

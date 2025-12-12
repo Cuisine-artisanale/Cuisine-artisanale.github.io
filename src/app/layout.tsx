@@ -36,14 +36,6 @@ export const metadata = {
 	formatDetection: {
 		telephone: false,
 	},
-	themeColor: '#8B4513',
-	viewport: {
-		width: 'device-width',
-		initialScale: 1,
-		maximumScale: 5,
-		userScalable: true,
-		viewportFit: 'cover',
-	},
 	icons: {
 		icon: [
 			{ url: '/favicon.ico' },
@@ -76,6 +68,15 @@ export const metadata = {
 		description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
 		images: ['/icon-512.png'],
 	},
+};
+
+export const viewport = {
+	width: 'device-width',
+	initialScale: 1,
+	maximumScale: 5,
+	userScalable: true,
+	viewportFit: 'cover',
+	themeColor: '#8B4513',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

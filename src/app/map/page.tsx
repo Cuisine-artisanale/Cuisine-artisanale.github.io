@@ -8,9 +8,6 @@ const RecetteMapWrapper = dynamic(() => import('./RecetteMapWrapper'), {
 	loading: () => <div style={{ padding: '2rem', textAlign: 'center' }}>Chargement de la carte...</div>
 });
 
-// Désactiver le prerendering car Leaflet nécessite window
-export const dynamic = 'force-dynamic';
-
 export default function Page() {
 	const [mounted, setMounted] = useState(false);
 
