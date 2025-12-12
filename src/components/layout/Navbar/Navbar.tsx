@@ -17,7 +17,6 @@ const Navbar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const overlayPanelRef = useRef<OverlayPanel>(null);

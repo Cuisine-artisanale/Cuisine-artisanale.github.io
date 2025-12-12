@@ -162,7 +162,6 @@ export default function AccountDetailPage() {
         )}
 
         <div className="recommendations-card">
-          <h3 className="recommendations-title">Recommandations Personnalisées</h3>
           <PersonalizedRecommendations />
         </div>
 

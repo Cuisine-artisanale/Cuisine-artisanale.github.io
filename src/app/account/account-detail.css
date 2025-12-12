@@ -147,22 +147,6 @@
   font-size: 13px;
 }
 
-/* Recommendations Card */
-.recommendations-card {
-  padding: 30px;
-  background: linear-gradient(135deg, var(--surface-section) 0%, var(--surface-ground) 100%);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.recommendations-title {
-  margin: 0 0 20px 0;
-  font-size: 20px;
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
 /* Dialog Styles */
 .dialog-overlay {
   position: fixed;

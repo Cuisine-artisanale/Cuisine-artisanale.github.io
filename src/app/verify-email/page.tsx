@@ -6,8 +6,11 @@ import { applyActionCode } from 'firebase/auth';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import './verify-email.css';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
+
 
 function VerifyEmailContent() {
+const { logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const toastRef = useRef<Toast>(null);
@@ -139,6 +142,7 @@ function VerifyEmailContent() {
   };
 
   const handleLogout = () => {
+	logout();
     router.push('/login');
   };
 
@@ -249,7 +253,7 @@ function VerifyEmailContent() {
             <Button
               label="Se déconnecter"
               icon="pi pi-sign-out"
-              className="p-button-text logout-button"
+              className="p-button logout-button"
               onClick={handleLogout}
             />
           </div>
