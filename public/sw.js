@@ -10,10 +10,9 @@ const CACHE_NAME = `cuisine-artisanale-${CACHE_VERSION}`;
 
 // Fichiers à mettre en cache au premier chargement
 const STATIC_ASSETS = [
-  '/Cuisine-artisanale',
-  '/Cuisine-artisanale/manifest.json',
-  '/Cuisine-artisanale/icon-192.png',
-  '/Cuisine-artisanale/icon-512.png',
+  '/',
+  '/manifest.json',
+  '/icon.png',
 ];
 
 // Installation du Service Worker
@@ -86,7 +85,7 @@ self.addEventListener('fetch', (event) => {
 
 		  // Si pas de cache et requête HTML, retourner la page offline
 		  if (request.headers.get('accept').includes('text/html')) {
-			return caches.match('/Cuisine-artisanale');
+			return caches.match('/');
 		  }
 		});
 	  })

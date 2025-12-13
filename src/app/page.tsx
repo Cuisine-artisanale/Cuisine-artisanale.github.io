@@ -1,8 +1,7 @@
 import React, { Suspense } from 'react';
-import Actualites from '@/pages-legacy/Actualites/Actualites';
-import TrendingRecipes from '@/components/TrendingRecipes/TrendingRecipes';
-
-const Posts = React.lazy(() => import('@/pages-legacy/Posts/Posts'));
+import ActualitesClient from './ActualitesClient';
+import PostsClient from './PostsClient';
+import { TrendingRecipes } from '@/components/features';
 
 export const metadata = {
 	title: 'Accueil | Cuisine artisanale',
@@ -12,11 +11,9 @@ export const metadata = {
 export default function Page() {
 	return (
 		<div className="Home">
-			<Actualites />
+			<ActualitesClient />
 			<TrendingRecipes />
-			<Suspense fallback={<div className="posts-skeleton">Chargement des posts...</div>}>
-				<Posts />
-			</Suspense>
+			<PostsClient />
 		</div>
 	);
 }

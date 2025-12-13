@@ -1,12 +1,24 @@
-import 'leaflet/dist/leaflet.css';
-import RecetteMapWrapper from './RecetteMapWrapper';
+"use client";
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 
-export const metadata = {
-	title: "Carte des recettes | Cuisine artisanale",
-	description: "Explorez les recettes sur la carte par département et type.",
-};
+// Désactiver le SSR pour cette page car Leaflet nécessite le navigateur
+const RecetteMapWrapper = dynamic(() => import('./RecetteMapWrapper'), {
+	ssr: false,
+	loading: () => <div style={{ padding: '2rem', textAlign: 'center' }}>Chargement de la carte...</div>
+});
 
 export default function Page() {
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	if (!mounted) {
+		return <div style={{ padding: '2rem', textAlign: 'center' }}>Chargement de la carte...</div>;
+	}
+
 	return <RecetteMapWrapper />;
 }
 

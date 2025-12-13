@@ -1,16 +1,15 @@
 "use client";
-import React, { useState, useRef, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Password } from 'primereact/password';
-import { Button } from 'primereact/button';
-import { Toast } from 'primereact/toast';
-import { verifyPasswordResetToken } from '@/services/emailService';
+import { Password } from '@/components/ui';
+import { useToast } from '@/contexts/ToastContext/ToastContext';
+import { verifyPasswordResetToken } from '@/lib/services/email.service';
 import './reset-password.css';
 
 function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const toastRef = useRef<Toast>(null);
+  const { showToast } = useToast();
 
   const [token, setToken] = useState<string | null>(null);
   const [email, setEmail] = useState('');
@@ -98,7 +97,7 @@ function ResetPasswordContent() {
       }
 
       setSuccess(true);
-      toastRef.current?.show({
+      showToast({
         severity: 'success',
         summary: 'Mot de passe réinitialisé',
         detail: 'Votre mot de passe a été réinitialisé avec succès.',
@@ -111,7 +110,7 @@ function ResetPasswordContent() {
     } catch (error: any) {
       console.error('Reset password error:', error);
       setError('Une erreur est survenue lors de la réinitialisation');
-      toastRef.current?.show({
+      showToast({
         severity: 'error',
         summary: 'Erreur',
         detail: 'Une erreur est survenue',
@@ -130,7 +129,6 @@ function ResetPasswordContent() {
   if (isVerifying) {
     return (
       <div className="reset-password-page">
-        <Toast ref={toastRef} />
         <div className="reset-password-container">
           <div className="reset-password-card">
             <div className="reset-password-header">
@@ -148,20 +146,20 @@ function ResetPasswordContent() {
   if (!isValid) {
     return (
       <div className="reset-password-page">
-        <Toast ref={toastRef} />
         <div className="reset-password-container">
           <div className="reset-password-card">
             <div className="reset-password-header">
-              <i className="pi pi-times-circle" style={{ color: 'var(--danger-500)' }} />
+              <i className="pi pi-times-circle" style={{ color: 'var(--red-500)' }} />
               <h1>Lien invalide</h1>
               <p className="error-message">{error}</p>
             </div>
-            <Button
-              label="Demander un nouveau lien"
-              icon="pi pi-arrow-left"
-              onClick={() => router.push('/pages-legacy/ResetPasswordPage')}
-              className="p-button-secondary"
-            />
+            <button
+              className="back-button"
+              onClick={() => router.push('/reset-password/request')}
+            >
+              <i className="pi pi-arrow-left"></i>
+              Demander un nouveau lien
+            </button>
           </div>
         </div>
       </div>
@@ -172,7 +170,6 @@ function ResetPasswordContent() {
   if (success) {
     return (
       <div className="reset-password-page">
-        <Toast ref={toastRef} />
         <div className="reset-password-container">
           <div className="reset-password-card">
             <div className="success-message">
@@ -184,12 +181,13 @@ function ResetPasswordContent() {
               <p className="info-text">
                 Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.
               </p>
-              <Button
-                label="Se connecter"
-                icon="pi pi-sign-in"
+              <button
                 className="back-button"
                 onClick={handleBackToLogin}
-              />
+              >
+                <i className="pi pi-sign-in"></i>
+                Se connecter
+              </button>
             </div>
           </div>
         </div>
@@ -200,7 +198,6 @@ function ResetPasswordContent() {
   // Formulaire de réinitialisation
   return (
     <div className="reset-password-page">
-      <Toast ref={toastRef} />
       <div className="reset-password-container">
         <div className="reset-password-card">
           <div className="reset-password-header">
@@ -222,8 +219,7 @@ function ResetPasswordContent() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Minimum 6 caractères"
                 toggleMask
-                feedback={false}
-                className={error && !newPassword ? 'p-invalid' : ''}
+                className={error && !newPassword ? 'input-invalid' : ''}
               />
             </div>
 
@@ -237,28 +233,35 @@ function ResetPasswordContent() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Retapez votre mot de passe"
                 toggleMask
-                feedback={false}
-                className={error && newPassword !== confirmPassword ? 'p-invalid' : ''}
+                className={error && newPassword !== confirmPassword ? 'input-invalid' : ''}
               />
             </div>
 
-            {error && <small className="p-error">{error}</small>}
+            {error && <small className="error-message">{error}</small>}
 
-            <Button
+            <button
               type="submit"
-              label="Réinitialiser le mot de passe"
               className="submit-button"
               disabled={isLoading}
-              loading={isLoading}
-            />
+            >
+              {isLoading ? (
+                <>
+                  <i className="pi pi-spin pi-spinner"></i>
+                  <span>Réinitialisation...</span>
+                </>
+              ) : (
+                'Réinitialiser le mot de passe'
+              )}
+            </button>
 
-            <Button
-              label="Retour à la connexion"
-              icon="pi pi-arrow-left"
-              className="p-button-text"
-              onClick={handleBackToLogin}
+            <button
               type="button"
-            />
+              className="back-link-button"
+              onClick={handleBackToLogin}
+            >
+              <i className="pi pi-arrow-left"></i>
+              Retour à la connexion
+            </button>
           </form>
         </div>
       </div>

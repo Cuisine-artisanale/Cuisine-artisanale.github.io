@@ -31,6 +31,13 @@ export default function RecipeMetadata({
       // Mettre à jour le titre du document
       document.title = `${finalTitle} | Cuisine Artisanale`;
 
+      // Construire l'URL de l'image OG dynamique
+      const ogImageUrl = new URL('/api/og-image', window.location.origin);
+      ogImageUrl.searchParams.set('title', finalTitle);
+      if (type) ogImageUrl.searchParams.set('type', type);
+      if (finalImage) ogImageUrl.searchParams.set('image', finalImage);
+      if (recipeId) ogImageUrl.searchParams.set('id', recipeId);
+
       // Meta OG:Title
       let metaOGTitle = document.querySelector('meta[property="og:title"]');
       if (!metaOGTitle) {
@@ -54,16 +61,14 @@ export default function RecipeMetadata({
         finalDescription
       );
 
-      // Meta OG:Image
-      if (finalImage) {
-        let metaOGImage = document.querySelector('meta[property="og:image"]');
-        if (!metaOGImage) {
-          metaOGImage = document.createElement('meta');
-          metaOGImage.setAttribute('property', 'og:image');
-          document.head.appendChild(metaOGImage);
-        }
-        metaOGImage.setAttribute('content', finalImage);
+      // Meta OG:Image - Utiliser l'image OG générée dynamiquement
+      let metaOGImage = document.querySelector('meta[property="og:image"]');
+      if (!metaOGImage) {
+        metaOGImage = document.createElement('meta');
+        metaOGImage.setAttribute('property', 'og:image');
+        document.head.appendChild(metaOGImage);
       }
+      metaOGImage.setAttribute('content', ogImageUrl.toString());
 
       // Meta OG:Image:Width
       let metaOGImageWidth = document.querySelector(
@@ -133,20 +138,24 @@ export default function RecipeMetadata({
         finalDescription
       );
 
-      // Twitter Image
-      if (finalImage) {
-        let metaTwitterImage = document.querySelector(
-          'meta[name="twitter:image"]'
-        );
-        if (!metaTwitterImage) {
-          metaTwitterImage = document.createElement('meta');
-          metaTwitterImage.setAttribute('name', 'twitter:image');
-          document.head.appendChild(metaTwitterImage);
-        }
-        metaTwitterImage.setAttribute('content', finalImage);
+      // Twitter Image - Utiliser l'image OG générée dynamiquement
+      const twitterImageUrl = new URL('/api/og-image', window.location.origin);
+      twitterImageUrl.searchParams.set('title', finalTitle);
+      if (type) twitterImageUrl.searchParams.set('type', type);
+      if (finalImage) twitterImageUrl.searchParams.set('image', finalImage);
+      if (recipeId) twitterImageUrl.searchParams.set('id', recipeId);
+
+      let metaTwitterImage = document.querySelector(
+        'meta[name="twitter:image"]'
+      );
+      if (!metaTwitterImage) {
+        metaTwitterImage = document.createElement('meta');
+        metaTwitterImage.setAttribute('name', 'twitter:image');
+        document.head.appendChild(metaTwitterImage);
       }
+      metaTwitterImage.setAttribute('content', twitterImageUrl.toString());
     }
-  }, [finalTitle, finalDescription, finalImage]);
+  }, [finalTitle, finalDescription, finalImage, type, recipeId]);
 
   return null; // Ce composant ne rend rien, il gère juste les métadonnées
 }

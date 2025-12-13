@@ -1,0 +1,464 @@
+.AccountDetail {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.welcome-section h2 {
+  margin: 0;
+  font-size: 28px;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.welcome-section p {
+  margin: 5px 0 0 0;
+  color: var(--text-color-secondary);
+  font-size: 14px;
+}
+
+.edit-profile-btn {
+  white-space: nowrap;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-color);
+  color: var(--text-color-inverted);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+}
+
+.edit-profile-btn i {
+  font-size: 1rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .edit-profile-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .edit-profile-btn:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+/* Activity Card */
+.activity-card {
+  padding: 30px;
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.activity-title {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.activity-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.activity-item {
+  display: flex;
+  gap: 1rem;
+  padding: 15px;
+  align-items: flex-start;
+  border-left: 3px solid var(--primary-color);
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.activity-item::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 20px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  border: 2px solid var(--surface-card);
+}
+
+.activity-date {
+  min-width: 100px;
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+}
+
+.activity-content-wrapper {
+  display: flex;
+  gap: 15px;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.activity-content-wrapper i {
+  font-size: 20px;
+  color: var(--primary-color);
+  padding-top: 5px;
+  flex-shrink: 0;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-content strong {
+  display: block;
+  color: var(--text-color);
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.activity-content p {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 13px;
+}
+
+/* Dialog Styles */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in;
+  padding: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.dialog-account {
+  background-color: var(--surface-card);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 90vw;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.dialog-header {
+  padding: 30px;
+  border-bottom: 2px solid var(--surface-border);
+  background: linear-gradient(135deg, var(--surface-section) 0%, var(--surface-card) 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dialog-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--primary-color);
+  letter-spacing: 0.3px;
+}
+
+.dialog-close {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.125rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dialog-close:hover {
+    background-color: var(--surface-hover);
+    color: var(--primary-color);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .dialog-close:active {
+    background-color: var(--surface-hover);
+    transform: scale(0.95);
+  }
+}
+
+.dialog-content {
+  padding: 30px;
+  background-color: var(--surface-card);
+  color: var(--text-color);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding: 20px 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 14px;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+.form-group input {
+  padding: 12px 14px;
+  border: 2px solid var(--surface-border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background-color: var(--surface-ground);
+  color: var(--text-color);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--surface-card);
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+.form-group input:disabled {
+  background-color: var(--surface-ground);
+  color: var(--text-color-secondary);
+  cursor: not-allowed;
+}
+
+.dialog-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.btn-secondary,
+.btn-primary {
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+}
+
+.btn-secondary {
+  background-color: var(--surface-ground);
+  color: var(--text-color);
+  border: 2px solid var(--surface-border);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: var(--text-color-inverted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-secondary:hover {
+    background-color: var(--surface-hover);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(139, 69, 19, 0.3);
+    opacity: 0.95;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .btn-secondary:active,
+  .btn-primary:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .AccountDetail {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .welcome-section h2 {
+    font-size: 1.375rem;
+  }
+
+  .welcome-section p {
+    font-size: 16px; /* Minimum 16px pour éviter le zoom iOS */
+  }
+
+  .edit-profile-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0.75rem 1.5rem !important;
+    width: 100%;
+  }
+
+  .activity-card,
+  .recommendations-card {
+    padding: 1.5rem !important;
+  }
+
+  .activity-title,
+  .recommendations-title {
+    font-size: 1.125rem;
+  }
+
+  .activity-item {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .activity-date {
+    min-width: auto;
+  }
+
+  /* Dialog mobile optimizations */
+  .dialog-account {
+    width: 90vw;
+    max-width: 500px;
+  }
+
+  .dialog-header {
+    padding: 1.5rem;
+  }
+
+  .dialog-content {
+    padding: 1.5rem;
+  }
+
+  .dialog-header h3 {
+    font-size: 1.125rem !important;
+  }
+
+  .dialog-close {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .form-group input {
+    font-size: 16px !important; /* Minimum 16px pour éviter le zoom iOS */
+    padding: 0.875rem 1rem !important;
+    min-height: 44px !important;
+  }
+
+  .form-group label {
+    font-size: 16px; /* Minimum 16px pour éviter le zoom iOS */
+  }
+
+  .dialog-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .dialog-buttons button {
+    width: 100%;
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    min-height: 44px !important;
+    padding: 0.875rem 1.5rem !important;
+  }
+}
+
+/* Safe area for iPhone notch */
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .AccountDetail {
+      padding-bottom: calc(env(safe-area-inset-bottom) + 1rem) !important;
+    }
+  }
+}
+

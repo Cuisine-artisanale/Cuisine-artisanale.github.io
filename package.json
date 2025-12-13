@@ -9,9 +9,9 @@
     "start": "serve out -p 3000",
     "preview": "npm run build && node scripts/prepare-preview.js && serve temp-serve -p 3000",
     "lint": "eslint .",
-    "sitemap": "node generateSitemap.js",
     "sharePage": "node generateSharePage.js",
-    "generate": "plop"
+    "generate": "plop",
+    "migrate-urls": "node scripts/migrate-recipe-urls.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

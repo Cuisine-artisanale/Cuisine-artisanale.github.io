@@ -1,13 +1,16 @@
 "use client";
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { auth } from '@firebaseModule';
+import { auth } from '@/lib/config/firebase';
+import { applyActionCode } from 'firebase/auth';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { verifyEmailToken } from '@/services/emailService';
 import './verify-email.css';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
+
 
 function VerifyEmailContent() {
+const { logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const toastRef = useRef<Toast>(null);
@@ -18,11 +21,13 @@ function VerifyEmailContent() {
   const [email, setEmail] = useState('');
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    // Vérifier si un code Firebase (oobCode) est présent dans l'URL
+    const oobCode = searchParams.get('oobCode');
+    const mode = searchParams.get('mode');
 
-    // Si un token est présent dans l'URL, vérifier automatiquement
-    if (token) {
-      handleTokenVerification(token);
+    // Si un code Firebase est présent, vérifier automatiquement
+    if (oobCode && mode === 'verifyEmail') {
+      handleFirebaseVerification(oobCode);
     } else {
       // Sinon, vérifier si l'utilisateur est connecté
       const currentUser = auth.currentUser;
@@ -39,22 +44,19 @@ function VerifyEmailContent() {
     }
   }, [searchParams, router]);
 
-  const handleTokenVerification = async (token: string) => {
+  const handleFirebaseVerification = async (oobCode: string) => {
     setIsVerifying(true);
     setError('');
 
     try {
-      const userId = await verifyEmailToken(token);
-
-      if (!userId) {
-        setError('Le lien de vérification est invalide ou a expiré. Veuillez demander un nouvel email.');
-        return;
-      }
+      // Appliquer le code de vérification Firebase
+      await applyActionCode(auth, oobCode);
 
       // Rafraîchir l'utilisateur Firebase pour mettre à jour emailVerified
       const currentUser = auth.currentUser;
       if (currentUser) {
         await currentUser.reload();
+        setEmail(currentUser.email || '');
       }
 
       setVerified(true);
@@ -68,9 +70,17 @@ function VerifyEmailContent() {
       setTimeout(() => {
         router.push('/account');
       }, 2000);
-    } catch (error) {
-      console.error('Error verifying token:', error);
-      setError('Une erreur est survenue lors de la vérification. Veuillez réessayer.');
+    } catch (error: any) {
+      console.error('Error verifying email:', error);
+      let errorMessage = 'Une erreur est survenue lors de la vérification. Veuillez réessayer.';
+
+      if (error.code === 'auth/invalid-action-code') {
+        errorMessage = 'Le lien de vérification est invalide ou a expiré. Veuillez demander un nouvel email.';
+      } else if (error.code === 'auth/expired-action-code') {
+        errorMessage = 'Le lien de vérification a expiré. Veuillez demander un nouvel email.';
+      }
+
+      setError(errorMessage);
     } finally {
       setIsVerifying(false);
     }
@@ -85,12 +95,24 @@ function VerifyEmailContent() {
 
     try {
       setIsLoading(true);
-      const { sendVerificationEmail } = await import('@/services/emailService');
-      await sendVerificationEmail(
-        currentUser.email || '',
-        currentUser.displayName || 'Utilisateur',
-        currentUser.uid
-      );
+      // Utiliser la Cloud Function avec Resend (rapide et fiable)
+      const cloudFunctionUrl = 'https://us-central1-recettes-cuisine-a1bf2.cloudfunctions.net/sendVerificationEmailFast';
+      const response = await fetch(cloudFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: currentUser.email || '',
+          displayName: currentUser.displayName || 'Utilisateur',
+          uid: currentUser.uid, // Passer l'UID pour vérifier l'existence de l'utilisateur
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email');
+      }
 
       toastRef.current?.show({
         severity: 'success',
@@ -100,10 +122,18 @@ function VerifyEmailContent() {
       });
     } catch (error: any) {
       console.error('Resend verification email error:', error);
+      let errorMessage = 'Une erreur est survenue lors de l\'envoi de l\'email';
+
+      if (error.message?.includes('Trop de demandes') || error.message?.includes('too-many-requests')) {
+        errorMessage = 'Trop de demandes. Veuillez réessayer dans quelques minutes.';
+      } else if (error.message?.includes('Utilisateur non trouvé') || error.message?.includes('user-not-found')) {
+        errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
+      }
+
       toastRef.current?.show({
         severity: 'error',
         summary: 'Erreur',
-        detail: 'Une erreur est survenue lors de l\'envoi de l\'email',
+        detail: errorMessage,
         life: 5000
       });
     } finally {
@@ -112,6 +142,7 @@ function VerifyEmailContent() {
   };
 
   const handleLogout = () => {
+	logout();
     router.push('/login');
   };
 
@@ -222,7 +253,7 @@ function VerifyEmailContent() {
             <Button
               label="Se déconnecter"
               icon="pi pi-sign-out"
-              className="p-button-text logout-button"
+              className="p-button logout-button"
               onClick={handleLogout}
             />
           </div>

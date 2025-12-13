@@ -1,5 +1,6 @@
+"use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "@firebaseModule"; // Assure-toi que l'importation est correcte
+import { auth } from "@/lib/config/firebase";
 import {
   User,
   onAuthStateChanged,
@@ -136,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  setError(null);
 	  await signOut(auth);
 	  setRole(null);
-	  window.location.href = "/Cuisine-artisanale/";
+	  window.location.href = "/";
 	} catch (err) {
 	  console.error("Error signing out:", err);
 	  setError(err instanceof Error ? err.message : "Error signing out");
@@ -177,7 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  if (userRole) {
 		setRole(userRole);
 	  }
-	  
+
 	} catch (err: any) {
 	  console.error("Error signing in with email:", err);
 	  setError(err.message || "Error signing in with email");
@@ -200,11 +201,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		displayName: displayName
 	  });
 
-	  // Send verification email via EmailJS
-	  console.log('Sending verification email via EmailJS to:', email);
-	  const { sendVerificationEmail: sendEmailViaEmailJS } = await import('@/services/emailService');
-	  await sendEmailViaEmailJS(email, displayName, result.user.uid);
-	  console.log('✅ Verification email sent successfully via EmailJS!');
+	  // Send verification email via Cloud Function avec Resend (rapide et fiable)
+	  console.log('Sending verification email via Cloud Function (Resend) to:', email);
+	  try {
+		const cloudFunctionUrl = 'https://us-central1-recettes-cuisine-a1bf2.cloudfunctions.net/sendVerificationEmailFast';
+		const response = await fetch(cloudFunctionUrl, {
+		  method: 'POST',
+		  headers: {
+			'Content-Type': 'application/json',
+		  },
+		  body: JSON.stringify({
+			email: email,
+			displayName: displayName,
+			uid: result.user.uid, // Passer l'UID pour vérifier l'existence de l'utilisateur
+		  }),
+		});
+
+		if (!response.ok) {
+		  const errorData = await response.json();
+		  throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email');
+		}
+
+		console.log('✅ Verification email sent successfully via Cloud Function (Resend)!');
+	  } catch (emailError: any) {
+		console.error("❌ Erreur lors de l'envoi de l'email de vérification:", emailError);
+		// Si l'envoi d'email échoue, on continue quand même pour créer l'utilisateur
+		// L'utilisateur pourra demander un renvoi d'email plus tard
+		if (emailError.message?.includes('Trop de demandes') || emailError.message?.includes('too-many-requests')) {
+		  throw new Error('Trop de demandes. Veuillez réessayer dans quelques minutes.');
+		}
+		throw new Error(emailError.message || 'Erreur lors de l\'envoi de l\'email de vérification. Veuillez réessayer.');
+	  }
 
 	  // Create user in Firestore
 	  console.log('Creating user document in Firestore...');

@@ -2,27 +2,27 @@
   "name": "Cuisine Artisanale",
   "short_name": "Cuisine Artisanale",
   "description": "Recettes, actualités et cartes pour la cuisine artisanale",
-  "start_url": "/Cuisine-artisanale",
-  "scope": "/Cuisine-artisanale",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#FFF9F5",
   "theme_color": "#8B4513",
   "icons": [
 	{
-	  "src": "/Cuisine-artisanale.github.io/icon-192.png",
+	  "src": "/icon.png",
 	  "sizes": "192x192",
 	  "type": "image/png",
 	  "purpose": "any maskable"
 	},
 	{
-	  "src": "/Cuisine-artisanale.github.io/icon-512.png",
+	  "src": "/icon.png",
 	  "sizes": "512x512",
 	  "type": "image/png",
 	  "purpose": "any maskable"
 	},
 	{
-	  "src": "/Cuisine-artisanale.github.io/apple-touch-icon.png",
+	  "src": "/icon.png",
 	  "sizes": "180x180",
 	  "type": "image/png",
 	  "purpose": "any"
@@ -37,10 +37,10 @@
 	  "name": "Recettes",
 	  "short_name": "Recettes",
 	  "description": "Voir toutes les recettes",
-	  "url": "/Cuisine-artisanale.github.io/recettes",
+	  "url": "/recettes",
 	  "icons": [
 		{
-		  "src": "/Cuisine-artisanale.github.io/icon-192.png",
+		  "src": "/icon.png",
 		  "sizes": "192x192"
 		}
 	  ]
@@ -49,10 +49,10 @@
 	  "name": "Carte",
 	  "short_name": "Carte",
 	  "description": "Carte des recettes par département",
-	  "url": "/Cuisine-artisanale.github.io/map",
+	  "url": "/map",
 	  "icons": [
 		{
-		  "src": "/Cuisine-artisanale.github.io/icon-192.png",
+		  "src": "/icon.png",
 		  "sizes": "192x192"
 		}
 	  ]
@@ -61,10 +61,10 @@
 	  "name": "Mon Compte",
 	  "short_name": "Compte",
 	  "description": "Accéder à mon compte",
-	  "url": "/Cuisine-artisanale.github.io/account",
+	  "url": "/account",
 	  "icons": [
 		{
-		  "src": "/Cuisine-artisanale.github.io/icon-192.png",
+		  "src": "/icon.png",
 		  "sizes": "192x192"
 		}
 	  ]
@@ -72,16 +72,17 @@
   ],
   "screenshots": [
 	{
-	  "src": "/Cuisine-artisanale.github.io/screenshot-wide.png",
+	  "src": "/screenshot-wide.png",
 	  "sizes": "1280x720",
 	  "type": "image/png",
 	  "form_factor": "wide"
 	},
 	{
-	  "src": "/Cuisine-artisanale.github.io/screenshot-mobile.png",
+	  "src": "/screenshot-mobile.png",
 	  "sizes": "750x1334",
 	  "type": "image/png",
 	  "form_factor": "narrow"
 	}
   ]
 }
+
