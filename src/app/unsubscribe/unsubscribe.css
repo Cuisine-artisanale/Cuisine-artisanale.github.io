@@ -1,0 +1,124 @@
+.unsubscribe-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.unsubscribe-container {
+  width: 100%;
+  max-width: 600px;
+}
+
+.unsubscribe-card {
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  padding: 2.5rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--surface-border);
+}
+
+.status-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-content > i {
+  margin-bottom: 0.5rem;
+}
+
+.status-content h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.status-content p {
+  color: var(--text-color-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.status-content p strong {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+/* Loading state */
+.loading h1 {
+  color: var(--primary-color);
+}
+
+.loading p {
+  color: var(--text-color-secondary);
+}
+
+/* Success state */
+.success h1 {
+  color: var(--success-500);
+}
+
+.success p {
+  color: var(--text-color-secondary);
+}
+
+/* Error state */
+.error h1 {
+  color: var(--danger-500);
+}
+
+.error p {
+  color: var(--text-color-secondary);
+}
+
+/* Button */
+.unsubscribe-button {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.75rem 2rem;
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
+  border-radius: var(--border-radius);
+  color: var(--button-text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.unsubscribe-button:hover {
+  background: var(--button-hover-bg);
+  border-color: var(--button-hover-border);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+  text-decoration: none;
+  color: var(--button-text);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .unsubscribe-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .status-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .status-content > i {
+    font-size: 2.5rem !important;
+  }
+
+  .unsubscribe-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
