@@ -108,8 +108,14 @@ service cloud.firestore {
       // Permet à n'importe qui de s'abonner (formulaire public)
       allow create: if true;
 
-      // Lecture/suppression uniquement pour les admins
-      allow read, delete: if request.auth != null && isAdmin(request.auth.uid);
+      // Permet la lecture pour vérifier si un email existe déjà (nécessaire pour l'API)
+      allow read: if true;
+
+      // Permet la mise à jour pour réactiver un abonné existant (nécessaire pour l'API)
+      allow update: if true;
+
+      // Suppression uniquement pour les admins
+      allow delete: if request.auth != null && isAdmin(request.auth.uid);
     }
 
     // === Consentement cookies ===

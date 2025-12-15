@@ -3,10 +3,15 @@ import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth } from '@/lib/config/firebase';
 import { applyActionCode } from 'firebase/auth';
+import { getFirestore, doc, updateDoc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import './verify-email.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
+
+// Flag pour désactiver temporairement la vérification email
+// Mettre à true pour réactiver la vérification email
+const REQUIRE_EMAIL_VERIFICATION = false;
 
 
 function VerifyEmailContent() {
@@ -21,6 +26,17 @@ const { logout } = useAuth();
   const [email, setEmail] = useState('');
 
   useEffect(() => {
+    // Si la vérification email est désactivée, rediriger vers le compte
+    if (!REQUIRE_EMAIL_VERIFICATION) {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        router.push('/account');
+      } else {
+        router.push('/login');
+      }
+      return;
+    }
+
     // Vérifier si un code Firebase (oobCode) est présent dans l'URL
     const oobCode = searchParams.get('oobCode');
     const mode = searchParams.get('mode');
@@ -57,6 +73,44 @@ const { logout } = useAuth();
       if (currentUser) {
         await currentUser.reload();
         setEmail(currentUser.email || '');
+
+        // Mettre à jour Firestore avec le statut de vérification
+        try {
+          const db = getFirestore();
+          const userRef = doc(db, 'users', currentUser.uid);
+          
+          // Vérifier si le document existe
+          const userDoc = await getDoc(userRef);
+          
+          if (userDoc.exists()) {
+            // Le document existe, le mettre à jour
+            await updateDoc(userRef, {
+              emailVerified: true,
+              emailVerifiedAt: serverTimestamp()
+            });
+            console.log('✅ Statut de vérification mis à jour dans Firestore pour l\'utilisateur:', currentUser.uid);
+          } else {
+            // Le document n'existe pas, le créer
+            await setDoc(userRef, {
+              email: currentUser.email || '',
+              displayName: currentUser.displayName || '',
+              role: 'user',
+              createdAt: serverTimestamp(),
+              emailVerified: true,
+              emailVerifiedAt: serverTimestamp()
+            });
+            console.log('✅ Document utilisateur créé dans Firestore avec emailVerified: true');
+          }
+        } catch (firestoreError: any) {
+          // Ne pas bloquer si la mise à jour Firestore échoue
+          // L'utilisateur est quand même vérifié dans Firebase Auth
+          console.error('❌ Erreur lors de la mise à jour Firestore (non bloquant):', firestoreError);
+          console.error('Détails de l\'erreur:', {
+            code: firestoreError.code,
+            message: firestoreError.message,
+            uid: currentUser.uid
+          });
+        }
       }
 
       setVerified(true);
@@ -95,9 +149,8 @@ const { logout } = useAuth();
 
     try {
       setIsLoading(true);
-      // Utiliser la Cloud Function avec Resend (rapide et fiable)
-      const cloudFunctionUrl = 'https://us-central1-recettes-cuisine-a1bf2.cloudfunctions.net/sendVerificationEmailFast';
-      const response = await fetch(cloudFunctionUrl, {
+      // Utiliser l'API route Next.js avec Resend (même système que la newsletter)
+      const response = await fetch('/api/send-verification-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,15 +162,16 @@ const { logout } = useAuth();
         }),
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email');
+        throw new Error(responseData.error || responseData.message || 'Erreur lors de l\'envoi de l\'email');
       }
 
       toastRef.current?.show({
         severity: 'success',
         summary: 'Email envoyé',
-        detail: 'Un nouvel email de vérification a été envoyé instantanément. Vérifiez votre boîte mail.',
+        detail: 'Un nouvel email de vérification a été envoyé. Vérifiez votre boîte mail (et vos spams).',
         life: 6000
       });
     } catch (error: any) {
@@ -128,6 +182,10 @@ const { logout } = useAuth();
         errorMessage = 'Trop de demandes. Veuillez réessayer dans quelques minutes.';
       } else if (error.message?.includes('Utilisateur non trouvé') || error.message?.includes('user-not-found')) {
         errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
+      } else if (error.message?.includes('credentials') || error.message?.includes('configuration')) {
+        errorMessage = 'Erreur de configuration. Veuillez contacter le support.';
+      } else {
+        errorMessage = error.message || errorMessage;
       }
 
       toastRef.current?.show({

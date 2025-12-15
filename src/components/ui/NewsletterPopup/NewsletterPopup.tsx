@@ -1,7 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import emailjs from "@emailjs/browser";
-import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 import "./NewsletterPopup.css";
 
@@ -10,8 +8,7 @@ const NewsletterPopup: React.FC = () => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
   const [closing, setClosing] = useState(false);
-
-  const db = getFirestore();
+  const [isLoading, setIsLoading] = useState(false);
 
   // 🔸 Vérifie si la popup doit s'afficher (toutes les 31 jours)
   useEffect(() => {
@@ -28,38 +25,38 @@ const NewsletterPopup: React.FC = () => {
 	}
   }, []);
 
-  const sendEmail = async (e: React.FormEvent) => {
+  const subscribeToNewsletter = async (e: React.FormEvent) => {
 	e.preventDefault();
 
 	if (!email) return;
 
+	setIsLoading(true);
+	setStatus("");
+
 	try {
-	  // Enregistre l'email dans Firestore
-	  await addDoc(collection(db, "abonnes"), {
-		email,
-		date: serverTimestamp(),
-		subscribed: true,
+	  // Utiliser la nouvelle API route unifiée
+	  const response = await fetch("/api/newsletter/subscribe", {
+		method: "POST",
+		headers: {
+		  "Content-Type": "application/json",
+		},
+		body: JSON.stringify({ email }),
 	  });
 
-	  // Envoie via EmailJS
-	  await emailjs.send(
-		"service_vxtc0is",	  // 🔹 Ton Service ID
-		"template_ejada8v",	 // 🔹 Ton Template ID
-		{
-		  user_email: email,
-		  recette_nom: "Recette de la semaine",
-		  recette_url: "https://www.aymeric-sabatier.fr/Cuisine-artisanale",
-		  company_name: "Cuisine Artisanale"
-		},
-		"5xnfDEFOuf9OciDAG"   // 🔹 Ta clé publique EmailJS
-	  );
+	  const data = await response.json();
 
-	  setStatus("✅ Merci ! Vous êtes inscrit(e) avec succès !");
-	  setEmail("");
-	  setTimeout(() => setShowPopup(false), 3000);
+	  if (data.success) {
+		setStatus("✅ " + data.message);
+		setEmail("");
+		setTimeout(() => setShowPopup(false), 3000);
+	  } else {
+		setStatus("❌ " + (data.error || "Une erreur est survenue. Réessayez plus tard."));
+	  }
 	} catch (error) {
-	  console.error(error);
+	  console.error("Erreur lors de l'inscription:", error);
 	  setStatus("❌ Une erreur est survenue. Réessayez plus tard.");
+	} finally {
+	  setIsLoading(false);
 	}
   };
 
@@ -96,15 +93,18 @@ const NewsletterPopup: React.FC = () => {
 			<h2>🍪 Rejoignez la newsletter</h2>
 			<p>Recevez chaque dimanche une recette facile et gourmande !</p>
 
-			<form onSubmit={sendEmail}>
+			<form onSubmit={subscribeToNewsletter}>
 			  <input
 				type="email"
 				placeholder="Votre email"
 				value={email}
 				onChange={(e) => setEmail(e.target.value)}
 				required
+				disabled={isLoading}
 			  />
-			  <button type="submit">S’abonner 🍰</button>
+			  <button type="submit" disabled={isLoading}>
+				{isLoading ? "Inscription..." : "S'abonner 🍰"}
+			  </button>
 			</form>
 
 			{status && <p className="newsletter-status">{status}</p>}
