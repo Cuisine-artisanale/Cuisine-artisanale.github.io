@@ -531,7 +531,7 @@
 
     .navbar {
       padding-top: env(safe-area-inset-top);
-      height: calc(3.5rem + env(safe-area-inset-top));
+      height: calc(4rem + env(safe-area-inset-top));
     }
   }
 }
