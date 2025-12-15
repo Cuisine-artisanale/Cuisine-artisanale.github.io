@@ -14,6 +14,10 @@ import {
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, getDocs } from "firebase/firestore";
 
+// Flag pour désactiver temporairement la vérification email
+// Mettre à true pour réactiver la vérification email
+const REQUIRE_EMAIL_VERIFICATION = false;
+
 interface AuthContextType {
   user: User | null;
   role: string | null;
@@ -172,8 +176,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  setError(null);
 	  const result = await signInWithEmailAndPassword(auth, email, password);
 
-	  // Check if email is verified
-	  if (!result.user.emailVerified) {
+	  // Check if email is verified (seulement si la vérification est activée)
+	  if (REQUIRE_EMAIL_VERIFICATION && !result.user.emailVerified) {
 		await signOut(auth);
 		throw new Error("Veuillez vérifier votre email avant de vous connecter. Un email de vérification vous a été envoyé.");
 	  }
@@ -204,52 +208,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		displayName: displayName
 	  });
 
-	  // Send verification email via API route Next.js (même logique que la newsletter)
-	  console.log('Sending verification email via API route (Resend) to:', email);
-	  try {
-		const response = await fetch('/api/send-verification-email', {
-		  method: 'POST',
-		  headers: {
-			'Content-Type': 'application/json',
-		  },
-		  body: JSON.stringify({
-			email: email,
-			displayName: displayName,
-			uid: result.user.uid, // Passer l'UID pour vérifier l'existence de l'utilisateur
-		  }),
-		});
+	  // Send verification email via API route Next.js (seulement si la vérification est activée)
+	  if (REQUIRE_EMAIL_VERIFICATION) {
+		console.log('Sending verification email via API route (Resend) to:', email);
+		try {
+		  const response = await fetch('/api/send-verification-email', {
+			method: 'POST',
+			headers: {
+			  'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+			  email: email,
+			  displayName: displayName,
+			  uid: result.user.uid, // Passer l'UID pour vérifier l'existence de l'utilisateur
+			}),
+		  });
 
-		const responseData = await response.json();
+		  const responseData = await response.json();
 
-		if (!response.ok) {
-		  console.error("❌ Erreur API route:", responseData);
-		  throw new Error(responseData.error || responseData.message || 'Erreur lors de l\'envoi de l\'email');
+		  if (!response.ok) {
+			console.error("❌ Erreur API route:", responseData);
+			throw new Error(responseData.error || responseData.message || 'Erreur lors de l\'envoi de l\'email');
+		  }
+
+		  console.log('✅ Verification email sent successfully via API route (Resend)!', responseData);
+		} catch (emailError: any) {
+		  console.error("❌ Erreur lors de l'envoi de l'email de vérification:", emailError);
+		  console.error("❌ Détails de l'erreur:", {
+			message: emailError.message,
+			stack: emailError.stack,
+			response: emailError.response
+		  });
+
+		  // Si l'envoi d'email échoue, on continue quand même pour créer l'utilisateur
+		  // L'utilisateur pourra demander un renvoi d'email plus tard
+		  if (emailError.message?.includes('Trop de demandes') || emailError.message?.includes('too-many-requests')) {
+			throw new Error('Trop de demandes. Veuillez réessayer dans quelques minutes.');
+		  }
+		  throw new Error(emailError.message || 'Erreur lors de l\'envoi de l\'email de vérification. Veuillez réessayer.');
 		}
-
-		console.log('✅ Verification email sent successfully via API route (Resend)!', responseData);
-	  } catch (emailError: any) {
-		console.error("❌ Erreur lors de l'envoi de l'email de vérification:", emailError);
-		console.error("❌ Détails de l'erreur:", {
-		  message: emailError.message,
-		  stack: emailError.stack,
-		  response: emailError.response
-		});
-
-		// Si l'envoi d'email échoue, on continue quand même pour créer l'utilisateur
-		// L'utilisateur pourra demander un renvoi d'email plus tard
-		if (emailError.message?.includes('Trop de demandes') || emailError.message?.includes('too-many-requests')) {
-		  throw new Error('Trop de demandes. Veuillez réessayer dans quelques minutes.');
-		}
-		throw new Error(emailError.message || 'Erreur lors de l\'envoi de l\'email de vérification. Veuillez réessayer.');
+	  } else {
+		console.log('⚠️ Envoi d\'email de vérification désactivé (REQUIRE_EMAIL_VERIFICATION = false)');
 	  }
 
-	  // Create user in Firestore (email non vérifié au départ)
+	  // Create user in Firestore
+	  // Si la vérification est désactivée, considérer l'email comme vérifié
 	  console.log('Creating user document in Firestore...');
-	  await createUserInFirestore(result.user.uid, email, displayName, false);
+	  await createUserInFirestore(result.user.uid, email, displayName, !REQUIRE_EMAIL_VERIFICATION);
 	  console.log('User document created in Firestore');
 
-	  // Don't sign out - let the user stay logged in but restrict access to protected routes
-	  console.log('User remains logged in but email not verified yet');
+	  if (REQUIRE_EMAIL_VERIFICATION) {
+		// Don't sign out - let the user stay logged in but restrict access to protected routes
+		console.log('User remains logged in but email not verified yet');
+	  } else {
+		console.log('✅ User created and logged in (email verification disabled)');
+	  }
 	} catch (err: any) {
 	  console.error("❌ Error signing up with email:", err);
 	  console.error("Error code:", err.code);

@@ -9,6 +9,10 @@ import { Toast } from 'primereact/toast';
 import './verify-email.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 
+// Flag pour désactiver temporairement la vérification email
+// Mettre à true pour réactiver la vérification email
+const REQUIRE_EMAIL_VERIFICATION = false;
+
 
 function VerifyEmailContent() {
 const { logout } = useAuth();
@@ -22,6 +26,17 @@ const { logout } = useAuth();
   const [email, setEmail] = useState('');
 
   useEffect(() => {
+    // Si la vérification email est désactivée, rediriger vers le compte
+    if (!REQUIRE_EMAIL_VERIFICATION) {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        router.push('/account');
+      } else {
+        router.push('/login');
+      }
+      return;
+    }
+
     // Vérifier si un code Firebase (oobCode) est présent dans l'URL
     const oobCode = searchParams.get('oobCode');
     const mode = searchParams.get('mode');
