@@ -65,14 +65,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	}
   };
 
-  const createUserInFirestore = async (userId: string, email: string, displayName: string) => {
+  const createUserInFirestore = async (userId: string, email: string, displayName: string, emailVerified: boolean = false) => {
 	const db = getFirestore();
 	const userRef = doc(db, "users", userId);
 	await setDoc(userRef, {
 	  email: email,
 	  role: "user",
 	  createdAt: new Date(),
-	  displayName: displayName
+	  displayName: displayName,
+	  emailVerified: emailVerified,
+	  ...(emailVerified && { emailVerifiedAt: new Date() })
 	});
   };
 
@@ -153,7 +155,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  if (result.user) {
 		const userRole = await fetchUserRole(result.user.uid);
 		if (!userRole) {
-		  await createUserInFirestore(result.user.uid, result.user.email || "", result.user.displayName || "");
+		  // Les utilisateurs Google ont leur email vérifié automatiquement
+		  await createUserInFirestore(result.user.uid, result.user.email || "", result.user.displayName || "", true);
 		  setRole("user");
 		}
 	  }
@@ -240,9 +243,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		throw new Error(emailError.message || 'Erreur lors de l\'envoi de l\'email de vérification. Veuillez réessayer.');
 	  }
 
-	  // Create user in Firestore
+	  // Create user in Firestore (email non vérifié au départ)
 	  console.log('Creating user document in Firestore...');
-	  await createUserInFirestore(result.user.uid, email, displayName);
+	  await createUserInFirestore(result.user.uid, email, displayName, false);
 	  console.log('User document created in Firestore');
 
 	  // Don't sign out - let the user stay logged in but restrict access to protected routes
