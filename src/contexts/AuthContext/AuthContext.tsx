@@ -201,11 +201,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		displayName: displayName
 	  });
 
-	  // Send verification email via Cloud Function avec Resend (rapide et fiable)
-	  console.log('Sending verification email via Cloud Function (Resend) to:', email);
+	  // Send verification email via API route Next.js (même logique que la newsletter)
+	  console.log('Sending verification email via API route (Resend) to:', email);
 	  try {
-		const cloudFunctionUrl = 'https://us-central1-recettes-cuisine-a1bf2.cloudfunctions.net/sendVerificationEmailFast';
-		const response = await fetch(cloudFunctionUrl, {
+		const response = await fetch('/api/send-verification-email', {
 		  method: 'POST',
 		  headers: {
 			'Content-Type': 'application/json',
@@ -217,14 +216,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		  }),
 		});
 
+		const responseData = await response.json();
+
 		if (!response.ok) {
-		  const errorData = await response.json();
-		  throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email');
+		  console.error("❌ Erreur API route:", responseData);
+		  throw new Error(responseData.error || responseData.message || 'Erreur lors de l\'envoi de l\'email');
 		}
 
-		console.log('✅ Verification email sent successfully via Cloud Function (Resend)!');
+		console.log('✅ Verification email sent successfully via API route (Resend)!', responseData);
 	  } catch (emailError: any) {
 		console.error("❌ Erreur lors de l'envoi de l'email de vérification:", emailError);
+		console.error("❌ Détails de l'erreur:", {
+		  message: emailError.message,
+		  stack: emailError.stack,
+		  response: emailError.response
+		});
+
 		// Si l'envoi d'email échoue, on continue quand même pour créer l'utilisateur
 		// L'utilisateur pourra demander un renvoi d'email plus tard
 		if (emailError.message?.includes('Trop de demandes') || emailError.message?.includes('too-many-requests')) {

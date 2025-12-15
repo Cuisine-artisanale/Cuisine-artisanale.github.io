@@ -10,6 +10,14 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 import * as path from "path";
 
+// Import du service d'email centralisé
+import { createEmailServiceFromEnv } from "./services/emailService";
+import {
+	getWeeklyRecipeEmailTemplate,
+	getVerificationEmailTemplate,
+	getCustomEmailTemplate,
+} from "./services/emailTemplates";
+
 // Charger les variables d'environnement depuis .env.local en développement local
 // En production, les secrets Firebase seront utilisés via process.env
 if (process.env.NODE_ENV !== "production" || process.env.FUNCTIONS_EMULATOR) {
@@ -17,11 +25,23 @@ if (process.env.NODE_ENV !== "production" || process.env.FUNCTIONS_EMULATOR) {
 }
 
 const admin = require("firebase-admin");
-const nodemailer = require("nodemailer");
 const corsHandler = cors({ origin: true });
 
 admin.initializeApp();
 const db = admin.firestore();
+
+// Initialiser le service d'email centralisé (Resend uniquement)
+// Note: Pour les fonctions avec secrets, le service sera réinitialisé dans la fonction
+let emailService: ReturnType<typeof createEmailServiceFromEnv> | null = null;
+try {
+	emailService = createEmailServiceFromEnv();
+	console.log(
+		`✅ Service d'email Resend initialisé avec succès`
+	);
+} catch (error) {
+	console.warn("⚠️ Service d'email non initialisé au niveau du module (normal si secrets non disponibles)");
+	console.warn("⚠️ Le service sera initialisé dans chaque fonction qui en a besoin");
+}
 
 const INDEXING_API_URL =
 	"https://indexing.googleapis.com/v3/urlNotifications:publish";
@@ -79,16 +99,6 @@ interface RecipeRequest {
 	title: string;
 }
 
-const transporter = nodemailer.createTransport({
-	host: "ssl0.ovh.net",
-	port: 465,
-	secure: true,
-	auth: {
-		user: process.env.EMAIL,
-		pass: process.env.APP_PASSWORD,
-	},
-});
-
 // Définition de la fonction avec les types Firebase pour event
 export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 	"recipesRequest/{objectId}",
@@ -101,18 +111,31 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 
 		const name = newValue.title;
 
-		const mailOptions = {
-			from: "a.sabatier@cuisine-artisanale.fr",
-			to: "ssabatieraymeric@gmail.com",
-			subject: "Nouvelle demande de recette",
-			text: `Une nouvelle demande de recette a été ajoutée : ${name}`,
-		};
-
 		try {
-			await transporter.sendMail(mailOptions);
-			console.log("Email envoyé !");
+			if (!emailService) {
+				console.error("❌ Service d'email non disponible. Vérifiez que RESEND_API_KEY est configurée.");
+				return;
+			}
+
+			const emailHtml = getCustomEmailTemplate(
+				"📝 Nouvelle demande de recette",
+				`<p>Une nouvelle demande de recette a été ajoutée :</p><p style="font-size: 18px; font-weight: bold; color: #8B4513;">${name}</p>`
+			);
+
+			const result = await emailService.sendEmail({
+				to: "ssabatieraymeric@gmail.com",
+				subject: "Nouvelle demande de recette",
+				html: emailHtml,
+				from: "a.sabatier@cuisine-artisanale.fr",
+			});
+
+			if (result.success) {
+				console.log("✅ Email envoyé avec succès !");
+			} else {
+				console.error("❌ Erreur d'envoi d'email :", result.error);
+			}
 		} catch (error) {
-			console.error("Erreur d'envoi d'email :", error);
+			console.error("❌ Erreur d'envoi d'email :", error);
 		}
 	}
 );
@@ -128,7 +151,7 @@ export const sendWeeklyRecipeEmail = async (email: string) => {
 
 		const recipe = weeklySnap.data();
 
-		// Crée le slug pour l’URL de la recette
+		// Crée le slug pour l'URL de la recette
 		const slug = recipe.title
 			.normalize("NFD")
 			.replace(/[\u0300-\u036f]/g, "")
@@ -144,79 +167,35 @@ export const sendWeeklyRecipeEmail = async (email: string) => {
 			email
 		)}`;
 
-		const mailOptions = {
-			from: "a.sabatier@cuisine-artisanale.fr",
+		if (!emailService) {
+			throw new Error("Service d'email non disponible. Vérifiez que RESEND_API_KEY est configurée.");
+		}
+
+		// Utiliser le template d'email centralisé
+		const emailHtml = getWeeklyRecipeEmailTemplate({
+			title: recipe.title,
+			type: recipe.type || "recette",
+			images: recipe.images || [],
+			recipeUrl,
+			unsubscribeUrl,
+		});
+
+		const result = await emailService.sendEmail({
 			to: email,
 			subject: `🍰 Votre recette de la semaine : ${recipe.title}`,
-			html: `
-		<div style="
-			font-family: 'Segoe UI', sans-serif;
-			background-color: #FFF9F5;
-			color: #2C1810;
-			padding: 24px;
-			border-radius: 12px;
-			max-width: 600px;
-			margin: 0 auto;
-			border: 1px solid #E8D5CC;
-			box-shadow: 0 5px 15px rgba(44,24,16,0.08);
-		">
-			<h1 style="text-align:center; color:#8B4513; margin-top:0;">🍪 ${recipe.title
-				}</h1>
-			<p style="text-align:center; font-size:16px; color:#7D4F50;">Bonjour gourmand(e) !</p>
+			html: emailHtml,
+			from: "a.sabatier@cuisine-artisanale.fr",
+		});
 
-			<p style="font-size:15px; line-height:1.6; color:#2C1810;">
-			Découvrez notre nouvelle recette ${recipe.type.toLowerCase()} de la semaine : simple, savoureuse et parfaite pour vos repas du dimanche 😋
-			</p>
-
-			<div style="text-align:center; margin:25px 0;">
-			<img src="${recipe.images[0]}"
-				alt="${recipe.title}"
-				style="width:100%; max-width:480px; border-radius:10px; border:1px solid #E8D5CC;" />
-			</div>
-
-			<div style="text-align:center;">
-			<a href="${recipeUrl}"
-				style="
-				background-color:#8B4513;
-				color:#FFF;
-				padding:12px 24px;
-				border-radius:8px;
-				text-decoration:none;
-				font-weight:bold;
-				display:inline-block;
-				transition:background 0.3s;
-				"
-				onmouseover="this.style.backgroundColor='#A0522D';"
-				onmouseout="this.style.backgroundColor='#8B4513';"
-			>
-				👉 Voir la recette complète
-			</a>
-			</div>
-
-			<hr style="margin:30px 0; border:none; border-top:1px solid #E8D5CC;">
-
-			<p style="font-size:14px; color:#7D4F50; text-align:center;">
-			Vous recevez cet email car vous êtes inscrit(e) à la newsletter de
-			<a href="https://www.aymeric-sabatier.fr/Cuisine-artisanale"
-				style="color:#8B4513; text-decoration:none; font-weight:bold;">
-				Cuisine Artisanale
-			</a> 🍰
-			<br/>
-			<small>
-				<a href="${unsubscribeUrl}"
-				style="color:#A0522D; text-decoration:none;">
-				Se désabonner
-				</a>
-			</small>
-			</p>
-		</div>
-		`,
-		};
-
-		await transporter.sendMail(mailOptions);
-		console.log("Email envoyé avec succès à", email);
+		if (result.success) {
+			console.log("✅ Email envoyé avec succès à", email);
+		} else {
+			console.error("❌ Erreur lors de l'envoi de l'email :", result.error);
+			throw new Error(result.error);
+		}
 	} catch (error) {
-		console.error("Erreur lors de l'envoi de l'email :", error);
+		console.error("❌ Erreur lors de l'envoi de l'email :", error);
+		throw error;
 	}
 };
 
@@ -714,163 +693,68 @@ export const sendVerificationEmailFast = onRequest(
 					url: continueUrl,
 				});
 
-			// Vérifier que FRONTEND_URL est bien défini
-			if (!process.env.FRONTEND_URL) {
-				console.error("FRONTEND_URL n'est pas configurée dans les secrets Firebase");
+			// Initialiser le service d'email dans le contexte de la fonction (secrets disponibles ici)
+			let emailService: ReturnType<typeof createEmailServiceFromEnv>;
+			try {
+				emailService = createEmailServiceFromEnv();
+			} catch (initError: any) {
+				console.error("Erreur lors de l'initialisation du service d'email:", initError);
 				res.status(500).json({
 					success: false,
-					message: "Configuration manquante : FRONTEND_URL n'est pas définie",
-					error: "Veuillez configurer le secret FRONTEND_URL dans Firebase Functions (ex: https://www.cuisine-artisanale.fr)",
-					hint: "Utilisez: firebase functions:secrets:set FRONTEND_URL",
-				});
-				return;
-			}
-
-			// Envoyer l'email via Resend (rapide et fiable)
-			const resendApiKey = process.env.RESEND_API_KEY;
-			if (!resendApiKey) {
-				console.error("RESEND_API_KEY n'est pas configurée dans les secrets Firebase");
-				res.status(500).json({
-					success: false,
-					message: "Configuration manquante : RESEND_API_KEY n'est pas définie",
-					error: "Veuillez configurer le secret RESEND_API_KEY dans Firebase Functions",
+					message: "Service d'email non disponible",
+					error: initError.message || "Veuillez configurer RESEND_API_KEY dans Firebase Functions",
 					hint: "Utilisez: firebase functions:secrets:set RESEND_API_KEY",
 				});
 				return;
 			}
 
-			const { Resend } = require("resend");
-			const resend = new Resend(resendApiKey);
-
-			const emailHtml = `
-				<!DOCTYPE html>
-				<html>
-				<head>
-					<style>
-						body {
-							font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-							background-color: #f5f5f5;
-							margin: 0;
-							padding: 20px;
-						}
-						.container {
-							max-width: 600px;
-							margin: 0 auto;
-							background-color: #ffffff;
-							border-radius: 12px;
-							overflow: hidden;
-							box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-						}
-						.header {
-							background: linear-gradient(135deg, #8B4513, #CD853F);
-							color: white;
-							padding: 30px;
-							text-align: center;
-						}
-						.header h1 {
-							margin: 0;
-							font-size: 28px;
-						}
-						.content {
-							padding: 40px 30px;
-						}
-						.content p {
-							font-size: 16px;
-							line-height: 1.6;
-							color: #333;
-							margin-bottom: 20px;
-						}
-						.button {
-							display: inline-block;
-							background-color: #8B4513;
-							color: white;
-							padding: 15px 40px;
-							text-decoration: none;
-							border-radius: 8px;
-							font-weight: bold;
-							font-size: 16px;
-							margin: 20px 0;
-						}
-						.button:hover {
-							background-color: #CD853F;
-						}
-						.footer {
-							background-color: #f9f9f9;
-							padding: 20px;
-							text-align: center;
-							font-size: 14px;
-							color: #666;
-						}
-						.warning {
-							background-color: #fff3cd;
-							border-left: 4px solid #ffc107;
-							padding: 15px;
-							margin: 20px 0;
-							border-radius: 4px;
-						}
-					</style>
-				</head>
-				<body>
-					<div class="container">
-						<div class="header">
-							<h1>✉️ Vérification de votre email</h1>
-						</div>
-						<div class="content">
-							<p>Bonjour <strong>${displayName || "Utilisateur"}</strong>,</p>
-							<p>Merci de vous être inscrit sur <strong>Cuisine Artisanale</strong> !</p>
-							<p>Pour finaliser votre inscription, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous :</p>
-							<center>
-								<a href="${verificationLink}" class="button">Vérifier mon email</a>
-							</center>
-							<div class="warning">
-								<p style="margin: 0; font-size: 14px;">
-									⚠️ <strong>Important :</strong> Ce lien est valable pendant <strong>1 heure</strong> uniquement.
-								</p>
-							</div>
-							<p style="font-size: 14px; color: #666;">
-								Si vous n'avez pas créé de compte, vous pouvez ignorer cet email en toute sécurité.
-							</p>
-						</div>
-						<div class="footer">
-							<p>© 2025 Cuisine Artisanale. Tous droits réservés.</p>
-						</div>
-					</div>
-				</body>
-				</html>
-			`;
-
-			const { data, error } = await resend.emails.send({
-				from: process.env.RESEND_FROM_EMAIL || "Cuisine Artisanale <onboarding@resend.dev>",
-				to: [email],
-				subject: "Vérifiez votre email - Cuisine Artisanale",
-				html: emailHtml,
+			// Utiliser le template d'email centralisé
+			const emailHtml = getVerificationEmailTemplate({
+				displayName: displayName || "Utilisateur",
+				verificationLink,
 			});
 
-			if (error) {
-				console.error("Resend error:", error);
+			// Déterminer l'adresse email d'expéditeur
+			// Utiliser RESEND_FROM_EMAIL si configuré, sinon utiliser une adresse par défaut vérifiée
+			const fromEmail = process.env.RESEND_FROM_EMAIL ||
+				process.env.EMAIL_FROM ||
+				"Cuisine Artisanale <onboarding@resend.dev>"; // Adresse par défaut pour les tests
 
-				// Message d'erreur plus explicite pour les limitations Resend
-				let errorMessage = error.message;
-				if (error.message?.includes("You can only send testing emails")) {
-					errorMessage = "Limitation Resend : Vous devez vérifier un domaine pour envoyer à d'autres adresses. Voir resend.com/domains";
+			// Envoyer l'email via le service centralisé
+			const result = await emailService.sendEmail({
+				to: email,
+				subject: "Vérifiez votre email - Cuisine Artisanale",
+				html: emailHtml,
+				from: fromEmail,
+			});
+
+			if (!result.success) {
+				console.error("Erreur lors de l'envoi de l'email:", result.error);
+
+				// Message d'erreur plus explicite pour les problèmes de domaine
+				let errorMessage = result.error;
+				let hint = undefined;
+
+				if (result.error?.includes("domain is not verified") || result.error?.includes("not verified")) {
+					errorMessage = "Le domaine d'expéditeur n'est pas vérifié dans Resend";
+					hint = "Vérifiez votre domaine sur https://resend.com/domains ou utilisez une adresse email vérifiée dans RESEND_FROM_EMAIL";
 				}
 
 				res.status(500).json({
 					success: false,
 					message: "Erreur lors de l'envoi de l'email",
 					error: errorMessage,
-					hint: error.message?.includes("You can only send testing emails")
-						? "Pour envoyer à d'autres adresses, vérifiez un domaine dans Resend (resend.com/domains)"
-						: undefined,
+					hint: hint,
+					provider: emailService.getCurrentProvider(),
 				});
 				return;
 			}
 
-			console.log("✅ Email de vérification envoyé rapidement via Resend à:", email);
+			console.log("✅ Email de vérification envoyé via Resend à:", email);
 			res.status(200).json({
 				success: true,
 				message: "Email envoyé avec succès",
-				data,
+				messageId: result.messageId,
 			});
 		} catch (error: any) {
 			console.error("Erreur dans sendVerificationEmailFast:", error);

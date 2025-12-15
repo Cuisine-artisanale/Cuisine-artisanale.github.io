@@ -1,126 +1,132 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { NextRequest, NextResponse } from "next/server";
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { sendEmail } from "@/lib/services/emailService";
+import { getVerificationEmailTemplate } from "@/lib/services/emailTemplates";
 
+if (!getApps().length) {
+  let serviceAccount;
+
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+    // ✅ PRODUCTION (Vercel)
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+  } else {
+    // ✅ LOCAL
+    serviceAccount = require("@/firebase/serviceAccountKey.json");
+  }
+
+  initializeApp({
+    credential: cert({
+      projectId: serviceAccount.project_id,
+      clientEmail: serviceAccount.client_email,
+      privateKey: serviceAccount.private_key.replace(/\\n/g, "\n"),
+    }),
+  });
+
+  console.log("✅ Firebase Admin initialisé correctement");
+}
+
+
+/**
+ * API route pour envoyer un email de vérification
+ * Utilise la même logique que la newsletter (API route Next.js + Resend)
+ */
 export async function POST(request: NextRequest) {
-  try {
-    const { email, displayName, verificationUrl } = await request.json();
+	try {
+		const { email, displayName, uid } = await request.json();
 
-    // Initialize Resend only when the route is called (not at module level)
-    const resend = new Resend(process.env.RESEND_API_KEY);
+		if (!email || !email.includes("@")) {
+			return NextResponse.json(
+				{ success: false, error: "Email invalide" },
+				{ status: 400 }
+			);
+		}
 
-    const { data, error } = await resend.emails.send({
-      from: 'Cuisine Artisanale <onboarding@resend.dev>', // Remplace par ton domaine vérifié
-      to: [email],
-      subject: 'Vérifiez votre email - Cuisine Artisanale',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>
-            body {
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-              background-color: #f5f5f5;
-              margin: 0;
-              padding: 20px;
-            }
-            .container {
-              max-width: 600px;
-              margin: 0 auto;
-              background-color: #ffffff;
-              border-radius: 12px;
-              overflow: hidden;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            }
-            .header {
-              background: linear-gradient(135deg, #8B4513, #CD853F);
-              color: white;
-              padding: 30px;
-              text-align: center;
-            }
-            .header h1 {
-              margin: 0;
-              font-size: 28px;
-            }
-            .content {
-              padding: 40px 30px;
-            }
-            .content p {
-              font-size: 16px;
-              line-height: 1.6;
-              color: #333;
-              margin-bottom: 20px;
-            }
-            .button {
-              display: inline-block;
-              background-color: #8B4513;
-              color: white;
-              padding: 15px 40px;
-              text-decoration: none;
-              border-radius: 8px;
-              font-weight: bold;
-              font-size: 16px;
-              margin: 20px 0;
-            }
-            .button:hover {
-              background-color: #CD853F;
-            }
-            .footer {
-              background-color: #f9f9f9;
-              padding: 20px;
-              text-align: center;
-              font-size: 14px;
-              color: #666;
-            }
-            .warning {
-              background-color: #fff3cd;
-              border-left: 4px solid #ffc107;
-              padding: 15px;
-              margin: 20px 0;
-              border-radius: 4px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>✉️ Vérification de votre email</h1>
-            </div>
-            <div class="content">
-              <p>Bonjour <strong>${displayName}</strong>,</p>
-              <p>Merci de vous être inscrit sur <strong>Cuisine Artisanale</strong> !</p>
-              <p>Pour finaliser votre inscription, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous :</p>
-              <center>
-                <a href="${verificationUrl}" class="button">Vérifier mon email</a>
-              </center>
-              <div class="warning">
-                <p style="margin: 0; font-size: 14px;">
-                  ⚠️ <strong>Important :</strong> Ce lien est valable pendant <strong>24 heures</strong> uniquement.
-                </p>
-              </div>
-              <p style="font-size: 14px; color: #666;">
-                Si vous n'avez pas créé de compte, vous pouvez ignorer cet email en toute sécurité.
-              </p>
-            </div>
-            <div class="footer">
-              <p>© 2025 Cuisine Artisanale. Tous droits réservés.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
-    });
+		// Vérifier que l'utilisateur existe dans Firebase Auth
+		const auth = getAuth();
+		const list = await auth.listUsers(5);
+		console.log("👥 Users seen by Admin:", list.users.map((u: any) => u.uid));
 
-    if (error) {
-      console.error('Resend error:', error);
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
+		let userRecord;
+		try {
+			if (uid) {
+				userRecord = await auth.getUser(uid);
+			} else {
+				userRecord = await auth.getUserByEmail(email);
+			}
+		} catch (authError: any) {
+			console.error("Erreur lors de la récupération de l'utilisateur:", authError);
+			// Attendre un peu et réessayer (délai de propagation)
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			try {
+				if (uid) {
+					userRecord = await auth.getUser(uid);
+				} else {
+					userRecord = await auth.getUserByEmail(email);
+				}
+			} catch (retryError: any) {
+				return NextResponse.json(
+					{
+						success: false,
+						error: "Utilisateur non trouvé dans Firebase Auth. Veuillez réessayer dans quelques secondes.",
+					},
+					{ status: 404 }
+				);
+			}
+		}
 
-    return NextResponse.json({ success: true, data });
-  } catch (error) {
-    console.error('Error sending verification email:', error);
+		// Générer le lien de vérification Firebase
+		const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL ||
+			process.env.FRONTEND_URL ||
+			"https://www.cuisine-artisanale.fr";
+
+		const continueUrl = `${frontendUrl}/verify-email`;
+		const verificationLink = await auth.generateEmailVerificationLink(
+			userRecord.email || email,
+			{
+				url: continueUrl,
+			}
+		);
+
+		// Utiliser le template d'email centralisé
+		const emailHtml = getVerificationEmailTemplate({
+			displayName: displayName || "Utilisateur",
+			verificationLink,
+		});
+
+		// Envoyer l'email via le service centralisé (même que la newsletter)
+		const result = await sendEmail({
+			to: email,
+			subject: "Vérifiez votre email - Cuisine Artisanale",
+			html: emailHtml,
+			from: process.env.RESEND_FROM_EMAIL || "Cuisine Artisanale <onboarding@resend.dev>",
+		});
+
+		if (!result.success) {
+			console.error("Erreur lors de l'envoi de l'email:", result.error);
+			return NextResponse.json(
+				{
+					success: false,
+					error: result.error || "Erreur lors de l'envoi de l'email",
+				},
+				{ status: 500 }
+			);
+		}
+
+		return NextResponse.json({
+			success: true,
+			message: "Email envoyé avec succès",
+			messageId: result.messageId,
+		});
+	} catch (error: any) {
+		console.error("Erreur lors de l'envoi de l'email de vérification:", error);
     return NextResponse.json(
-      { error: 'Erreur lors de l\'envoi de l\'email' },
+			{
+				success: false,
+				error: error.message || "Erreur lors de l'envoi de l'email de vérification",
+			},
       { status: 500 }
     );
   }
 }
+
