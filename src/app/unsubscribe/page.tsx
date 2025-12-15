@@ -47,7 +47,7 @@ function UnsubscribeContent() {
                 Vous avez été désabonné(e) de la newsletter <strong>Cuisine Artisanale</strong>.
               </p>
               <a
-                href="https://www.aymeric-sabatier.fr/Cuisine-artisanale"
+                href="https://www.Cuisine-artisanale.fr"
                 className="unsubscribe-button"
               >
                 Revenir sur le site
