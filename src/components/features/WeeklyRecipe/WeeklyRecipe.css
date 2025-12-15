@@ -28,11 +28,15 @@
 	overflow: hidden;
 	border-radius: var(--border-radius);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	flex: 0 0 50%;
+	width: 600px;
+	height: 400px;
 }
 
 .weekly-recipe-image {
-	width: 160px;
-	height: 120px;
+	width: 100%;
+	height: 100%;
+	min-height: 280px;
 	object-fit: cover;
 	display: block;
 }
@@ -41,42 +45,155 @@
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: 1rem;
+	padding-left: 1.5rem;
+	justify-content: space-between;
 }
 
 .weekly-recipe-content-title {
-	font-size: 1.25rem;
+	font-size: 1.5rem;
 	font-weight: 600;
 	margin: 0;
 	color: var(--text-color);
 	line-height: 1.3;
 }
 
-.weekly-recipe-content-info,
+.weekly-recipe-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.weekly-recipe-type {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	background: var(--primary-50);
+	color: var(--primary-700);
+	border-radius: 12px;
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+
+.weekly-recipe-difficulty {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	border-radius: 12px;
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+
+.weekly-recipe-difficulty-easy {
+	background: var(--success-50);
+	color: var(--success-700);
+}
+
+.weekly-recipe-difficulty-medium {
+	background: var(--warning-50);
+	color: var(--warning-700);
+}
+
+.weekly-recipe-difficulty-hard {
+	background: var(--danger-50);
+	color: var(--danger-700);
+}
+
 .weekly-recipe-content-location {
 	margin: 0;
 	color: var(--text-color-secondary);
-	font-size: 0.95rem;
+	font-size: 0.9rem;
 	line-height: 1.5;
 }
 
-.weekly-recipe-content-info strong {
-	color: var(--text-color);
-	font-weight: 600;
+.weekly-recipe-stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2rem;
+	margin-top: 0.5rem;
+	align-items: center;
+}
+
+.weekly-recipe-times {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.weekly-recipe-time-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--text-color-secondary);
+	font-size: 1rem;
+}
+
+.weekly-recipe-time-item i {
+	color: var(--primary-color);
+	font-size: 0.9rem;
+}
+
+.weekly-recipe-servings {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--text-color-secondary);
+	font-size: 1rem;
+}
+
+.weekly-recipe-servings i {
+	color: var(--primary-color);
+	font-size: 0.9rem;
+}
+
+.weekly-recipe-engagement {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1.5rem;
+	margin-top: 0.5rem;
+}
+
+.weekly-recipe-rating {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.weekly-recipe-rating .p-rating {
+	font-size: 0.9rem;
+}
+
+.weekly-recipe-rating-text {
+	color: var(--text-color-secondary);
+	font-size: 0.85rem;
+	font-weight: 500;
+}
+
+.weekly-recipe-likes {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	color: var(--text-color-secondary);
+	font-size: 0.9rem;
+}
+
+.weekly-recipe-likes i {
+	color: var(--danger-500);
+	font-size: 0.9rem;
 }
 
 .weekly-recipe-button {
 	display: inline-block;
 	width: fit-content;
-	margin-top: 0.5rem;
-	padding: 0.625rem 1.25rem;
+	margin-top: 1rem;
+	padding: 0.75rem 2rem;
 	background: var(--button-bg);
 	border: 1px solid var(--button-border);
 	border-radius: var(--border-radius);
 	color: var(--button-text);
 	text-decoration: none;
 	font-weight: 600;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	transition: all 0.3s ease;
 	cursor: pointer;
 }
@@ -100,8 +217,9 @@
 
 /* Skeleton loaders */
 .weekly-recipe-skeleton-image {
-	width: 160px;
-	height: 120px;
+	min-width: 350px;
+	flex: 0 0 50%;
+	height: 280px;
 	background: linear-gradient(
 		90deg,
 		var(--surface-ground) 25%,
@@ -136,6 +254,30 @@
 .weekly-recipe-skeleton-subtitle {
 	width: 60%;
 	margin-bottom: 8px;
+}
+
+.weekly-recipe-skeleton-meta {
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 8px;
+}
+
+.weekly-recipe-skeleton-badge {
+	width: 80px;
+	height: 24px;
+	margin: 0;
+}
+
+.weekly-recipe-skeleton-stats {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 8px;
+}
+
+.weekly-recipe-skeleton-stat {
+	width: 120px;
+	height: 18px;
+	margin: 0;
 }
 
 .weekly-recipe-skeleton-button {
@@ -178,6 +320,11 @@
 		width: 100%;
 	}
 
+	.weekly-recipe-image-wrapper {
+		min-width: 100%;
+		flex: 1 1 100%;
+	}
+
 	.weekly-recipe-image {
 		width: 100%;
 		height: auto;
@@ -185,8 +332,25 @@
 	}
 
 	.weekly-recipe-content {
+		padding-left: 0;
+		padding-top: 1rem;
+	}
+
+	.weekly-recipe-content {
 		text-align: center;
 		align-items: center;
+	}
+
+	.weekly-recipe-meta {
+		justify-content: center;
+	}
+
+	.weekly-recipe-stats {
+		justify-content: center;
+	}
+
+	.weekly-recipe-engagement {
+		justify-content: center;
 	}
 
 	.weekly-recipe-button {
