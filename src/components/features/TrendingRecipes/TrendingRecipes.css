@@ -4,6 +4,7 @@
   background-color: var(--surface-card);
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
+  width: 100%;
 }
 
 .trending-recipes-section h2 {

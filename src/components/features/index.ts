@@ -13,6 +13,7 @@ export { default as AddUnit } from './AddUnit/AddUnit';
 export { default as AddUnitForm } from './AddUnitForm/AddUnitForm';
 export { default as Filtre } from './Filtre/Filtre';
 export { default as TrendingRecipes } from './TrendingRecipes/TrendingRecipes';
+export { default as WeeklyRecipe } from './WeeklyRecipe/WeeklyRecipe';
 export { default as PersonalizedRecommendations } from './PersonalizedRecommendations/PersonalizedRecommendations';
 export { default as UserStats } from './UserStats/UserStats';
 

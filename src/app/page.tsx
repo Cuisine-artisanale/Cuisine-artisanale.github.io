@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react';
-import ActualitesClient from './ActualitesClient';
 import PostsClient from './PostsClient';
-import { TrendingRecipes } from '@/components/features';
+import { TrendingRecipes, WeeklyRecipe } from '@/components/features';
 
 export const metadata = {
 	title: 'Accueil | Cuisine artisanale',
@@ -11,7 +10,7 @@ export const metadata = {
 export default function Page() {
 	return (
 		<div className="Home">
-			<ActualitesClient />
+			<WeeklyRecipe />
 			<TrendingRecipes />
 			<PostsClient />
 		</div>
