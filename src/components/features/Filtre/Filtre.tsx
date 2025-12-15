@@ -70,72 +70,69 @@ const Filtre: React.FC = () => {
 
   return (
 	<div className="Filtre">
-	  <h2>Filtrer les recettes</h2>
+	  	<h2>Filtrer les recettes</h2>
 
-	  <section className='filtre_input'>
-		<div>
-		  <h3>Nom de la recette</h3>
-		  <span className="p-input-icon-left">
-			<i className="pi pi-search" />
-			<InputText
-			  placeholder="Rechercher une recette..."
-			  value={name}
-			  onChange={(e) => setName(e.target.value)}
-			  onKeyPress={handleKeyPress}
-			/>
-		  </span>
-		</div>
-
-		<div>
-		  <h3>Type de recette</h3>
-		  <div className="Filtre_type">
-			{typeRecette.map((type) => (
-			  <div key={type.id}>
-				<RadioButton
-				  inputId={type.id.toString()}
-				  name="type"
-				  value={type.name}
-				  onChange={(e) => setSelectedType(e.value)}
-				  checked={selectedType === type.name}
+		<section className='filtre_input'>
+			<div>
+				<h3>Nom de la recette</h3>
+				<InputText
+					placeholder="Rechercher une recette..."
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					onKeyDown={handleKeyPress}
 				/>
-				<label htmlFor={type.id.toString()}>{type.name}</label>
-			  </div>
-			))}
-		  </div>
-		</div>
+			</div>
 
-		<div className='formRecette_region'>
-		  <h3>Département</h3>
-		  <Dropdown
-			id='position'
-			value={position}
-			options={[
-			  { nom: "Tous les départements", code: '' },
-			  ...departements
-			]}
-			onChange={(e: DropdownChangeEvent) => setPosition(e.value)}
-			optionLabel="nom"
-			placeholder="Sélectionner un département"
-			className="w-full"
-		  />
-		</div>
-	  </section>
+			<div>
+				<h3>Type de recette</h3>
+				<div className="Filtre_type">
+					{typeRecette.map((type) => (
+					<div key={type.id}>
+						<RadioButton
+						inputId={type.id.toString()}
+						name="type"
+						value={type.name}
+						onChange={(e) => setSelectedType(e.value)}
+						checked={selectedType === type.name}
+						/>
+						<label htmlFor={type.id.toString()}>{type.name}</label>
+					</div>
+					))}
+				</div>
+			</div>
 
-	  <div className="filtre_buttons">
-		<Button
-		  label='Filtrer'
-		  icon="pi pi-filter"
-		  loading={isLoading}
-		  onClick={useFilter}
-		/>
-		<Button
-		  label='Réinitialiser'
-		  icon="pi pi-refresh"
-		  className="p-button-secondary"
-		  onClick={resetFilter}
-		  disabled={isLoading}
-		/>
-	  </div>
+			<div className='formRecette_region'>
+				<h3>Département</h3>
+				<Dropdown
+					id='position'
+					value={position}
+					options={[
+					{ nom: "Tous les départements", code: '' },
+					...departements
+					]}
+					onChange={(e: DropdownChangeEvent) => setPosition(e.value)}
+					optionLabel="nom"
+					placeholder="Sélectionner un département"
+					className="w-full"
+				/>
+			</div>
+		</section>
+
+			<div className="filtre_buttons">
+				<Button
+					label='Filtrer'
+					icon="pi pi-filter"
+					loading={isLoading}
+					onClick={useFilter}
+				/>
+				<Button
+					label='Réinitialiser'
+					icon="pi pi-refresh"
+					className="p-button-secondary"
+					onClick={resetFilter}
+					disabled={isLoading}
+				/>
+			</div>
 	</div>
   );
 };
