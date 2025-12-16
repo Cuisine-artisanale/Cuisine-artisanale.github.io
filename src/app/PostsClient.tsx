@@ -3,18 +3,17 @@ import { useEffect, useState, useMemo, Suspense } from 'react';
 import './PostsClient.css';
 import { AddPost, Post as PostComponent } from '@/components/features';
 import { db } from '@/lib/config/firebase';
-import { collection, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore';
+import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import type { Post } from '@/types';
 
 const nbPostsToDisplay = 5;
 
 export default function PostsClient() {
-	const [posts, setPosts] = useState<Post[]>([]);
-	const [lastVisible, setLastVisible] = useState<any>(null);
+	const [allPosts, setAllPosts] = useState<Post[]>([]);
+	const [displayedPostsCount, setDisplayedPostsCount] = useState<number>(nbPostsToDisplay);
 	const [loading, setLoading] = useState<boolean>(false);
-	const [hasMorePosts, setHasMorePosts] = useState<boolean>(true);
-	const [showScrollTop, setShowScrollTop] = useState(false);
+	const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
 	const { role, user } = useAuth();
 
 	const formatDate = (date: Date) =>
@@ -27,80 +26,71 @@ export default function PostsClient() {
 			minute: "2-digit"
 		});
 
-	const fetchInitialPosts = async () => {
+	const setupPostsListener = () => {
 		setLoading(true);
 		try {
 			const postsQuery = query(
 				collection(db, "posts"),
 				orderBy("createdAt", "desc"),
-				limit(nbPostsToDisplay)
+				limit(100) // Limiter à 100 posts pour éviter trop de lectures
 			);
-			const querySnapshot = await getDocs(postsQuery);
-			const postsData: Post[] = querySnapshot.docs.map((doc) => {
-				const data = doc.data();
-				return {
-					id: doc.id,
-					title: data.title,
-					content: data.content,
-					createdAt: data.createdAt.toDate(),
-					visible: data.visible !== false,
-					userName: data.userName
-				} as Post;
+
+			// Utiliser onSnapshot pour écouter les changements en temps réel
+			const unsubscribe = onSnapshot(postsQuery, (querySnapshot) => {
+				const postsData: Post[] = querySnapshot.docs.map((doc) => {
+					const data = doc.data();
+					return {
+						id: doc.id,
+						title: data.title,
+						content: data.content,
+						createdAt: data.createdAt?.toDate() || new Date(),
+						visible: data.visible !== false,
+						userName: data.userName
+					} as Post;
+				});
+				setAllPosts(postsData);
+				setLoading(false);
+			}, (error) => {
+				console.error("Error fetching posts:", error);
+				setLoading(false);
 			});
-			setPosts(postsData);
-			setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-			setHasMorePosts(querySnapshot.size === nbPostsToDisplay);
+
+			// Retourner la fonction de nettoyage pour se désabonner
+			return unsubscribe;
 		} catch (error) {
-			console.error("Error fetching posts:", error);
+			console.error("Error setting up posts listener:", error);
+			setLoading(false);
+			return () => {}; // Retourner une fonction vide en cas d'erreur
 		}
-		setLoading(false);
 	};
 
-	const loadMorePosts = async () => {
-		if (!lastVisible || loading) return;
-		setLoading(true);
-
-		try {
-			const postsQuery = query(
-				collection(db, "posts"),
-				orderBy("createdAt", "desc"),
-				startAfter(lastVisible),
-				limit(nbPostsToDisplay)
-			);
-			const querySnapshot = await getDocs(postsQuery);
-			const postsData: Post[] = querySnapshot.docs.map((doc) => {
-				const data = doc.data();
-				return {
-					id: doc.id,
-					title: data.title,
-					content: data.content,
-					createdAt: data.createdAt.toDate(),
-					visible: data.visible !== false,
-					userName: data.userName
-				} as Post;
-			});
-			setPosts((prev) => [...prev, ...postsData]);
-			setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-			setHasMorePosts(querySnapshot.size === nbPostsToDisplay);
-		} catch (error) {
-			console.error("Error loading more posts:", error);
-		}
-		setLoading(false);
+	const loadMorePosts = () => {
+		if (loading) return;
+		setDisplayedPostsCount((prev) => prev + nbPostsToDisplay);
 	};
 
 	const handleScroll = () => setShowScrollTop(window.scrollY > 300);
 	const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
 	useEffect(() => {
-		fetchInitialPosts();
+		const unsubscribe = setupPostsListener();
 		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
+		return () => {
+			if (unsubscribe) unsubscribe();
+			window.removeEventListener('scroll', handleScroll);
+		};
 	}, [user, role]);
 
-	// Filtrer les posts selon le rôle (memoized)
+	// Filtrer et limiter les posts selon le rôle (memoized)
 	const visiblePosts = useMemo(() => {
-		return posts.filter(post => post.visible || role === 'admin');
-	}, [posts, role]);
+		const filtered = allPosts.filter(post => post.visible || role === 'admin');
+		return filtered.slice(0, displayedPostsCount);
+	}, [allPosts, role, displayedPostsCount]);
+
+	const hasMorePosts = useMemo(() => {
+		const filtered = allPosts.filter(post => post.visible || role === 'admin');
+		return displayedPostsCount < filtered.length;
+	}, [allPosts, role, displayedPostsCount]);
 
 	return (
 		<div className="Posts">
