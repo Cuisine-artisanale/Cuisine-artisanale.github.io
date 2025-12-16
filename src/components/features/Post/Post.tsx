@@ -6,7 +6,8 @@ import { toggleLikePost, unlikePost } from '@/lib/services/post.service';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { deleteDoc, doc, onSnapshot, updateDoc } from '@firebase/firestore';
 import { db } from '@/lib/config/firebase';
-import { confirmDialog } from 'primereact/confirmdialog';
+import { ConfirmDialog } from '@/components/ui';
+import { useConfirmDialog } from '@/hooks';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import type { Post as PostType } from '@/types';
@@ -28,6 +29,7 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
   const [isVisible, setIsVisible] = useState(visible);
   const userId = user?.uid;
   const { showToast } = useToast();
+  const { confirm, visible: dialogVisible, dialogState, handleAccept, handleReject } = useConfirmDialog();
 
   useEffect(() => {
 	const unsubscribe = onSnapshot(doc(db, "posts", postId), (docSnapshot) => {
@@ -94,13 +96,13 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
   };
 
   const confirmDelete = () => {
-	confirmDialog({
+	confirm({
 	  message: 'Êtes-vous sûr de vouloir supprimer ce post ?',
 	  header: 'Confirmation de suppression',
 	  icon: 'pi pi-exclamation-triangle',
 	  acceptLabel: 'Oui',
 	  rejectLabel: 'Non',
-	  accept: handleDelete
+	  onAccept: handleDelete
 	});
   };
 
@@ -125,46 +127,60 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
   };
 
   return (
-	<div className={`Post ${fromRequest ? 'Post_request' : ''} ${!isVisible ? 'Post-hidden' : ''}`}>
-	  <h1>{title}</h1>
-	  <p style={{ whiteSpace: 'pre-wrap' }}>{content}</p>
+	<>
+	  {dialogState && (
+		<ConfirmDialog
+		  visible={dialogVisible}
+		  message={dialogState.message}
+		  header={dialogState.header}
+		  icon={dialogState.icon}
+		  acceptLabel={dialogState.acceptLabel}
+		  rejectLabel={dialogState.rejectLabel}
+		  onAccept={handleAccept}
+		  onReject={handleReject}
+		/>
+	  )}
+	  <div className={`Post ${fromRequest ? 'Post_request' : ''} ${!isVisible ? 'Post-hidden' : ''}`}>
+		<h1>{title}</h1>
+		<p style={{ whiteSpace: 'pre-wrap' }}>{content}</p>
 
-	  <section className='Section_buttons'>
-		{!fromRequest && (
-		  <Button
-			className='Post_likeButton'
-			onClick={handleLike}
-			disabled={isLoading}
-			severity={hasLiked ? "danger" : "secondary"}
-			icon={hasLiked ? "pi pi-heart-fill" : "pi pi-heart"}
-			label={likes.length.toString()}
-		  />
-		)}
+		<section className='Section_buttons'>
+		  {!fromRequest && (
+			<Button
+			  className='Post_likeButton'
+			  onClick={handleLike}
+			  disabled={isLoading}
+			  severity={hasLiked ? "danger" : "secondary"}
+			  icon={hasLiked ? "pi pi-heart-fill" : "pi pi-heart"}
+			  label={likes.length.toString()}
+			/>
+		  )}
 
-		{role === 'admin' && !fromRequest && (
-		  <div className='Post_admin_actions'>
-			<Button
-			  className='Post_visibilityButton'
-			  label={isVisible ? "Masquer" : "Afficher"}
-			  icon={isVisible ? "pi pi-eye-slash" : "pi pi-eye"}
-			  onClick={handleVisibilityToggle}
-			  disabled={isLoading}
-			  severity={isVisible ? "warning" : "success"}
-			/>
-			<Button
-			  className='Post_deleteButton'
-			  label="Supprimer"
-			  icon="pi pi-trash"
-			  onClick={confirmDelete}
-			  disabled={isLoading}
-			  severity="danger"
-			/>
-			<span className="post-date">{createdAt} </span>
-			<span className='post-user'>{userName}</span>
-		  </div>
-		)}
-	  </section>
-	</div>
+		  {role === 'admin' && !fromRequest && (
+			<div className='Post_admin_actions'>
+			  <Button
+				className='Post_visibilityButton'
+				label={isVisible ? "Masquer" : "Afficher"}
+				icon={isVisible ? "pi pi-eye-slash" : "pi pi-eye"}
+				onClick={handleVisibilityToggle}
+				disabled={isLoading}
+				severity={isVisible ? "warning" : "success"}
+			  />
+			  <Button
+				className='Post_deleteButton'
+				label="Supprimer"
+				icon="pi pi-trash"
+				onClick={confirmDelete}
+				disabled={isLoading}
+				severity="danger"
+			  />
+			  <span className="post-date">{createdAt} </span>
+			  <span className='post-user'>{userName}</span>
+			</div>
+		  )}
+		</section>
+	  </div>
+	</>
   );
 };
 
