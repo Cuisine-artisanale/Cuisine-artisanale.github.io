@@ -56,7 +56,7 @@ const AddPostForm: React.FC<AddPostFormProps> = ({ closeForm }) => {
 		createdAt: serverTimestamp(),
 		userId: user.uid,
 		userName: user.displayName || 'Anonymous',
-		visible: false
+		visible: true
 	  });
 	  closeForm();
 	} catch (error) {
