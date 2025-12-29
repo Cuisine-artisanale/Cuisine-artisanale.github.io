@@ -107,6 +107,21 @@
   margin-bottom: 1.5rem;
 }
 
+.form-group .p-dropdown {
+	width: 100%;
+	min-width: 200px;
+}
+
+.form-group .p-dropdown .p-dropdown-label {
+	width: 100%;
+	display: block;
+}
+
+.form-group .p-dropdown-trigger {
+	width: 2rem;
+}
+
+
 .form-group label {
   display: block;
   margin-bottom: 0.4rem;
@@ -126,7 +141,6 @@
 }
 
 .timing div {
-	flex: 1;
 	min-width: 120px;
 }
 
@@ -367,7 +381,6 @@
 /* ➕ Bouton ajouter une sous-recette */
 .p-button-text.p-button-sm {
   margin-bottom: 1.5rem;
-  color: var(--info-500);
   font-weight: 500;
 }
 
@@ -602,11 +615,4 @@
 	padding: 1rem;
   }
 
-  /* Inputs optimisés pour tactile */
-  input,
-  .p-inputtext,
-  .p-dropdown {
-	min-height: 48px !important;
-	font-size: 16px !important;
-  }
 }
