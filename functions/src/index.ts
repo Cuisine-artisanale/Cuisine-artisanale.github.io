@@ -91,7 +91,10 @@ interface RecipeRequest {
 
 // Définition de la fonction avec les types Firebase pour event
 export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
-	"recipesRequest/{objectId}",
+	{
+		document: "recipesRequest/{objectId}",
+		secrets: ["RESEND_API_KEY", "RESEND_FROM_EMAIL"],
+	},
 	async (event) => {
 		console.log("🔔 sendEmailOnNewRecipeRequest déclenchée");
 		console.log("📋 Document ID:", event.params.objectId);
@@ -241,6 +244,7 @@ export const sendWeeklyRecipe = onSchedule(
 	{
 		schedule: "0 9 * * 0", // chaque dimanche à 09:00
 		timeZone: "Europe/Paris", // fuseau horaire
+		secrets: ["RESEND_API_KEY", "RESEND_FROM_EMAIL"],
 	},
 	async (event) => {
 		try {
