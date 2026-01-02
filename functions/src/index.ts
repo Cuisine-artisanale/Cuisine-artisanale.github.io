@@ -93,19 +93,38 @@ interface RecipeRequest {
 export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 	"recipesRequest/{objectId}",
 	async (event) => {
-		const newValue = event.data?.after.data() as RecipeRequest;
-		if (!newValue) {
-			console.error("Snapshot is undefined");
+		console.log("🔔 sendEmailOnNewRecipeRequest déclenchée");
+
+		const beforeData = event.data?.before.data();
+		const afterData = event.data?.after.data() as RecipeRequest;
+
+		if (!afterData) {
+			console.error("❌ Snapshot after est undefined");
 			return;
 		}
 
-		const name = newValue.title;
+		// Vérifier que le titre existe et n'est pas vide (pour éviter d'envoyer un email lors de la création initiale vide)
+		const name = afterData.title;
+		if (!name || name.trim() === "") {
+			console.log("⏭️ Titre vide, email non envoyé (création initiale)");
+			return;
+		}
+
+		// Vérifier si c'est une vraie mise à jour (le titre a changé)
+		const beforeTitle = beforeData?.title || "";
+		if (beforeTitle === name) {
+			console.log("⏭️ Titre inchangé, email non envoyé");
+			return;
+		}
+
+		console.log(`📧 Envoi d'email pour la nouvelle demande de recette: ${name}`);
 
 		try {
 			// Initialiser le service d'email dans la fonction
 			let emailServiceInstance: ReturnType<typeof createEmailServiceFromEnv>;
 			try {
 				emailServiceInstance = createEmailServiceFromEnv();
+				console.log("✅ Service d'email initialisé");
 			} catch (initError: any) {
 				console.error("❌ Erreur lors de l'initialisation du service d'email:", initError);
 				console.error("⚠️ Vérifiez que RESEND_API_KEY est configurée dans les variables d'environnement");
@@ -122,6 +141,8 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 				process.env.EMAIL_FROM ||
 				"Cuisine Artisanale <onboarding@resend.dev>";
 
+			console.log(`📤 Envoi de l'email à ssabatieraymeric@gmail.com depuis ${fromEmail}`);
+
 			const result = await emailServiceInstance.sendEmail({
 				to: "ssabatieraymeric@gmail.com",
 				subject: "Nouvelle demande de recette",
@@ -130,7 +151,7 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 			});
 
 			if (result.success) {
-				console.log("✅ Email envoyé avec succès !");
+				console.log("✅ Email envoyé avec succès ! Message ID:", result.messageId);
 			} else {
 				console.error("❌ Erreur d'envoi d'email :", result.error);
 			}
