@@ -94,6 +94,7 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 	"recipesRequest/{objectId}",
 	async (event) => {
 		console.log("🔔 sendEmailOnNewRecipeRequest déclenchée");
+		console.log("📋 Document ID:", event.params.objectId);
 
 		const beforeData = event.data?.before.data();
 		const afterData = event.data?.after.data() as RecipeRequest;
@@ -103,21 +104,26 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 			return;
 		}
 
-		// Vérifier que le titre existe et n'est pas vide (pour éviter d'envoyer un email lors de la création initiale vide)
+		// Vérifier que le titre existe et n'est pas vide
 		const name = afterData.title;
 		if (!name || name.trim() === "") {
-			console.log("⏭️ Titre vide, email non envoyé (création initiale)");
+			console.log("⏭️ Titre vide, email non envoyé");
 			return;
 		}
 
-		// Vérifier si c'est une vraie mise à jour (le titre a changé)
+		// Vérifier si c'est une vraie mise à jour (le titre est passé de vide à non-vide, ou a changé)
 		const beforeTitle = beforeData?.title || "";
-		if (beforeTitle === name) {
-			console.log("⏭️ Titre inchangé, email non envoyé");
+
+		// Si le titre avant était vide et maintenant il y a un titre, c'est une nouvelle demande
+		// Si le titre a changé, c'est aussi une mise à jour importante
+		if (beforeTitle && beforeTitle.trim() !== "" && beforeTitle === name) {
+			console.log("⏭️ Titre inchangé, email non envoyé (mise à jour sans changement de titre)");
 			return;
 		}
 
-		console.log(`📧 Envoi d'email pour la nouvelle demande de recette: ${name}`);
+		// Vérifier si on a déjà envoyé un email pour ce document (pour éviter les doublons)
+		// On peut utiliser un flag ou vérifier les logs, mais pour simplifier, on envoie si le titre est nouveau
+		console.log(`📧 Nouvelle demande de recette détectée: "${beforeTitle}" → "${name}"`);
 
 		try {
 			// Initialiser le service d'email dans la fonction
@@ -325,6 +331,83 @@ export const unsubscribe = onRequest((req, res) => {
 			res
 				.status(500)
 				.json({ success: false, message: "Erreur interne du serveur" });
+		}
+	});
+});
+
+// Fonction de test pour vérifier que le service d'email fonctionne
+export const testEmailService = onRequest((req, res) => {
+	corsHandler(req, res, async () => {
+		// Vérifier le token admin
+		const token = req.query.token as string;
+		const adminToken = process.env.ADMIN_GENERATE_TOKEN;
+
+		if (!token || token !== adminToken) {
+			res
+				.status(403)
+				.json({ success: false, message: "Token invalide ou manquant" });
+			return;
+		}
+
+		try {
+			console.log("🧪 Test du service d'email...");
+
+			// Initialiser le service d'email
+			let emailServiceInstance: ReturnType<typeof createEmailServiceFromEnv>;
+			try {
+				emailServiceInstance = createEmailServiceFromEnv();
+				console.log("✅ Service d'email initialisé");
+			} catch (initError: any) {
+				console.error("❌ Erreur lors de l'initialisation:", initError);
+				res.status(500).json({
+					success: false,
+					error: "Erreur lors de l'initialisation du service d'email",
+					message: initError.message,
+				});
+				return;
+			}
+
+			const testEmail = req.query.email as string || "ssabatieraymeric@gmail.com";
+			const fromEmail = process.env.RESEND_FROM_EMAIL ||
+				process.env.EMAIL_FROM ||
+				"Cuisine Artisanale <onboarding@resend.dev>";
+
+			const emailHtml = getCustomEmailTemplate(
+				"🧪 Test du service d'email",
+				"<p>Ceci est un email de test pour vérifier que le service d'email fonctionne correctement.</p>"
+			);
+
+			console.log(`📤 Envoi d'un email de test à ${testEmail} depuis ${fromEmail}`);
+
+			const result = await emailServiceInstance.sendEmail({
+				to: testEmail,
+				subject: "🧪 Test du service d'email - Cuisine Artisanale",
+				html: emailHtml,
+				from: fromEmail,
+			});
+
+			if (result.success) {
+				console.log("✅ Email de test envoyé avec succès !", result.messageId);
+				res.status(200).json({
+					success: true,
+					message: "Email de test envoyé avec succès",
+					messageId: result.messageId,
+					provider: emailServiceInstance.getCurrentProvider(),
+				});
+			} else {
+				console.error("❌ Erreur lors de l'envoi:", result.error);
+				res.status(500).json({
+					success: false,
+					error: result.error,
+					provider: emailServiceInstance.getCurrentProvider(),
+				});
+			}
+		} catch (error: any) {
+			console.error("❌ Erreur dans testEmailService:", error);
+			res.status(500).json({
+				success: false,
+				error: error.message || "Erreur inconnue",
+			});
 		}
 	});
 });
