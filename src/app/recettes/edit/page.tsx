@@ -64,7 +64,7 @@ function EditRecetteContent() {
       setType(recetteData.type);
       setPreparationTime(recetteData.preparationTime);
       setCookingTime(recetteData.cookingTime);
-      setSteps(recetteData.steps);
+      setSteps(recetteData.steps || []);
       setVideo(recetteData.video || '');
       setImageURLs(recetteData.images || []);
     } catch (error) {
