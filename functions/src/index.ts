@@ -145,17 +145,17 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 				`<p>Une nouvelle demande de recette a été ajoutée :</p><p style="font-size: 18px; font-weight: bold; color: #8B4513;">${name}</p>`
 			);
 
-			// Utiliser onboarding@resend.dev par défaut (comme la newsletter)
+			// Utiliser la même adresse que la newsletter qui fonctionne
 			const fromEmail = process.env.RESEND_FROM_EMAIL ||
 				process.env.EMAIL_FROM ||
-				"Cuisine Artisanale <onboarding@resend.dev>";
+				"a.sabatier@cuisine-artisanale.fr";
 
 			console.log(`📤 Envoi de l'email à ssabatieraymeric@gmail.com depuis ${fromEmail}`);
 
 			const result = await emailServiceInstance.sendEmail({
 				to: "ssabatieraymeric@gmail.com",
 				subject: "Nouvelle demande de recette",
-				html: emailHtml,
+				html: emailHtml, 
 				from: fromEmail,
 			});
 
@@ -215,10 +215,10 @@ export const sendWeeklyRecipeEmail = async (email: string) => {
 			unsubscribeUrl,
 		});
 
-		// Utiliser onboarding@resend.dev par défaut (comme la newsletter)
+		// Utiliser la même adresse que la newsletter qui fonctionne
 		const fromEmail = process.env.RESEND_FROM_EMAIL ||
 			process.env.EMAIL_FROM ||
-			"Cuisine Artisanale <onboarding@resend.dev>";
+			"a.sabatier@cuisine-artisanale.fr";
 
 		const result = await emailServiceInstance.sendEmail({
 			to: email,
@@ -374,7 +374,7 @@ export const testEmailService = onRequest((req, res) => {
 			const testEmail = req.query.email as string || "ssabatieraymeric@gmail.com";
 			const fromEmail = process.env.RESEND_FROM_EMAIL ||
 				process.env.EMAIL_FROM ||
-				"Cuisine Artisanale <onboarding@resend.dev>";
+				"a.sabatier@cuisine-artisanale.fr";
 
 			const emailHtml = getCustomEmailTemplate(
 				"🧪 Test du service d'email",
@@ -833,10 +833,10 @@ export const sendVerificationEmailFast = onRequest(
 			});
 
 			// Déterminer l'adresse email d'expéditeur
-			// Utiliser RESEND_FROM_EMAIL si configuré, sinon utiliser une adresse par défaut vérifiée
+			// Utiliser la même adresse que la newsletter qui fonctionne
 			const fromEmail = process.env.RESEND_FROM_EMAIL ||
 				process.env.EMAIL_FROM ||
-				"Cuisine Artisanale <onboarding@resend.dev>"; // Adresse par défaut pour les tests
+				"a.sabatier@cuisine-artisanale.fr";
 
 			// Envoyer l'email via le service centralisé
 			const result = await emailService.sendEmail({
