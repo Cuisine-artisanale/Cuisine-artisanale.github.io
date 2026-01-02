@@ -36,7 +36,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
 
 	try {
 		const { data, error } = await resend.emails.send({
-			from: options.from || process.env.RESEND_FROM_EMAIL || "Cuisine Artisanale <onboarding@resend.dev>",
+			from: options.from || process.env.RESEND_FROM_EMAIL || "a.sabatier@cuisine-artisanale.fr",
 			to: Array.isArray(options.to) ? options.to : [options.to],
 			subject: options.subject,
 			html: options.html,

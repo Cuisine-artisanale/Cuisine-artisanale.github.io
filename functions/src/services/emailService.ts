@@ -139,7 +139,7 @@ export function createEmailServiceFromEnv(): EmailService {
 	const defaultFrom =
 		process.env.RESEND_FROM_EMAIL ||
 		process.env.EMAIL_FROM ||
-		"Cuisine Artisanale <onboarding@resend.dev>"; // Adresse par défaut pour les tests (domaine vérifié)
+		"a.sabatier@cuisine-artisanale.fr"; // Adresse par défaut (domaine vérifié dans Resend)
 
 	if (!resendApiKey) {
 		throw new Error(

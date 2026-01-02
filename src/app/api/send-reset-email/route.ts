@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     const { data, error } = await resend.emails.send({
-      from: 'Cuisine Artisanale <onboarding@resend.dev>', // Remplace par ton domaine vérifié
+      from: process.env.RESEND_FROM_EMAIL || 'a.sabatier@cuisine-artisanale.fr',
       to: [email],
       subject: 'Réinitialisez votre mot de passe - Cuisine Artisanale',
       html: `
