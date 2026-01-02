@@ -30,18 +30,8 @@ const corsHandler = cors({ origin: true });
 admin.initializeApp();
 const db = admin.firestore();
 
-// Initialiser le service d'email centralisé (Resend uniquement)
-// Note: Pour les fonctions avec secrets, le service sera réinitialisé dans la fonction
-let emailService: ReturnType<typeof createEmailServiceFromEnv> | null = null;
-try {
-	emailService = createEmailServiceFromEnv();
-	console.log(
-		`✅ Service d'email Resend initialisé avec succès`
-	);
-} catch (error) {
-	console.warn("⚠️ Service d'email non initialisé au niveau du module (normal si secrets non disponibles)");
-	console.warn("⚠️ Le service sera initialisé dans chaque fonction qui en a besoin");
-}
+// Note: Le service d'email est initialisé dans chaque fonction qui en a besoin
+// car les variables d'environnement peuvent ne pas être disponibles au niveau du module
 
 const INDEXING_API_URL =
 	"https://indexing.googleapis.com/v3/urlNotifications:publish";
@@ -112,8 +102,13 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 		const name = newValue.title;
 
 		try {
-			if (!emailService) {
-				console.error("❌ Service d'email non disponible. Vérifiez que RESEND_API_KEY est configurée.");
+			// Initialiser le service d'email dans la fonction
+			let emailServiceInstance: ReturnType<typeof createEmailServiceFromEnv>;
+			try {
+				emailServiceInstance = createEmailServiceFromEnv();
+			} catch (initError: any) {
+				console.error("❌ Erreur lors de l'initialisation du service d'email:", initError);
+				console.error("⚠️ Vérifiez que RESEND_API_KEY est configurée dans les variables d'environnement");
 				return;
 			}
 
@@ -122,11 +117,16 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 				`<p>Une nouvelle demande de recette a été ajoutée :</p><p style="font-size: 18px; font-weight: bold; color: #8B4513;">${name}</p>`
 			);
 
-			const result = await emailService.sendEmail({
+			// Utiliser onboarding@resend.dev par défaut (comme la newsletter)
+			const fromEmail = process.env.RESEND_FROM_EMAIL ||
+				process.env.EMAIL_FROM ||
+				"Cuisine Artisanale <onboarding@resend.dev>";
+
+			const result = await emailServiceInstance.sendEmail({
 				to: "ssabatieraymeric@gmail.com",
 				subject: "Nouvelle demande de recette",
 				html: emailHtml,
-				from: "a.sabatier@cuisine-artisanale.fr",
+				from: fromEmail,
 			});
 
 			if (result.success) {
@@ -167,7 +167,12 @@ export const sendWeeklyRecipeEmail = async (email: string) => {
 			email
 		)}`;
 
-		if (!emailService) {
+		// Initialiser le service d'email dans la fonction
+		let emailServiceInstance: ReturnType<typeof createEmailServiceFromEnv>;
+		try {
+			emailServiceInstance = createEmailServiceFromEnv();
+		} catch (initError: any) {
+			console.error("❌ Erreur lors de l'initialisation du service d'email:", initError);
 			throw new Error("Service d'email non disponible. Vérifiez que RESEND_API_KEY est configurée.");
 		}
 
@@ -180,11 +185,16 @@ export const sendWeeklyRecipeEmail = async (email: string) => {
 			unsubscribeUrl,
 		});
 
-		const result = await emailService.sendEmail({
+		// Utiliser onboarding@resend.dev par défaut (comme la newsletter)
+		const fromEmail = process.env.RESEND_FROM_EMAIL ||
+			process.env.EMAIL_FROM ||
+			"Cuisine Artisanale <onboarding@resend.dev>";
+
+		const result = await emailServiceInstance.sendEmail({
 			to: email,
 			subject: `🍰 Votre recette de la semaine : ${recipe.title}`,
 			html: emailHtml,
-			from: "a.sabatier@cuisine-artisanale.fr",
+			from: fromEmail,
 		});
 
 		if (result.success) {
