@@ -20,6 +20,14 @@ import { shareRecipe } from '@/lib/services/share.service';
 import { exportRecipePDF, printRecipe } from '@/lib/services/export.service';
 import RecipeMetadata from '@/app/recettes/recipe-metadata';
 import type { Recipe, RecipePart, Ingredient } from '@/types';
+import {
+  addRecipeToDo,
+  isRecipeInToDo,
+  removeRecipeToDo,
+  addIngredientsToShoppingList
+} from '@/lib/services/shopping.service';
+import { Dialog } from 'primereact/dialog';
+import { Checkbox } from 'primereact/checkbox';
 
 interface RecetteDescProps {
 	recipeId?: string;
@@ -48,6 +56,10 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 	const [loadingSimilar, setLoadingSimilar] = useState(false);
 	const [isExporting, setIsExporting] = useState(false);
 	const [creatorInfo, setCreatorInfo] = useState<any>(null);
+	const [isInToDo, setIsInToDo] = useState<boolean>(false);
+	const [showAddIngredientsDialog, setShowAddIngredientsDialog] = useState(false);
+	const [selectedIngredients, setSelectedIngredients] = useState<Set<string>>(new Set());
+	const [checkingToDo, setCheckingToDo] = useState(false);
 
 
 	const getRecetteById = async (docId: string) => {
@@ -105,6 +117,23 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 			getRecetteById(recipeId);
 		}
 	}, [recipeId]);
+
+	// Vérifier si la recette est dans "à faire"
+	useEffect(() => {
+		const checkRecipeInToDo = async () => {
+			if (!userId || !id) {
+				setIsInToDo(false);
+				return;
+			}
+			try {
+				const inToDo = await isRecipeInToDo(userId, id);
+				setIsInToDo(inToDo);
+			} catch (error) {
+				console.error("Error checking if recipe is in to do:", error);
+			}
+		};
+		checkRecipeInToDo();
+	}, [userId, id]);
 
 	useEffect(() => {
 		const fetchCreatorInfo = async () => {
@@ -466,6 +495,139 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 		}
 	};
 
+	const handleAddToToDo = async () => {
+		if (!user || !recette || !id) {
+			showToast({
+				severity: 'warn',
+				summary: 'Connexion requise',
+				detail: 'Vous devez être connecté pour ajouter une recette à "à faire"'
+			});
+			return;
+		}
+
+		setCheckingToDo(true);
+		try {
+			await addRecipeToDo(user.uid, { ...recette, id });
+			setIsInToDo(true);
+
+			// Récupérer tous les ingrédients de la recette
+			const allIngredients: Ingredient[] = [];
+			recette.recipeParts.forEach(part => {
+				allIngredients.push(...part.ingredients);
+			});
+
+			if (allIngredients.length > 0) {
+				// Ouvrir la modal pour proposer d'ajouter les ingrédients
+				setSelectedIngredients(new Set(allIngredients.map(ing => ing.id)));
+				setShowAddIngredientsDialog(true);
+			} else {
+				showToast({
+					severity: 'success',
+					summary: 'Ajouté',
+					detail: 'Recette ajoutée à "à faire"'
+				});
+			}
+		} catch (error) {
+			console.error("Error adding recipe to do:", error);
+			showToast({
+				severity: 'error',
+				summary: 'Erreur',
+				detail: 'Impossible d\'ajouter la recette à "à faire"'
+			});
+		} finally {
+			setCheckingToDo(false);
+		}
+	};
+
+	const handleRemoveFromToDo = async () => {
+		if (!user || !id) return;
+
+		try {
+			// Récupérer l'ID du document "à faire"
+			const recipesToDoRef = collection(db, "recipesToDo");
+			const q = query(
+				recipesToDoRef,
+				where("userId", "==", user.uid),
+				where("recipeId", "==", id)
+			);
+			const querySnapshot = await getDocs(q);
+
+			if (!querySnapshot.empty) {
+				const recipeToDoDoc = querySnapshot.docs[0];
+				await removeRecipeToDo(recipeToDoDoc.id);
+				setIsInToDo(false);
+				showToast({
+					severity: 'success',
+					summary: 'Retiré',
+					detail: 'Recette retirée de "à faire"'
+				});
+			}
+		} catch (error) {
+			console.error("Error removing recipe from to do:", error);
+			showToast({
+				severity: 'error',
+				summary: 'Erreur',
+				detail: 'Impossible de retirer la recette de "à faire"'
+			});
+		}
+	};
+
+	const handleToggleIngredient = (ingredientId: string) => {
+		const newSelected = new Set(selectedIngredients);
+		if (newSelected.has(ingredientId)) {
+			newSelected.delete(ingredientId);
+		} else {
+			newSelected.add(ingredientId);
+		}
+		setSelectedIngredients(newSelected);
+	};
+
+	const handleAddSelectedIngredients = async () => {
+		if (!user || !recette || !id) return;
+
+		try {
+			// Récupérer les ingrédients sélectionnés
+			const allIngredients: Ingredient[] = [];
+			recette.recipeParts.forEach(part => {
+				part.ingredients.forEach(ing => {
+					if (selectedIngredients.has(ing.id)) {
+						allIngredients.push(ing);
+					}
+				});
+			});
+
+			if (allIngredients.length === 0) {
+				showToast({
+					severity: 'warn',
+					summary: 'Attention',
+					detail: 'Veuillez sélectionner au moins un ingrédient'
+				});
+				return;
+			}
+
+			await addIngredientsToShoppingList(
+				user.uid,
+				allIngredients,
+				id,
+				recette.title
+			);
+
+			setShowAddIngredientsDialog(false);
+			showToast({
+				severity: 'success',
+				summary: 'Ingrédients ajoutés',
+				detail: `${allIngredients.length} ingrédient(s) ajouté(s) à votre liste de course`
+			});
+		} catch (error) {
+			console.error("Error adding ingredients to shopping list:", error);
+			showToast({
+				severity: 'error',
+				summary: 'Erreur',
+				detail: 'Impossible d\'ajouter les ingrédients à la liste de course'
+			});
+		}
+	};
+
   	const handleAddReview = async () => {
 		if (!userId) {
 			showToast({
@@ -567,6 +729,17 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 						severity={hasLiked ? 'danger' : 'info'}
 						tooltipOptions={{ position: 'bottom' }}
 					/>
+					{user && (
+						<Button
+							icon={isInToDo ? 'pi pi-check-circle' : 'pi pi-bookmark'}
+							onClick={isInToDo ? handleRemoveFromToDo : handleAddToToDo}
+							className="p-button-text"
+							severity={isInToDo ? 'success' : 'info'}
+							loading={checkingToDo}
+							tooltip={isInToDo ? 'Retirer de "à faire"' : 'Ajouter à "à faire"'}
+							tooltipOptions={{ position: 'bottom' }}
+						/>
+					)}
 					<Button
 						icon="pi pi-share-alt"
 						onClick={handleShare}
@@ -854,6 +1027,94 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 				)}
 			</div>
 		</div>
+
+		{/* Modal pour ajouter les ingrédients à la liste de course */}
+		<Dialog
+			header="Ajouter les ingrédients à votre liste de course"
+			visible={showAddIngredientsDialog}
+			style={{ width: '90vw', maxWidth: '600px' }}
+			onHide={() => {
+				setShowAddIngredientsDialog(false);
+				setSelectedIngredients(new Set());
+			}}
+			footer={
+				<div>
+					<Button
+						label="Annuler"
+						icon="pi pi-times"
+						onClick={() => {
+							setShowAddIngredientsDialog(false);
+							setSelectedIngredients(new Set());
+						}}
+						className="p-button-text"
+					/>
+					<Button
+						label="Ajouter à la liste"
+						icon="pi pi-check"
+						onClick={handleAddSelectedIngredients}
+						className="p-button-primary"
+					/>
+				</div>
+			}
+		>
+			<div className="add-ingredients-dialog">
+				<p style={{ marginBottom: '1rem', color: 'var(--text-color-secondary)' }}>
+					Sélectionnez les ingrédients que vous souhaitez ajouter à votre liste de course :
+				</p>
+				<div className="ingredients-list">
+					{recette?.recipeParts.map((part, partIndex) => (
+						<div key={partIndex} className="ingredients-part">
+							{part.ingredients.length > 0 && (
+								<>
+									<h4 style={{ marginBottom: '0.5rem', color: 'var(--text-color)' }}>
+										{part.title}
+									</h4>
+									{part.ingredients.map((ingredient) => (
+										<div
+											key={ingredient.id}
+											className="ingredient-item"
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												padding: '0.75rem',
+												marginBottom: '0.5rem',
+												background: 'var(--surface-ground)',
+												borderRadius: 'var(--border-radius)',
+												cursor: 'pointer',
+												transition: 'background 0.2s'
+											}}
+											onClick={() => handleToggleIngredient(ingredient.id)}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = 'var(--surface-hover)';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = 'var(--surface-ground)';
+											}}
+										>
+											<Checkbox
+												checked={selectedIngredients.has(ingredient.id)}
+												onChange={() => handleToggleIngredient(ingredient.id)}
+												style={{ marginRight: '1rem' }}
+											/>
+											<div style={{ flex: 1 }}>
+												<div style={{ fontWeight: 500, color: 'var(--text-color)' }}>
+													{ingredient.name}
+												</div>
+												{(ingredient.quantity || ingredient.unit) && (
+													<div style={{ fontSize: '0.9rem', color: 'var(--text-color-secondary)' }}>
+														{ingredient.quantity} {ingredient.unit}
+													</div>
+												)}
+											</div>
+										</div>
+									))}
+								</>
+							)}
+						</div>
+					))}
+				</div>
+			</div>
+		</Dialog>
 	</>
   );
 };

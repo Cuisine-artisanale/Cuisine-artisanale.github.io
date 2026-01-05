@@ -145,6 +145,46 @@ service cloud.firestore {
       allow create, update: if request.auth != null;
     }
 
+    // === Recettes à faire ===
+    match /recipesToDo/{recipeToDoId} {
+      // Lecture uniquement par le propriétaire
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Création uniquement pour les utilisateurs authentifiés
+      // Vérifier que le userId correspond à l'utilisateur authentifié
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.keys().hasAll(['userId', 'recipeId', 'recipeTitle', 'addedAt', 'ingredientsAddedToShoppingList']);
+
+      // Mise à jour uniquement par le propriétaire
+      allow update: if request.auth != null
+                    && request.auth.uid == resource.data.userId;
+
+      // Suppression uniquement par le propriétaire
+      allow delete: if request.auth != null
+                    && request.auth.uid == resource.data.userId;
+    }
+
+    // === Listes de course ===
+    match /shoppingLists/{shoppingListId} {
+      // Lecture uniquement par le propriétaire
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Création uniquement pour les utilisateurs authentifiés
+      // Vérifier que le userId correspond à l'utilisateur authentifié
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.keys().hasAll(['userId', 'items', 'createdAt', 'updatedAt']);
+
+      // Mise à jour uniquement par le propriétaire
+      allow update: if request.auth != null
+                    && request.auth.uid == resource.data.userId;
+
+      // Suppression uniquement par le propriétaire
+      allow delete: if request.auth != null
+                    && request.auth.uid == resource.data.userId;
+    }
+
     // === Bloquer tout accès par défaut aux autres collections ===
     match /{document=**} {
       allow read, write: if false;

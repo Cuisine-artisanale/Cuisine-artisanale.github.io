@@ -47,3 +47,10 @@ export type {
   ToastOptions
 } from './service.types';
 
+// Shopping types
+export type {
+  ShoppingListItem,
+  ShoppingList,
+  RecipeToDo
+} from './shopping.types';
+
