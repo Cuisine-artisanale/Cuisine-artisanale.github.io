@@ -5,34 +5,15 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, storage } from '@/lib/config/firebase';
 import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { Breadcrumb } from '@/components/layout';
+import type { Recipe, RecipePart } from '@/types/recipe.types';
 import './edit-recette.css';
-
-interface Recette {
-  id: string;
-  title: string;
-  type: string;
-  cookingTime: number;
-  preparationTime: number;
-  ingredients: Ingredient[];
-  video: string;
-  steps: string[];
-  position: string;
-  images?: string[];
-}
-
-interface Ingredient {
-  id: string;
-  name: string;
-  quantity: string;
-  unit: string;
-}
 
 function EditRecetteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams?.get('id');
 
-  const [recette, setRecette] = useState<Recette | null>(null);
+  const [recette, setRecette] = useState<Recipe | null>(null);
   const [title, setTitle] = useState<string>('');
   const [type, setType] = useState<string>('');
   const [preparationTime, setPreparationTime] = useState<number>(0);
@@ -44,6 +25,7 @@ function EditRecetteContent() {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [imageURLs, setImageURLs] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [recipeParts, setRecipeParts] = useState<RecipePart[]>([]);
 
   // Fetch the recette data from Firestore
   const getRecette = async (id: string) => {
@@ -57,16 +39,32 @@ function EditRecetteContent() {
         return;
       }
 
-      const recetteData = recetteSnap.data() as Recette;
+      const recetteData = recetteSnap.data() as Recipe;
 
       setRecette(recetteData);
       setTitle(recetteData.title);
       setType(recetteData.type);
       setPreparationTime(recetteData.preparationTime);
       setCookingTime(recetteData.cookingTime);
-      setSteps(recetteData.steps || []);
       setVideo(recetteData.video || '');
       setImageURLs(recetteData.images || []);
+
+      // Gérer recipeParts : si la recette a des recipeParts, utiliser le premier pour les steps
+      // Sinon, créer un recipePart par défaut
+      if (recetteData.recipeParts && recetteData.recipeParts.length > 0) {
+        setRecipeParts(recetteData.recipeParts);
+        // Utiliser les steps du premier recipePart
+        setSteps(recetteData.recipeParts[0].steps || []);
+      } else {
+        // Si pas de recipeParts, créer un par défaut
+        const defaultRecipePart: RecipePart = {
+          title: recetteData.title || 'Recette',
+          steps: [],
+          ingredients: []
+        };
+        setRecipeParts([defaultRecipePart]);
+        setSteps([]);
+      }
     } catch (error) {
       console.error("Erreur lors de la récupération de la recette :", error);
     }
@@ -82,16 +80,38 @@ function EditRecetteContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!id) return;
+    if (!id || !recette) return;
 
-    const updatedRecette = {
+    // Mettre à jour les steps du premier recipePart
+    const updatedRecipeParts = [...recipeParts];
+    if (updatedRecipeParts.length > 0) {
+      updatedRecipeParts[0] = {
+        ...updatedRecipeParts[0],
+        steps: steps
+      };
+    } else {
+      // Si pas de recipePart, en créer un
+      updatedRecipeParts.push({
+        title: title,
+        steps: steps,
+        ingredients: []
+      });
+    }
+
+    // Préserver les champs existants qui ne sont pas modifiés dans ce formulaire
+    const updatedRecette: Partial<Recipe> & { selectedIngredients?: string[] } = {
       title,
       type,
       preparationTime,
       cookingTime,
-      steps,
+      recipeParts: updatedRecipeParts,
       video,
       images: imageURLs,
+      // Préserver les champs existants
+      position: recette.position || '',
+      selectedIngredients: (recette as any).selectedIngredients || [],
+      createdBy: recette.createdBy,
+      createdAt: recette.createdAt,
     };
 
     const recetteRef = doc(db, 'recipes', id);
