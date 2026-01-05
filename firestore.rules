@@ -89,9 +89,9 @@ service cloud.firestore {
     match /ingredients/{ingredientId} {
       // Lecture publique
       allow read: if true;
-
+	  allow create: if request.auth != null
       // Écriture uniquement pour les admins
-      allow create, update, delete: if request.auth != null && isAdmin(request.auth.uid);
+      allow update, delete: if request.auth != null && isAdmin(request.auth.uid);
     }
 
     // === Units (unités de mesure) ===
