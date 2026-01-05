@@ -18,7 +18,6 @@ function EditRecetteContent() {
   const [type, setType] = useState<string>('');
   const [preparationTime, setPreparationTime] = useState<number>(0);
   const [cookingTime, setCookingTime] = useState<number>(0);
-  const [steps, setSteps] = useState<string[]>([]);
   const [video, setVideo] = useState<string>('');
   const [images, setImages] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -49,12 +48,10 @@ function EditRecetteContent() {
       setVideo(recetteData.video || '');
       setImageURLs(recetteData.images || []);
 
-      // Gérer recipeParts : si la recette a des recipeParts, utiliser le premier pour les steps
+      // Gérer recipeParts : si la recette a des recipeParts, les utiliser
       // Sinon, créer un recipePart par défaut
       if (recetteData.recipeParts && recetteData.recipeParts.length > 0) {
         setRecipeParts(recetteData.recipeParts);
-        // Utiliser les steps du premier recipePart
-        setSteps(recetteData.recipeParts[0].steps || []);
       } else {
         // Si pas de recipeParts, créer un par défaut
         const defaultRecipePart: RecipePart = {
@@ -63,7 +60,6 @@ function EditRecetteContent() {
           ingredients: []
         };
         setRecipeParts([defaultRecipePart]);
-        setSteps([]);
       }
     } catch (error) {
       console.error("Erreur lors de la récupération de la recette :", error);
@@ -82,29 +78,13 @@ function EditRecetteContent() {
 
     if (!id || !recette) return;
 
-    // Mettre à jour les steps du premier recipePart
-    const updatedRecipeParts = [...recipeParts];
-    if (updatedRecipeParts.length > 0) {
-      updatedRecipeParts[0] = {
-        ...updatedRecipeParts[0],
-        steps: steps
-      };
-    } else {
-      // Si pas de recipePart, en créer un
-      updatedRecipeParts.push({
-        title: title,
-        steps: steps,
-        ingredients: []
-      });
-    }
-
     // Préserver les champs existants qui ne sont pas modifiés dans ce formulaire
     const updatedRecette: Partial<Recipe> & { selectedIngredients?: string[] } = {
       title,
       type,
       preparationTime,
       cookingTime,
-      recipeParts: updatedRecipeParts,
+      recipeParts: recipeParts,
       video,
       images: imageURLs,
       // Préserver les champs existants
@@ -124,13 +104,59 @@ function EditRecetteContent() {
     }
   };
 
-  const addStep = () => setSteps([...steps, '']);
-  const handleStepChange = (index: number, value: string) => {
-    const updatedSteps = [...steps];
-    updatedSteps[index] = value;
-    setSteps(updatedSteps);
+  // Fonctions pour gérer les recipeParts
+  const addRecipePart = () => {
+    setRecipeParts([...recipeParts, {
+      title: `Partie ${recipeParts.length + 1}`,
+      steps: [],
+      ingredients: []
+    }]);
   };
-  const removeStep = (index: number) => setSteps(steps.filter((_, i) => i !== index));
+
+  const removeRecipePart = (partIndex: number) => {
+    if (recipeParts.length > 1) {
+      setRecipeParts(recipeParts.filter((_, i) => i !== partIndex));
+    }
+  };
+
+  const updateRecipePartTitle = (partIndex: number, title: string) => {
+    const updatedParts = [...recipeParts];
+    updatedParts[partIndex] = {
+      ...updatedParts[partIndex],
+      title
+    };
+    setRecipeParts(updatedParts);
+  };
+
+  // Fonctions pour gérer les steps d'une partie spécifique
+  const addStep = (partIndex: number) => {
+    const updatedParts = [...recipeParts];
+    updatedParts[partIndex] = {
+      ...updatedParts[partIndex],
+      steps: [...(updatedParts[partIndex].steps || []), '']
+    };
+    setRecipeParts(updatedParts);
+  };
+
+  const handleStepChange = (partIndex: number, stepIndex: number, value: string) => {
+    const updatedParts = [...recipeParts];
+    const updatedSteps = [...(updatedParts[partIndex].steps || [])];
+    updatedSteps[stepIndex] = value;
+    updatedParts[partIndex] = {
+      ...updatedParts[partIndex],
+      steps: updatedSteps
+    };
+    setRecipeParts(updatedParts);
+  };
+
+  const removeStep = (partIndex: number, stepIndex: number) => {
+    const updatedParts = [...recipeParts];
+    updatedParts[partIndex] = {
+      ...updatedParts[partIndex],
+      steps: (updatedParts[partIndex].steps || []).filter((_, i) => i !== stepIndex)
+    };
+    setRecipeParts(updatedParts);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Valider les fichiers avant de les ajouter
@@ -248,33 +274,68 @@ function EditRecetteContent() {
                   />
                 </div>
 
-                <div className="steps-section">
-                  <h3>*Étapes de préparation:</h3>
-                  {steps.map((step, index) => (
-                    <div key={index} className="step-container">
-                      <input
-                        type="text"
-                        value={step}
-                        onChange={(e) => handleStepChange(index, e.target.value)}
-                        placeholder={`Étape ${index + 1}`}
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeStep(index)}
-                        className="btn-delete-step"
-                        title="Supprimer cette étape"
-                      >
-                        ❌
-                      </button>
+                <div className="recipe-parts-section">
+                  <h3>*Parties de la recette:</h3>
+                  {recipeParts.map((part, partIndex) => (
+                    <div key={partIndex} className="recipe-part-container" style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <input
+                          type="text"
+                          value={part.title}
+                          onChange={(e) => updateRecipePartTitle(partIndex, e.target.value)}
+                          placeholder="Titre de la partie"
+                          style={{ flex: 1, marginRight: '1rem', padding: '0.5rem' }}
+                          required
+                        />
+                        {recipeParts.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeRecipePart(partIndex)}
+                            className="btn-delete-step"
+                            title="Supprimer cette partie"
+                          >
+                            🗑️ Supprimer la partie
+                          </button>
+                        )}
+                      </div>
+                      <div className="steps-section">
+                        <h4>Étapes de préparation:</h4>
+                        {(part.steps || []).map((step, stepIndex) => (
+                          <div key={stepIndex} className="step-container">
+                            <input
+                              type="text"
+                              value={step}
+                              onChange={(e) => handleStepChange(partIndex, stepIndex, e.target.value)}
+                              placeholder={`Étape ${stepIndex + 1}`}
+                              required
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeStep(partIndex, stepIndex)}
+                              className="btn-delete-step"
+                              title="Supprimer cette étape"
+                            >
+                              ❌
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => addStep(partIndex)}
+                          className="btn-add-step"
+                        >
+                          + Ajouter une étape
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <button
                     type="button"
-                    onClick={addStep}
+                    onClick={addRecipePart}
                     className="btn-add-step"
+                    style={{ marginTop: '1rem' }}
                   >
-                    + Ajouter une étape
+                    + Ajouter une partie
                   </button>
                 </div>
 
