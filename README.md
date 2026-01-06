@@ -77,7 +77,6 @@ Une application web moderne pour partager et découvrir des recettes artisanales
 - **Satori** : Génération d'images OG
 - **Sharp** : Traitement d'images
 
-L'application sera accessible sur `http://localhost:3000`
 
 ## 🌐 Site en Ligne
 
