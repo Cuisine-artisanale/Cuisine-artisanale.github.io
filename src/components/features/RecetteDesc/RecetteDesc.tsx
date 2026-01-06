@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
-import { doc, getDoc, deleteDoc, onSnapshot, query, where, getDocs, collection, orderBy, serverTimestamp, addDoc } from '@firebase/firestore';
+import { doc, getDoc, deleteDoc, onSnapshot, query, where, getDocs, collection, orderBy, serverTimestamp, addDoc, updateDoc } from '@firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { Button } from 'primereact/button';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
@@ -72,7 +72,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 				return;
 			}
 
-			const recetteData = recetteSnap.data() as Recette;
+			const recetteData = recetteSnap.data() as Recipe;
 			setId(docId);
 
 			// Traitement des ingrédients pour chaque partie
@@ -437,7 +437,15 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 				cookingTime: recette.cookingTime,
 				position: recette.position,
 				departementName: departements.get(recette.position),
-				recipeParts: recette.recipeParts,
+				recipeParts: recette.recipeParts.map(part => ({
+					title: part.title,
+					ingredients: part.ingredients.map(ing => ({
+						name: ing.name,
+						quantity: ing.quantity ?? '',
+						unit: ing.unit ?? ''
+					})),
+					steps: part.steps
+				})),
 				images: recette.images
 			});
 
@@ -476,7 +484,15 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 				cookingTime: recette.cookingTime,
 				position: recette.position,
 				departementName: departements.get(recette.position),
-				recipeParts: recette.recipeParts,
+				recipeParts: recette.recipeParts.map(part => ({
+					title: part.title,
+					ingredients: part.ingredients.map(ing => ({
+						name: ing.name,
+						quantity: ing.quantity ?? '',
+						unit: ing.unit ?? ''
+					})),
+					steps: part.steps
+				})),
 				images: recette.images
 			});
 
@@ -543,25 +559,13 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 		if (!user || !id) return;
 
 		try {
-			// Récupérer l'ID du document "à faire"
-			const recipesToDoRef = collection(db, "recipesToDo");
-			const q = query(
-				recipesToDoRef,
-				where("userId", "==", user.uid),
-				where("recipeId", "==", id)
-			);
-			const querySnapshot = await getDocs(q);
-
-			if (!querySnapshot.empty) {
-				const recipeToDoDoc = querySnapshot.docs[0];
-				await removeRecipeToDo(recipeToDoDoc.id);
-				setIsInToDo(false);
-				showToast({
-					severity: 'success',
-					summary: 'Retiré',
-					detail: 'Recette retirée de "à faire"'
-				});
-			}
+			await removeRecipeToDo(user.uid, id);
+			setIsInToDo(false);
+			showToast({
+				severity: 'success',
+				summary: 'Retiré',
+				detail: 'Recette retirée de "à faire"'
+			});
 		} catch (error) {
 			console.error("Error removing recipe from to do:", error);
 			showToast({

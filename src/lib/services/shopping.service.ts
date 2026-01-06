@@ -19,21 +19,31 @@ import type { Ingredient, Recipe } from "@/types/recipe.types";
 
 /**
  * Ajoute une recette à la liste "à faire" de l'utilisateur
+ * Utilise un tableau d'objets dans la collection users avec recipeId et addedAt
  */
-export const addRecipeToDo = async (userId: string, recipe: Recipe): Promise<string> => {
+export const addRecipeToDo = async (userId: string, recipe: Recipe): Promise<void> => {
   try {
-    const recipeToDoRef = doc(collection(db, "recipesToDo"));
-    const recipeToDoData: Omit<RecipeToDo, "id"> = {
-      userId,
-      recipeId: recipe.id,
-      recipeTitle: recipe.title,
-      recipeImage: recipe.images?.[0],
-      addedAt: serverTimestamp(),
-      ingredientsAddedToShoppingList: false
-    };
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
 
-    await setDoc(recipeToDoRef, recipeToDoData);
-    return recipeToDoRef.id;
+    if (!userSnap.exists()) {
+      throw new Error("User not found");
+    }
+
+    const userData = userSnap.data();
+    const recipesToDo = userData.recipesToDo || [];
+
+    // Vérifier si la recette n'est pas déjà dans la liste
+    const alreadyExists = recipesToDo.some((item: { recipeId: string }) => item.recipeId === recipe.id);
+
+    if (!alreadyExists) {
+      await updateDoc(userRef, {
+        recipesToDo: [...recipesToDo, {
+          recipeId: recipe.id,
+          addedAt: new Date()
+        }]
+      });
+    }
   } catch (error) {
     console.error("Error adding recipe to do:", error);
     throw error;
@@ -45,14 +55,16 @@ export const addRecipeToDo = async (userId: string, recipe: Recipe): Promise<str
  */
 export const isRecipeInToDo = async (userId: string, recipeId: string): Promise<boolean> => {
   try {
-    const recipesToDoRef = collection(db, "recipesToDo");
-    const q = query(
-      recipesToDoRef,
-      where("userId", "==", userId),
-      where("recipeId", "==", recipeId)
-    );
-    const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return false;
+    }
+
+    const userData = userSnap.data();
+    const recipesToDo = userData.recipesToDo || [];
+    return recipesToDo.some((item: { recipeId: string }) => item.recipeId === recipeId);
   } catch (error) {
     console.error("Error checking if recipe is in to do:", error);
     return false;
@@ -61,20 +73,19 @@ export const isRecipeInToDo = async (userId: string, recipeId: string): Promise<
 
 /**
  * Récupère toutes les recettes "à faire" d'un utilisateur
+ * Retourne un tableau d'objets avec recipeId et addedAt
  */
-export const getUserRecipesToDo = async (userId: string): Promise<RecipeToDo[]> => {
+export const getUserRecipesToDo = async (userId: string): Promise<Array<{ recipeId: string; addedAt: Date | any }>> => {
   try {
-    const recipesToDoRef = collection(db, "recipesToDo");
-    const q = query(
-      recipesToDoRef,
-      where("userId", "==", userId)
-    );
-    const querySnapshot = await getDocs(q);
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
 
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as RecipeToDo));
+    if (!userSnap.exists()) {
+      return [];
+    }
+
+    const userData = userSnap.data();
+    return userData.recipesToDo || [];
   } catch (error) {
     console.error("Error getting user recipes to do:", error);
     throw error;
@@ -84,9 +95,22 @@ export const getUserRecipesToDo = async (userId: string): Promise<RecipeToDo[]> 
 /**
  * Supprime une recette de "à faire"
  */
-export const removeRecipeToDo = async (recipeToDoId: string): Promise<void> => {
+export const removeRecipeToDo = async (userId: string, recipeId: string): Promise<void> => {
   try {
-    await deleteDoc(doc(db, "recipesToDo", recipeToDoId));
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      throw new Error("User not found");
+    }
+
+    const userData = userSnap.data();
+    const recipesToDo = userData.recipesToDo || [];
+    const updatedRecipesToDo = recipesToDo.filter((item: { recipeId: string }) => item.recipeId !== recipeId);
+
+    await updateDoc(userRef, {
+      recipesToDo: updatedRecipesToDo
+    });
   } catch (error) {
     console.error("Error removing recipe to do:", error);
     throw error;
@@ -146,6 +170,7 @@ export const addIngredientsToShoppingList = async (
     const shoppingList = await getOrCreateShoppingList(userId);
 
     // Convertir les ingrédients en items de liste de course
+    // Note: on utilise new Date() au lieu de serverTimestamp() car Firebase ne supporte pas serverTimestamp() dans les tableaux
     const newItems: ShoppingListItem[] = ingredients.map(ingredient => ({
       id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       name: ingredient.name,
@@ -154,7 +179,7 @@ export const addIngredientsToShoppingList = async (
       checked: false,
       recipeId,
       recipeTitle,
-      createdAt: serverTimestamp()
+      createdAt: new Date()
     }));
 
     // Fusionner avec les items existants (éviter les doublons)
@@ -194,23 +219,9 @@ export const addIngredientsToShoppingList = async (
       updatedAt: serverTimestamp()
     });
 
-    // Si une recette est associée, marquer que ses ingrédients ont été ajoutés
-    if (recipeId) {
-      const recipesToDoRef = collection(db, "recipesToDo");
-      const q = query(
-        recipesToDoRef,
-        where("userId", "==", userId),
-        where("recipeId", "==", recipeId)
-      );
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const recipeToDoDoc = querySnapshot.docs[0];
-        await updateDoc(doc(db, "recipesToDo", recipeToDoDoc.id), {
-          ingredientsAddedToShoppingList: true
-        });
-      }
-    }
+    // Note: On ne stocke plus le statut "ingredientsAddedToShoppingList"
+    // car on utilise maintenant un simple tableau d'IDs dans users
+    // Si besoin, on pourrait ajouter un champ séparé ou une autre structure
   } catch (error) {
     console.error("Error adding ingredients to shopping list:", error);
     throw error;

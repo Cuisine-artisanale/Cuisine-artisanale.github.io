@@ -2,6 +2,11 @@
  * Types liés aux utilisateurs
  */
 
+export interface RecipeToDoItem {
+  recipeId: string;
+  addedAt: Date | any;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -10,6 +15,7 @@ export interface User {
   role?: 'user' | 'admin';
   createdAt?: Date | any;
   emailVerified?: boolean;
+  recipesToDo?: RecipeToDoItem[]; // Array d'objets avec recipeId et addedAt
 }
 
 export interface UserData {

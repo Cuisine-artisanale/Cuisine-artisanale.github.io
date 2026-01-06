@@ -21,7 +21,8 @@ export type {
 export type {
   User,
   UserData,
-  UserStats
+  UserStats,
+  RecipeToDoItem
 } from './user.types';
 
 // Review types
