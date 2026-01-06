@@ -21,7 +21,8 @@ export type {
 export type {
   User,
   UserData,
-  UserStats
+  UserStats,
+  RecipeToDoItem
 } from './user.types';
 
 // Review types
@@ -46,4 +47,11 @@ export type {
   ToastSeverity,
   ToastOptions
 } from './service.types';
+
+// Shopping types
+export type {
+  ShoppingListItem,
+  ShoppingList,
+  RecipeToDo
+} from './shopping.types';
 

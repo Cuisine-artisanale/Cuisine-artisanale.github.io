@@ -89,9 +89,9 @@ service cloud.firestore {
     match /ingredients/{ingredientId} {
       // Lecture publique
       allow read: if true;
-
+	  allow create: if request.auth != null
       // Écriture uniquement pour les admins
-      allow create, update, delete: if request.auth != null && isAdmin(request.auth.uid);
+      allow update, delete: if request.auth != null && isAdmin(request.auth.uid);
     }
 
     // === Units (unités de mesure) ===
@@ -143,6 +143,26 @@ service cloud.firestore {
 
       // Création et mise à jour pour les utilisateurs authentifiés
       allow create, update: if request.auth != null;
+    }
+
+    // === Listes de course ===
+    match /shoppingLists/{shoppingListId} {
+      // Lecture uniquement par le propriétaire
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Création uniquement pour les utilisateurs authentifiés
+      // Vérifier que le userId correspond à l'utilisateur authentifié
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.keys().hasAll(['userId', 'items', 'createdAt', 'updatedAt']);
+
+      // Mise à jour uniquement par le propriétaire
+      allow update: if request.auth != null
+                    && request.auth.uid == resource.data.userId;
+
+      // Suppression uniquement par le propriétaire
+      allow delete: if request.auth != null
+                    && request.auth.uid == resource.data.userId;
     }
 
     // === Bloquer tout accès par défaut aux autres collections ===
