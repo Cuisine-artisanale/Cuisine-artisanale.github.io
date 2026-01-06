@@ -142,11 +142,6 @@ functions/                 # Firebase Cloud Functions
 │       └── emailService.ts
 └── package.json
 
-docs/                      # Documentation
-├── QUICK_START.md
-├── IMPLEMENTATION_SUMMARY.md
-├── ACCESSIBILITY_GUIDE.md
-└── ...
 ```
 
 ## 🔑 Fonctionnalités Principales
@@ -187,17 +182,6 @@ Le projet utilise TypeScript pour le typage statique et ESLint pour la qualité 
 
 L'application est déployée sur Firebase Hosting et peut également être déployée sur d'autres plateformes comme Vercel.
 
-## 📚 Documentation
-
-Une documentation complète est disponible dans le dossier `docs/` :
-
-- **QUICK_START.md** : Guide de démarrage rapide
-- **IMPLEMENTATION_SUMMARY.md** : Résumé complet des implémentations
-- **ACCESSIBILITY_GUIDE.md** : Guide d'accessibilité WCAG 2.1 AA
-- **STRUCTURE.md** : Structure détaillée du projet
-- **AUTH_IMPLEMENTATION_GUIDE.md** : Guide d'authentification
-- **MOBILE-PWA.md** : Guide PWA et mobile
-- **SEO_IMPLEMENTATION.md** : Guide SEO
 
 ## 🔒 Sécurité
 
