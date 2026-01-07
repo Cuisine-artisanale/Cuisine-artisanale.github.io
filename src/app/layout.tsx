@@ -25,8 +25,37 @@ const CookieConsentLazy = dynamic(
 );
 
 export const metadata = {
-	title: 'Cuisine artisanale',
-	description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
+	title: {
+		default: 'Cuisine Artisanale - Recettes Traditionnelles Françaises',
+		template: '%s | Cuisine Artisanale',
+	},
+	description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales. Partagez vos recettes traditionnelles et explorez la gastronomie française.',
+	keywords: [
+		'recettes françaises',
+		'cuisine artisanale',
+		'recettes traditionnelles',
+		'gastronomie française',
+		'recettes régionales',
+		'cuisine française',
+		'recettes de cuisine',
+		'cuisine authentique',
+		'spécialités françaises',
+		'recettes par département',
+	],
+	authors: [{ name: 'Cuisine Artisanale' }],
+	creator: 'Cuisine Artisanale',
+	publisher: 'Cuisine Artisanale',
+	robots: {
+		index: true,
+		follow: true,
+		googleBot: {
+			index: true,
+			follow: true,
+			'max-video-preview': -1,
+			'max-image-preview': 'large',
+			'max-snippet': -1,
+		},
+	},
 	manifest: '/manifest.json',
 	appleWebApp: {
 		capable: true,
@@ -36,6 +65,12 @@ export const metadata = {
 	applicationName: 'Cuisine Artisanale',
 	formatDetection: {
 		telephone: false,
+	},
+	alternates: {
+		canonical: 'https://www.cuisine-artisanale.fr/',
+		languages: {
+			'fr-FR': 'https://www.cuisine-artisanale.fr/',
+		},
 	},
 	icons: {
 		icon: [
@@ -52,23 +87,25 @@ export const metadata = {
 		locale: 'fr_FR',
 		url: 'https://www.cuisine-artisanale.fr/',
 		siteName: 'Cuisine Artisanale',
-		title: 'Cuisine artisanale',
-		description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
+		title: 'Cuisine Artisanale - Recettes Traditionnelles Françaises',
+		description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales.',
 		images: [
 			{
-				url: '/icon.png',
+				url: 'https://www.cuisine-artisanale.fr/icon.png',
 				width: 512,
 				height: 512,
-				alt: 'Cuisine Artisanale',
+				alt: 'Cuisine Artisanale - Logo',
 			},
 		],
 	},
 	twitter: {
 		card: 'summary_large_image',
-		title: 'Cuisine artisanale',
-		description: 'Recettes, actualités et cartes pour la cuisine artisanale.',
-		images: ['/icon.png'],
+		title: 'Cuisine Artisanale - Recettes Traditionnelles Françaises',
+		description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales.',
+		images: ['https://www.cuisine-artisanale.fr/icon.png'],
 	},
+	category: 'food',
+	metadataBase: new URL('https://www.cuisine-artisanale.fr'),
 };
 
 export const viewport = {
@@ -84,6 +121,46 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="fr">
 			<head>
+				{/* Structured Data (JSON-LD) pour le référencement */}
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify({
+							'@context': 'https://schema.org',
+							'@type': 'WebSite',
+							name: 'Cuisine Artisanale',
+							description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales.',
+							url: 'https://www.cuisine-artisanale.fr',
+							potentialAction: {
+								'@type': 'SearchAction',
+								target: {
+									'@type': 'EntryPoint',
+									urlTemplate: 'https://www.cuisine-artisanale.fr/recettes?search={search_term_string}',
+								},
+								'query-input': 'required name=search_term_string',
+							},
+							publisher: {
+								'@type': 'Organization',
+								name: 'Cuisine Artisanale',
+								url: 'https://www.cuisine-artisanale.fr',
+							},
+						}),
+					}}
+				/>
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify({
+							'@context': 'https://schema.org',
+							'@type': 'Organization',
+							name: 'Cuisine Artisanale',
+							url: 'https://www.cuisine-artisanale.fr',
+							logo: 'https://www.cuisine-artisanale.fr/icon.png',
+							sameAs: [],
+							description: 'Plateforme de partage de recettes artisanales françaises traditionnelles',
+						}),
+					}}
+				/>
 				{/* Hotjar Tracking Code for site recette */}
 				<script
 					dangerouslySetInnerHTML={{
