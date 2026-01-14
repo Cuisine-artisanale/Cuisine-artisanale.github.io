@@ -91,10 +91,10 @@ export const metadata = {
 		description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales.',
 		images: [
 			{
-				url: 'https://www.cuisine-artisanale.fr/screenshot-wide.png',
-				width: 1280,
-				height: 720,
-				alt: 'Cuisine Artisanale - Capture d\'écran du site',
+				url: 'https://www.cuisine-artisanale.fr/icon.png',
+				width: 512,
+				height: 512,
+				alt: 'Cuisine Artisanale - Logo',
 			},
 		],
 	},
@@ -102,7 +102,7 @@ export const metadata = {
 		card: 'summary_large_image',
 		title: 'Cuisine Artisanale - Recettes Traditionnelles Françaises',
 		description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales.',
-		images: ['https://www.cuisine-artisanale.fr/screenshot-wide.png'],
+		images: ['https://www.cuisine-artisanale.fr/icon.png'],
 	},
 	category: 'food',
 	metadataBase: new URL('https://www.cuisine-artisanale.fr'),
@@ -131,6 +131,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 							name: 'Cuisine Artisanale',
 							description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales.',
 							url: 'https://www.cuisine-artisanale.fr',
+							image: 'https://www.cuisine-artisanale.fr/icon.png',
 							potentialAction: {
 								'@type': 'SearchAction',
 								target: {
@@ -161,6 +162,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 						}),
 					}}
 				/>
+				{/* Meta image pour le référencement Google */}
+				<meta property="og:image" content="https://www.cuisine-artisanale.fr/icon.png" />
+				<meta property="og:image:width" content="512" />
+				<meta property="og:image:height" content="512" />
+				<meta property="og:image:alt" content="Cuisine Artisanale - Logo" />
+				<meta name="twitter:image" content="https://www.cuisine-artisanale.fr/icon.png" />
 				{/* Hotjar Tracking Code for site recette */}
 				<script
 					dangerouslySetInnerHTML={{
