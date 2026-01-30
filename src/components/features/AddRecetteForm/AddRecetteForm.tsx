@@ -255,6 +255,22 @@ const AddRecetteForm: React.FC = () => {
 	  }).filter(Boolean)
 	}));
 
+	// Upload des images non encore téléversées à la soumission (évite d'oublier de cliquer sur "Télécharger")
+	let finalImageUrls = [...imageURLs];
+	if (images.length > 0) {
+	  setUploading(true);
+	  try {
+		const uploadedUrls = await uploadImagesToStorage(images, capitalizedTitle);
+		finalImageUrls = [...imageURLs, ...uploadedUrls];
+	  } catch (error) {
+		console.error('Error uploading images:', error);
+		toast.error('Erreur lors du téléversement des images. Réessayez.');
+		setUploading(false);
+		return;
+	  }
+	  setUploading(false);
+	}
+
 	if (!isRecetteCreated) {
 		console.log('Creating new recette...');
 	  try {
@@ -295,7 +311,7 @@ const AddRecetteForm: React.FC = () => {
 		  recipeParts: formattedRecipeParts,
 		  position: position?.code || 'none',
 		  createdBy: user?.uid,
-		  images: imageURLs,
+		  images: finalImageUrls,
 		  titleKeywords: generateKeywords(capitalizedTitle),
 		  url: generateUrl(capitalizedTitle),
 		});
@@ -307,6 +323,7 @@ const AddRecetteForm: React.FC = () => {
 		setVideo('');
 		setRecipeParts([{ title: 'Recette 1', steps: [], ingredients: {}, selectedIngredients: [] }]);
 		setPosition(defaultDepartment);
+		setImages([]);
 		setImageURLs([]);
 		setIsRecetteCreated(false);
 		navigateBack();
@@ -352,13 +369,14 @@ const AddRecetteForm: React.FC = () => {
 	setImages([...e.target.files]);
   };
 
-  const handleUpload = async () => {
-	if (images.length === 0) return;
-	setUploading(true);
+  /** Upload des fichiers vers Firebase Storage. Utilisé au clic sur "Télécharger" et à la soumission du formulaire. */
+  const uploadImagesToStorage = async (files: File[], folderName: string): Promise<string[]> => {
+	if (files.length === 0) return [];
 	const urls: string[] = [];
+	const safeFolder = folderName.trim() || 'sans-titre';
 
-	for (let image of images) {
-	  const storageRef = ref(storage, `recipes/${title}/${image.name}`);
+	for (const image of files) {
+	  const storageRef = ref(storage, `recipes/${safeFolder}/${image.name}`);
 	  const uploadTask = uploadBytesResumable(storageRef, image);
 
 	  await new Promise<void>((resolve, reject) => {
@@ -377,9 +395,21 @@ const AddRecetteForm: React.FC = () => {
 		);
 	  });
 	}
+	return urls;
+  };
 
-	setImageURLs(urls);
-	setUploading(false);
+  const handleUpload = async () => {
+	if (images.length === 0) return;
+	setUploading(true);
+	try {
+	  const urls = await uploadImagesToStorage(images, title);
+	  setImageURLs(prev => [...prev, ...urls]);
+	  setImages([]);
+	} catch (error) {
+	  toast.error('Erreur lors du téléversement des images.');
+	} finally {
+	  setUploading(false);
+	}
   };
 
   const navigateBack = () => {
@@ -696,7 +726,13 @@ const AddRecetteForm: React.FC = () => {
 				{currentStep < totalSteps ? (
 					<Button type="button" label="Suivant" icon="pi pi-arrow-right" className="p-button-primary" onClick={nextStep} />
 				) : (
-					<Button type="submit" label="Créer la recette" icon="pi pi-check" className="p-button-success" />
+					<Button
+						type="submit"
+						label={uploading ? 'Téléversement des images...' : 'Créer la recette'}
+						icon="pi pi-check"
+						className="p-button-success"
+						disabled={uploading}
+					/>
 				)}
 				<Button type="button" label="Annuler" icon="pi pi-times" className="cancel-button" onClick={navigateBack} />
 			</footer>
