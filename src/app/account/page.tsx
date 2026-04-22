@@ -36,9 +36,11 @@ export default function AccountDetailPage() {
   const [displayNameInput, setDisplayNameInput] = useState(displayName || '');
   const [tiktokState, setTiktokState] = useState<TikTokUiState | null>(null);
   const [tiktokLoading, setTiktokLoading] = useState(false);
+  const [tiktokUrlLoading, setTiktokUrlLoading] = useState(false);
   const [tiktokMessage, setTiktokMessage] = useState<string | null>(null);
   const [tiktokCollections, setTiktokCollections] = useState<TikTokCollectionOption[]>([]);
   const [selectedCollectionId, setSelectedCollectionId] = useState<string>('all');
+  const [tiktokVideoUrl, setTiktokVideoUrl] = useState('');
   const { showToast } = useToast();
   const collectionOptions: TikTokCollectionOption[] = React.useMemo(() => {
     const fallback: TikTokCollectionOption = { id: 'all', name: 'Toutes mes vidéos' };
@@ -266,6 +268,47 @@ export default function AccountDetailPage() {
     }
   };
 
+  const handleImportTikTokByUrl = async () => {
+    try {
+      if (!tiktokVideoUrl.trim()) {
+        setTiktokMessage('Veuillez renseigner une URL TikTok.');
+        return;
+      }
+
+      setTiktokUrlLoading(true);
+      setTiktokMessage(null);
+      const idToken = await getFirebaseToken();
+      const response = await fetch('/api/tiktok/import-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ videoUrl: tiktokVideoUrl.trim() }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error || "L'import de l'URL TikTok a échoué.");
+      }
+
+      if (data.duplicate) {
+        setTiktokMessage('Cette vidéo est déjà présente dans vos imports.');
+      } else {
+        setTiktokMessage('Vidéo TikTok importée avec succès dans recipesRequest.');
+      }
+
+      setTiktokVideoUrl('');
+      if (user?.uid) {
+        await fetchTikTokState(user.uid);
+      }
+    } catch (error: any) {
+      setTiktokMessage(error?.message || "Erreur lors de l'import par URL TikTok.");
+    } finally {
+      setTiktokUrlLoading(false);
+    }
+  };
+
   const fetchTikTokCollections = async () => {
     try {
       const idToken = await getFirebaseToken();
@@ -387,6 +430,28 @@ export default function AccountDetailPage() {
                 {tiktokLoading ? 'Import en cours...' : 'Importer maintenant'}
               </button>
             )}
+          </div>
+
+          <div className="tiktok-url-import">
+            <label htmlFor="tiktok-video-url">Importer une recette depuis une URL TikTok</label>
+            <div className="tiktok-url-row">
+              <input
+                id="tiktok-video-url"
+                type="url"
+                placeholder="https://www.tiktok.com/@user/video/..."
+                value={tiktokVideoUrl}
+                onChange={(e) => setTiktokVideoUrl(e.target.value)}
+                disabled={tiktokUrlLoading}
+              />
+              <button
+                type="button"
+                className="tiktok-btn secondary"
+                onClick={handleImportTikTokByUrl}
+                disabled={tiktokUrlLoading}
+              >
+                {tiktokUrlLoading ? 'Import URL...' : 'Importer URL'}
+              </button>
+            </div>
           </div>
 
           {tiktokMessage && <p className="tiktok-message">{tiktokMessage}</p>}

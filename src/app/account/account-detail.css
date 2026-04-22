@@ -129,6 +129,31 @@
   gap: 0.7rem;
 }
 
+.tiktok-url-import {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.tiktok-url-import label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.tiktok-url-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.tiktok-url-row input {
+  flex: 1;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-ground);
+  color: var(--text-color);
+  padding: 0.55rem 0.7rem;
+}
+
 .tiktok-btn {
   border: 1px solid transparent;
   border-radius: var(--border-radius);
@@ -141,6 +166,12 @@
 .tiktok-btn.primary {
   background: var(--primary-color);
   color: var(--text-color-inverted);
+}
+
+.tiktok-btn.secondary {
+  background: var(--surface-ground);
+  color: var(--text-color);
+  border-color: var(--surface-border);
 }
 
 .tiktok-btn:disabled {
@@ -552,6 +583,10 @@
   .btn-primary {
     min-height: 44px !important;
     padding: 0.875rem 1.5rem !important;
+  }
+
+  .tiktok-url-row {
+    flex-direction: column;
   }
 }
 
