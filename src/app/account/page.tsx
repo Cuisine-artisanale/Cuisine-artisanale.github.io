@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import './account-detail.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { PersonalizedRecommendations, UserStats } from '@/components/features';
-import { doc, collection, getDocs, query, where, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, collection, getDocs, query, where, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/config/firebase';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { RequireEmailVerification } from '@/components/ui';
@@ -142,24 +142,23 @@ export default function AccountDetailPage() {
 
   const fetchTikTokState = async (uid: string) => {
     try {
-      const [connectionSnap, importSnap] = await Promise.all([
-        getDoc(doc(db, `users/${uid}/socialConnections/tiktok`)),
-        getDoc(doc(db, 'tiktokImports', uid)),
-      ]);
-
-      if (!connectionSnap.exists()) {
-        setTiktokState({ connected: false });
-        return;
+      const idToken = await getFirebaseToken();
+      const response = await fetch('/api/tiktok/status', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error || 'Impossible de récupérer le statut TikTok.');
       }
 
-      const connectionData = connectionSnap.data() || {};
-      const importData = importSnap.exists() ? importSnap.data() || {} : {};
-
       setTiktokState({
-        connected: Boolean(connectionData.connected),
-        displayName: connectionData.displayName || undefined,
-        lastSyncAt: importData.lastSyncAt?.toDate?.()?.toISOString?.() || undefined,
-        lastImportedCount: typeof importData.lastImportedCount === 'number' ? importData.lastImportedCount : undefined,
+        connected: Boolean(data.connected),
+        displayName: data.displayName || undefined,
+        lastSyncAt: data.lastSyncAt || undefined,
+        lastImportedCount: typeof data.lastImportedCount === 'number' ? data.lastImportedCount : undefined,
       });
     } catch (error) {
       console.error('Erreur lors du chargement de l’état TikTok:', error);
