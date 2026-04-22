@@ -210,21 +210,29 @@ function extractJsonObjectFromText(text: string) {
 async function enrichRecipeWithAi(caption: string): Promise<{
   enrichment: AiRecipeEnrichment | null;
   error: string | null;
+  provider: 'gemini' | 'openai' | null;
 }> {
-  const apiKey = process.env.OPENAI_API_KEY;
   const aiEnabled = process.env.AI_ENABLED === 'true';
-  if (!aiEnabled || !apiKey || !caption.trim()) {
+  if (!aiEnabled || !caption.trim()) {
     return {
       enrichment: null,
       error: !aiEnabled
         ? 'AI_DISABLED'
-        : !apiKey
-          ? 'MISSING_OPENAI_API_KEY'
-          : 'EMPTY_CAPTION',
+        : 'EMPTY_CAPTION',
+      provider: null,
     };
   }
 
-  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  const openAiApiKey = process.env.OPENAI_API_KEY;
+  if (!geminiApiKey && !openAiApiKey) {
+    return {
+      enrichment: null,
+      error: 'MISSING_GEMINI_AND_OPENAI_API_KEYS',
+      provider: null,
+    };
+  }
+
   const systemPrompt =
     'Tu extrais des donnees de recette depuis une caption TikTok. Reponds uniquement en JSON valide.';
   const userPrompt = [
@@ -236,47 +244,125 @@ async function enrichRecipeWithAi(caption: string): Promise<{
     `Texte: """${caption}"""`,
   ].join('\n');
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.1,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      max_tokens: 400,
-    }),
-  });
+  const parseAndReturn = (content: string, provider: 'gemini' | 'openai') => {
+    const jsonText = extractJsonObjectFromText(content);
+    if (!jsonText) {
+      return { enrichment: null, error: `${provider.toUpperCase()}_NO_JSON_OBJECT`, provider: null as null };
+    }
 
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => 'OPENAI_HTTP_ERROR');
-    return {
-      enrichment: null,
-      error: `OPENAI_HTTP_${response.status}: ${errorText.slice(0, 200)}`,
-    };
+    try {
+      return {
+        enrichment: JSON.parse(jsonText) as AiRecipeEnrichment,
+        error: null,
+        provider,
+      };
+    } catch {
+      return { enrichment: null, error: `${provider.toUpperCase()}_JSON_PARSE_FAILED`, provider: null as null };
+    }
+  };
+
+  const providerErrors: string[] = [];
+
+  // 1) GEMINI first
+  if (geminiApiKey) {
+    try {
+      const geminiModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+          geminiModel,
+        )}:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.1,
+              maxOutputTokens: 500,
+            },
+          }),
+        },
+      );
+
+      if (geminiResponse.ok) {
+        const geminiData = await geminiResponse.json();
+        const geminiContent =
+          geminiData?.candidates?.[0]?.content?.parts
+            ?.map((part: any) => part?.text || '')
+            .join('\n')
+            .trim() || '';
+
+        if (geminiContent) {
+          const parsed = parseAndReturn(geminiContent, 'gemini');
+          if (parsed.enrichment) {
+            return parsed;
+          }
+          if (parsed.error) providerErrors.push(parsed.error);
+        } else {
+          providerErrors.push('GEMINI_EMPTY_CONTENT');
+        }
+      } else {
+        const errorText = await geminiResponse.text().catch(() => 'GEMINI_HTTP_ERROR');
+        providerErrors.push(`GEMINI_HTTP_${geminiResponse.status}: ${errorText.slice(0, 200)}`);
+      }
+    } catch {
+      providerErrors.push('GEMINI_FETCH_FAILED');
+    }
   }
 
-  const data = await response.json();
-  const content = data?.choices?.[0]?.message?.content;
-  if (!content || typeof content !== 'string') {
-    return { enrichment: null, error: 'OPENAI_EMPTY_CONTENT' };
+  // 2) OPENAI fallback
+  if (openAiApiKey) {
+    try {
+      const openAiModel = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+      const openAiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${openAiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: openAiModel,
+          temperature: 0.1,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          max_tokens: 400,
+        }),
+      });
+
+      if (openAiResponse.ok) {
+        const openAiData = await openAiResponse.json();
+        const openAiContent = openAiData?.choices?.[0]?.message?.content;
+        if (openAiContent && typeof openAiContent === 'string') {
+          const parsed = parseAndReturn(openAiContent, 'openai');
+          if (parsed.enrichment) {
+            return parsed;
+          }
+          if (parsed.error) providerErrors.push(parsed.error);
+        } else {
+          providerErrors.push('OPENAI_EMPTY_CONTENT');
+        }
+      } else {
+        const errorText = await openAiResponse.text().catch(() => 'OPENAI_HTTP_ERROR');
+        providerErrors.push(`OPENAI_HTTP_${openAiResponse.status}: ${errorText.slice(0, 200)}`);
+      }
+    } catch {
+      providerErrors.push('OPENAI_FETCH_FAILED');
+    }
   }
 
-  const jsonText = extractJsonObjectFromText(content);
-  if (!jsonText) {
-    return { enrichment: null, error: 'OPENAI_NO_JSON_OBJECT' };
-  }
-
-  try {
-    return { enrichment: JSON.parse(jsonText) as AiRecipeEnrichment, error: null };
-  } catch {
-    return { enrichment: null, error: 'OPENAI_JSON_PARSE_FAILED' };
-  }
+  return {
+    enrichment: null,
+    error: providerErrors.join(' | ') || 'AI_ENRICHMENT_FAILED',
+    provider: null,
+  };
 }
 
 function buildStepsFromCaption(caption: string) {
@@ -422,6 +508,7 @@ export async function POST(request: NextRequest) {
       duplicate: false,
       recipeRequestId: recipeRef.id,
       aiUsed: Boolean(aiEnrichment),
+      aiProvider: aiResult.provider,
       titleSource: aiTitleCandidate ? 'ai' : 'heuristic',
       ingredientsSource: aiIngredients.length > 0 ? 'ai' : 'heuristic',
       extractedIngredientsCount: extractedIngredients.length,
