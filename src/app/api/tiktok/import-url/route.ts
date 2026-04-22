@@ -114,6 +114,8 @@ function sanitizeRecipeTitle(rawTitle: string) {
     .replace(/^[`'".\s-]+/, '')
     .replace(/\bjson\b[:\s-]*/gi, '')
     .replace(/\s+/g, ' ')
+	.replace(/Title": /i, '')
+	.replace(/"/g, '')
     .trim();
 
   if (!cleaned) return '';
