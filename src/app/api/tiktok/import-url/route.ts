@@ -108,6 +108,18 @@ function buildRecipeTitleFromCaption(rawCaption: string) {
   return toTitleCase(shortTitle);
 }
 
+function sanitizeRecipeTitle(rawTitle: string) {
+  const cleaned = cleanCaption(rawTitle)
+    .replace(/```(?:json)?/gi, ' ')
+    .replace(/^[`'".\s-]+/, '')
+    .replace(/\bjson\b[:\s-]*/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!cleaned) return '';
+  return toTitleCase(cleaned).slice(0, 70).trim();
+}
+
 function extractIngredientsFromText(text: string) {
   const cleaned = normalizeTextForParsing(text);
   const stopwordOnlyPattern =
@@ -248,19 +260,27 @@ function extractJsonObjectFromText(text: string) {
 }
 
 function parseAiEnrichmentFromLooseText(text: string): AiRecipeEnrichment | null {
-  const normalized = text.replace(/\r/g, '').trim();
+  const normalized = text
+    .replace(/\r/g, '')
+    .replace(/```(?:json)?/gi, '')
+    .trim();
   if (!normalized) return null;
 
   // Titre: accepte "title:", "titre:", ou première ligne significative.
   const titleMatch = normalized.match(/(?:^|\n)\s*(?:title|titre)\s*[:\-]\s*(.+)/i);
-  let title = cleanCaption(titleMatch?.[1] || '');
+  let title = sanitizeRecipeTitle(titleMatch?.[1] || '');
 
   if (!title) {
     const firstLine = normalized
       .split('\n')
       .map((line) => line.trim())
-      .find((line) => line.length >= 6 && !/^[-*•\d.)\s]/.test(line));
-    title = cleanCaption(firstLine || '');
+      .find((line) => {
+        if (line.length < 6) return false;
+        if (/^[-*•\d.)\s]/.test(line)) return false;
+        if (/^(json|```)/i.test(line)) return false;
+        return true;
+      });
+    title = sanitizeRecipeTitle(firstLine || '');
   }
 
   // Ingrédients: lecture des lignes en puces ou numérotées.
@@ -590,8 +610,9 @@ export async function POST(request: NextRequest) {
     const aiIngredients = sanitizeAiIngredients(aiEnrichment?.ingredients);
     const extractedIngredients = aiIngredients.length > 0 ? aiIngredients : heuristicIngredients;
     const aiTitleCandidate = cleanCaption(String(aiEnrichment?.title || '')).slice(0, 70);
+    const sanitizedAiTitle = sanitizeRecipeTitle(aiTitleCandidate);
     const title =
-      aiTitleCandidate && aiTitleCandidate.length >= 4 ? toTitleCase(aiTitleCandidate) : heuristicTitle;
+      sanitizedAiTitle && sanitizedAiTitle.length >= 4 ? sanitizedAiTitle : heuristicTitle;
     const titleKeywords = title.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 20);
     const steps = buildStepsFromCaption(parsingText || caption);
 
