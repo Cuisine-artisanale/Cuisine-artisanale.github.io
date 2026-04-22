@@ -469,7 +469,10 @@ export async function POST(request: NextRequest) {
     const uid = await getAuthenticatedUid(request);
     const body = await request.json().catch(() => ({}));
     const rawVideoUrl = typeof body?.videoUrl === 'string' ? body.videoUrl : '';
+    const rawSupplementalText =
+      typeof body?.supplementalText === 'string' ? body.supplementalText : '';
     const videoUrl = normalizeUrl(rawVideoUrl);
+    const supplementalText = cleanCaption(rawSupplementalText).slice(0, 3000);
 
     if (!videoUrl || !isValidTikTokUrl(videoUrl)) {
       return NextResponse.json(
@@ -484,9 +487,10 @@ export async function POST(request: NextRequest) {
     const db = getFirebaseAdminDb();
     const oembed = await fetchTikTokOEmbed(videoUrl);
     const caption = cleanCaption(oembed?.title || '');
-    const heuristicIngredients = extractIngredientsFromText(caption);
+    const parsingText = [caption, supplementalText].filter(Boolean).join(' \n ');
+    const heuristicIngredients = extractIngredientsFromText(parsingText);
     const heuristicTitle = buildRecipeTitleFromCaption(oembed?.title || 'Recette TikTok importee');
-    const aiResult = await enrichRecipeWithAi(caption);
+    const aiResult = await enrichRecipeWithAi(parsingText);
     const aiEnrichment = aiResult.enrichment;
     const aiIngredients = sanitizeAiIngredients(aiEnrichment?.ingredients);
     const extractedIngredients = aiIngredients.length > 0 ? aiIngredients : heuristicIngredients;
@@ -494,7 +498,7 @@ export async function POST(request: NextRequest) {
     const title =
       aiTitleCandidate && aiTitleCandidate.length >= 4 ? toTitleCase(aiTitleCandidate) : heuristicTitle;
     const titleKeywords = title.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 20);
-    const steps = buildStepsFromCaption(caption);
+    const steps = buildStepsFromCaption(parsingText || caption);
 
     const duplicateQuery = await db
       .collection('recipesRequest')
@@ -535,6 +539,7 @@ export async function POST(request: NextRequest) {
       sourceCollectionId: 'manual-url',
       titleKeywords: titleKeywords.length > 0 ? titleKeywords : ['recette', 'tiktok', 'import'],
       externalAuthor: oembed?.author_name || null,
+      supplementalText: supplementalText || null,
       createdAt: FieldValue.serverTimestamp(),
     };
 
@@ -570,6 +575,7 @@ export async function POST(request: NextRequest) {
       ingredientsSource: aiIngredients.length > 0 ? 'ai' : 'heuristic',
       extractedIngredientsCount: extractedIngredients.length,
       captionLength: caption.length,
+      supplementalLength: supplementalText.length,
       ...((process.env.NODE_ENV !== 'production' || process.env.AI_DEBUG === 'true') && {
         aiError: aiResult.error,
       }),

@@ -38,6 +38,7 @@ const AddRecetteForm: React.FC = () => {
   const [video, setVideo] = useState('');
   const [videoError, setVideoError] = useState('');
   const [tiktokImportUrl, setTiktokImportUrl] = useState('');
+  const [tiktokImportContext, setTiktokImportContext] = useState('');
   const [tiktokImporting, setTiktokImporting] = useState(false);
   const [isRecetteCreated, setIsRecetteCreated] = useState<boolean>(false);
   const [recipeParts, setRecipeParts] = useState<RecipePart[]>([{
@@ -246,7 +247,10 @@ const AddRecetteForm: React.FC = () => {
 		  'Content-Type': 'application/json',
 		  Authorization: `Bearer ${idToken}`,
 		},
-		body: JSON.stringify({ videoUrl: trimmedUrl }),
+		body: JSON.stringify({
+		  videoUrl: trimmedUrl,
+		  supplementalText: tiktokImportContext.trim(),
+		}),
 	  });
 
 	  const data = await response.json();
@@ -263,6 +267,7 @@ const AddRecetteForm: React.FC = () => {
 		toast.success(`Vidéo TikTok importée dans la modération - ${aiNote}.`);
 	  }
 	  setTiktokImportUrl('');
+	  setTiktokImportContext('');
 	} catch (error: any) {
 	  toast.error(error?.message || "Erreur lors de l'import de la vidéo TikTok.");
 	} finally {
@@ -482,7 +487,7 @@ const AddRecetteForm: React.FC = () => {
 
 		<section className="tiktok-import-panel">
 			<h2>Importer depuis TikTok</h2>
-			<p>Collez une URL TikTok pour envoyer rapidement une recette en modération.</p>
+			<p>Collez une URL TikTok, puis ajoutez du contexte pour aider l'IA a extraire les ingredients.</p>
 			<div className="tiktok-import-controls">
 				<InputText
 					value={tiktokImportUrl}
@@ -496,6 +501,23 @@ const AddRecetteForm: React.FC = () => {
 					onClick={handleImportTikTokByUrl}
 					disabled={tiktokImporting || !user}
 				/>
+			</div>
+			<div className="tiktok-import-context">
+				<label htmlFor="tiktok-import-context">
+					Texte complementaire (ingredients / etapes)
+				</label>
+				<textarea
+					id="tiktok-import-context"
+					value={tiktokImportContext}
+					onChange={(e) => setTiktokImportContext(e.target.value)}
+					placeholder="Ex: Ingredients: 2 oeufs, 150g farine, 1 boite de thon..."
+					rows={4}
+					disabled={tiktokImporting || !user}
+					maxLength={3000}
+				/>
+				<p className="tiktok-import-hint">
+					Optionnel. Plus vous donnez de details ici, meilleure sera l'extraction des ingredients.
+				</p>
 			</div>
 			{!user && <p className="tiktok-import-hint">Connectez-vous pour importer une vidéo TikTok.</p>}
 		</section>

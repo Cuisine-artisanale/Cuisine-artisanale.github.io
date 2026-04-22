@@ -67,6 +67,27 @@
   font-size: 0.9rem;
 }
 
+.tiktok-import-context {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.tiktok-import-context label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.tiktok-import-context textarea {
+  width: 100%;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-ground);
+  color: var(--text-color);
+  padding: 0.65rem 0.75rem;
+  resize: vertical;
+}
+
 /* ================================
    FORM WRAPPER
 =================================== */
