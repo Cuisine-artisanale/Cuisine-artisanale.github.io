@@ -217,14 +217,39 @@ function uniqueStrings(values: Array<string | undefined | null>) {
 function getGeminiModelCandidates() {
   return uniqueStrings([
     process.env.GEMINI_MODEL,
-    'gemini-2.0-flash',
-    'gemini-2.0-flash-lite',
-    'gemini-1.5-flash-latest',
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-2.5-pro',
+    'gemini-1.5-pro-latest',
   ]);
 }
 
 function getGeminiApiVersions() {
   return uniqueStrings([process.env.GEMINI_API_VERSION, 'v1', 'v1beta']);
+}
+
+async function fetchGeminiAvailableModels(apiVersion: string, apiKey: string) {
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/${apiVersion}/models?key=${encodeURIComponent(apiKey)}`,
+    );
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    const models = Array.isArray(data?.models) ? data.models : [];
+
+    return models
+      .filter((model: any) => {
+        const methods = Array.isArray(model?.supportedGenerationMethods)
+          ? model.supportedGenerationMethods
+          : [];
+        return methods.includes('generateContent');
+      })
+      .map((model: any) => String(model?.name || '').replace(/^models\//, '').trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
 }
 
 async function enrichRecipeWithAi(caption: string): Promise<{
@@ -286,12 +311,13 @@ async function enrichRecipeWithAi(caption: string): Promise<{
   // 1) GEMINI first
   if (geminiApiKey) {
     try {
-      const geminiModels = getGeminiModelCandidates();
       const geminiApiVersions = getGeminiApiVersions();
       let geminiSuccess = false;
 
       for (const apiVersion of geminiApiVersions) {
         if (geminiSuccess) break;
+        const discoveredModels = await fetchGeminiAvailableModels(apiVersion, geminiApiKey);
+        const geminiModels = uniqueStrings([...getGeminiModelCandidates(), ...discoveredModels]);
         for (const geminiModel of geminiModels) {
           const geminiResponse = await fetch(
             `https://generativelanguage.googleapis.com/${apiVersion}/models/${encodeURIComponent(
