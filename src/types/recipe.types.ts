@@ -58,6 +58,7 @@ export interface RecipeData {
 
 export interface RecipeRequest {
   title: string;
+  url?: string;
   type?: string;
   preparationTime?: number;
   cookingTime?: number;

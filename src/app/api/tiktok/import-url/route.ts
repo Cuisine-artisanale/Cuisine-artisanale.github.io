@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getFirebaseAdminAuth, getFirebaseAdminDb } from '@/lib/config/firebase-admin';
+import { slugify } from '@/lib/utils/slug';
 
 type TikTokOEmbedResponse = {
   title?: string;
@@ -644,6 +645,7 @@ export async function POST(request: NextRequest) {
       sanitizedAiTitle && sanitizedAiTitle.length >= 4 ? sanitizedAiTitle : '',
       heuristicTitle,
     );
+    const recipeSlug = slugify(title) || slugify(`recette-tiktok-${sourceVideoId}`) || `recette-tiktok-${Date.now()}`;
     const titleKeywords = title.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 20);
     const steps = buildStepsFromCaption(parsingText || caption);
 
@@ -666,6 +668,7 @@ export async function POST(request: NextRequest) {
 
     const recipePayload = {
       title,
+      url: recipeSlug,
       type: 'Plat',
       preparationTime: 0,
       cookingTime: 0,

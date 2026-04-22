@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import type { RecipeRequest, TikTokVideoItem } from '@/types';
+import { slugify } from '@/lib/utils/slug';
 
 const TIKTOK_AUTH_BASE_URL = 'https://www.tiktok.com/v2/auth/authorize/';
 const TIKTOK_TOKEN_URL = 'https://open.tiktokapis.com/v2/oauth/token/';
@@ -270,11 +271,13 @@ export function shouldRefreshToken(expiresAt?: string) {
 export function normalizeTikTokVideoToRecipeRequest(video: TikTokVideoItem, uid: string): RecipeRequest {
   const titleSource = video.title || video.video_description || 'Recette TikTok';
   const normalizedTitle = titleSource.trim().slice(0, 120) || 'Recette TikTok';
+  const recipeSlug = slugify(normalizedTitle) || slugify(`recette-tiktok-${video.id}`) || `recette-tiktok-${Date.now()}`;
   const videoUrl = video.share_url || '';
   const keywords = normalizedTitle.toLowerCase().split(/\s+/).filter(Boolean);
 
   return {
     title: normalizedTitle,
+    url: recipeSlug,
     type: 'Plat',
     preparationTime: 0,
     cookingTime: 0,
@@ -294,7 +297,7 @@ export function normalizeTikTokVideoToRecipeRequest(video: TikTokVideoItem, uid:
     sourceVideoId: video.id,
     createdAt: new Date(),
     titleKeywords: keywords,
-  };
+  } as RecipeRequest;
 }
 
 export function getTikTokVideoCollectionInfo(video: TikTokVideoItem) {
