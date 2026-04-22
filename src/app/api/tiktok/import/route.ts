@@ -6,6 +6,7 @@ import {
   decryptToken,
   encryptToken,
   fetchTikTokVideos,
+  getTikTokVideoCollectionInfo,
   normalizeTikTokVideoToRecipeRequest,
   refreshTikTokAccessToken,
   shouldRefreshToken,
@@ -28,6 +29,10 @@ export async function POST(request: NextRequest) {
     const uid = await getAuthenticatedUid(request);
     const body = await request.json().catch(() => ({}));
     const maxCount = Number.isFinite(body?.maxCount) ? Number(body.maxCount) : 20;
+    const selectedCollectionId =
+      typeof body?.collectionId === 'string' && body.collectionId.trim()
+        ? body.collectionId.trim()
+        : 'all';
 
     const db = getFirebaseAdminDb();
     const connectionRef = db.doc(`users/${uid}/socialConnections/tiktok`);
@@ -78,7 +83,39 @@ export async function POST(request: NextRequest) {
     }
 
     const cursor = importStateSnap.exists ? importStateSnap.data()?.lastCursor ?? 0 : 0;
-    const { videos, cursor: nextCursor, hasMore } = await fetchTikTokVideos(accessToken, cursor, maxCount);
+
+    // MVP collections: on filtre les vidéos par playlist/collection quand l'ID est fourni.
+    let nextCursor: string | number = cursor;
+    let hasMore = false;
+    let videos: any[] = [];
+
+    if (selectedCollectionId === 'all') {
+      const response = await fetchTikTokVideos(accessToken, cursor, maxCount);
+      videos = response.videos;
+      nextCursor = response.cursor;
+      hasMore = response.hasMore;
+    } else {
+      let currentCursor: string | number = cursor;
+      let currentHasMore = true;
+      let page = 0;
+      const maxPages = 5;
+
+      while (currentHasMore && videos.length < maxCount && page < maxPages) {
+        const response = await fetchTikTokVideos(accessToken, currentCursor, 20);
+        const matching = response.videos.filter((video) => {
+          const info = getTikTokVideoCollectionInfo(video);
+          return info.id === selectedCollectionId;
+        });
+        videos.push(...matching);
+        currentCursor = response.cursor;
+        currentHasMore = Boolean(response.hasMore);
+        page += 1;
+      }
+
+      videos = videos.slice(0, maxCount);
+      nextCursor = currentCursor;
+      hasMore = currentHasMore;
+    }
 
     let importedCount = 0;
     let skippedCount = 0;
@@ -94,6 +131,7 @@ export async function POST(request: NextRequest) {
       const recipeRequest = normalizeTikTokVideoToRecipeRequest(video, uid);
       const recipeRef = await db.collection('recipesRequest').add({
         ...recipeRequest,
+        sourceCollectionId: selectedCollectionId,
         createdAt: FieldValue.serverTimestamp(),
       });
 
@@ -113,6 +151,7 @@ export async function POST(request: NextRequest) {
         enabled: true,
         lastCursor: nextCursor,
         hasMore: Boolean(hasMore),
+        selectedCollectionId,
         lastImportedCount: importedCount,
         lastSyncAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),

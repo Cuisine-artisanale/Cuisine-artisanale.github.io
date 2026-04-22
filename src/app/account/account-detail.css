@@ -99,6 +99,25 @@
   font-size: 0.92rem;
 }
 
+.tiktok-collection-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tiktok-collection-row label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.tiktok-collection-select {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-ground);
+  color: var(--text-color);
+  padding: 0.55rem 0.7rem;
+}
+
 .tiktok-actions {
   display: flex;
   gap: 0.7rem;

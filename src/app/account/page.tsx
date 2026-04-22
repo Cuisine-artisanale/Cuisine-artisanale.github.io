@@ -23,6 +23,12 @@ interface TikTokUiState {
   lastImportedCount?: number;
 }
 
+interface TikTokCollectionOption {
+  id: string;
+  name: string;
+  count?: number;
+}
+
 export default function AccountDetailPage() {
   const { user, displayName, refreshUserData } = useAuth();
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
@@ -31,6 +37,8 @@ export default function AccountDetailPage() {
   const [tiktokState, setTiktokState] = useState<TikTokUiState | null>(null);
   const [tiktokLoading, setTiktokLoading] = useState(false);
   const [tiktokMessage, setTiktokMessage] = useState<string | null>(null);
+  const [tiktokCollections, setTiktokCollections] = useState<TikTokCollectionOption[]>([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string>('all');
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -160,9 +168,18 @@ export default function AccountDetailPage() {
         lastSyncAt: data.lastSyncAt || undefined,
         lastImportedCount: typeof data.lastImportedCount === 'number' ? data.lastImportedCount : undefined,
       });
+
+      if (data.connected) {
+        await fetchTikTokCollections();
+      } else {
+        setTiktokCollections([]);
+        setSelectedCollectionId('all');
+      }
     } catch (error) {
       console.error('Erreur lors du chargement de l’état TikTok:', error);
       setTiktokState({ connected: false });
+      setTiktokCollections([]);
+      setSelectedCollectionId('all');
     }
   };
 
@@ -208,7 +225,7 @@ export default function AccountDetailPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
-        body: JSON.stringify({ maxCount: 20 }),
+        body: JSON.stringify({ maxCount: 20, collectionId: selectedCollectionId }),
       });
 
       const data = await response.json();
@@ -227,6 +244,32 @@ export default function AccountDetailPage() {
       setTiktokMessage(error?.message || "Erreur lors de l'import TikTok.");
     } finally {
       setTiktokLoading(false);
+    }
+  };
+
+  const fetchTikTokCollections = async () => {
+    try {
+      const idToken = await getFirebaseToken();
+      const response = await fetch('/api/tiktok/collections', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error || 'Impossible de charger les collections TikTok.');
+      }
+
+      const collections: TikTokCollectionOption[] = Array.isArray(data.collections) ? data.collections : [];
+      setTiktokCollections(collections);
+      if (!collections.some((c) => c.id === selectedCollectionId)) {
+        setSelectedCollectionId('all');
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des collections TikTok:', error);
+      setTiktokCollections([{ id: 'all', name: 'Toutes mes vidéos' }]);
+      setSelectedCollectionId('all');
     }
   };
 
@@ -277,6 +320,29 @@ export default function AccountDetailPage() {
               Dernier import: {new Date(tiktokState.lastSyncAt).toLocaleString('fr-FR')}
               {typeof tiktokState.lastImportedCount === 'number' ? ` - ${tiktokState.lastImportedCount} importée(s)` : ''}
             </p>
+          )}
+
+          {tiktokState?.connected && (
+            <div className="tiktok-collection-row">
+              <label htmlFor="tiktok-collection-select">Collection à importer</label>
+              <select
+                id="tiktok-collection-select"
+                value={selectedCollectionId}
+                onChange={(e) => setSelectedCollectionId(e.target.value)}
+                disabled={tiktokLoading}
+                className="tiktok-collection-select"
+              >
+                {(tiktokCollections.length > 0
+                  ? tiktokCollections
+                  : [{ id: 'all', name: 'Toutes mes vidéos' }]
+                ).map((collection) => (
+                  <option key={collection.id} value={collection.id}>
+                    {collection.name}
+                    {typeof collection.count === 'number' ? ` (${collection.count})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
 
           <div className="tiktok-actions">

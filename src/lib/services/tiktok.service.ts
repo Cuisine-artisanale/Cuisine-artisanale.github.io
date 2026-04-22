@@ -201,7 +201,8 @@ export async function fetchTikTokUserInfo(accessToken: string) {
 
 export async function fetchTikTokVideos(accessToken: string, cursor?: string | number, maxCount = 20) {
   const params = new URLSearchParams({
-    fields: 'id,title,video_description,duration,cover_image_url,share_url,create_time',
+    fields:
+      'id,title,video_description,duration,cover_image_url,share_url,create_time,playlist_id,playlist_name',
   });
 
   const response = await fetch(`${TIKTOK_VIDEO_LIST_URL}?${params.toString()}`, {
@@ -293,6 +294,19 @@ export function normalizeTikTokVideoToRecipeRequest(video: TikTokVideoItem, uid:
     sourceVideoId: video.id,
     createdAt: new Date(),
     titleKeywords: keywords,
+  };
+}
+
+export function getTikTokVideoCollectionInfo(video: TikTokVideoItem) {
+  const rawCollectionId = (video as any).playlist_id ?? (video as any).collection_id;
+  const rawCollectionName = (video as any).playlist_name ?? (video as any).collection_name;
+
+  return {
+    id: typeof rawCollectionId === 'string' && rawCollectionId.trim() ? rawCollectionId.trim() : 'all',
+    name:
+      typeof rawCollectionName === 'string' && rawCollectionName.trim()
+        ? rawCollectionName.trim()
+        : 'Mes vidéos TikTok',
   };
 }
 
