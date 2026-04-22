@@ -118,6 +118,12 @@
   padding: 0.55rem 0.7rem;
 }
 
+.tiktok-help-text {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 0.88rem;
+}
+
 .tiktok-actions {
   display: flex;
   gap: 0.7rem;

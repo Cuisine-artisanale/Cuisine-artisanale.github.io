@@ -40,6 +40,25 @@ export default function AccountDetailPage() {
   const [tiktokCollections, setTiktokCollections] = useState<TikTokCollectionOption[]>([]);
   const [selectedCollectionId, setSelectedCollectionId] = useState<string>('all');
   const { showToast } = useToast();
+  const collectionOptions: TikTokCollectionOption[] = React.useMemo(() => {
+    const fallback: TikTokCollectionOption = { id: 'all', name: 'Toutes mes vidéos' };
+    const normalized = (Array.isArray(tiktokCollections) ? tiktokCollections : [])
+      .filter((collection) => collection && typeof collection.id === 'string' && collection.id.trim())
+      .map((collection) => ({
+        id: collection.id.trim(),
+        name:
+          typeof collection.name === 'string' && collection.name.trim()
+            ? collection.name.trim()
+            : 'Collection TikTok',
+        count: collection.count,
+      }));
+
+    const dedupMap = new Map<string, TikTokCollectionOption>();
+    dedupMap.set(fallback.id, fallback);
+    normalized.forEach((item) => dedupMap.set(item.id, item));
+
+    return Array.from(dedupMap.values());
+  }, [tiktokCollections]);
 
   useEffect(() => {
     if (user) {
@@ -263,7 +282,8 @@ export default function AccountDetailPage() {
 
       const collections: TikTokCollectionOption[] = Array.isArray(data.collections) ? data.collections : [];
       setTiktokCollections(collections);
-      if (!collections.some((c) => c.id === selectedCollectionId)) {
+      const ids = new Set(['all', ...collections.map((c) => c.id)]);
+      if (!ids.has(selectedCollectionId)) {
         setSelectedCollectionId('all');
       }
     } catch (error) {
@@ -332,16 +352,18 @@ export default function AccountDetailPage() {
                 disabled={tiktokLoading}
                 className="tiktok-collection-select"
               >
-                {(tiktokCollections.length > 0
-                  ? tiktokCollections
-                  : [{ id: 'all', name: 'Toutes mes vidéos' }]
-                ).map((collection) => (
+                {collectionOptions.map((collection) => (
                   <option key={collection.id} value={collection.id}>
                     {collection.name}
                     {typeof collection.count === 'number' ? ` (${collection.count})` : ''}
                   </option>
                 ))}
               </select>
+              {collectionOptions.length <= 1 && (
+                <p className="tiktok-help-text">
+                  Aucune collection spécifique detectee pour le moment, import sur "Toutes mes videos".
+                </p>
+              )}
             </div>
           )}
 
