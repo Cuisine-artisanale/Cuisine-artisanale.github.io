@@ -257,7 +257,10 @@ const AddRecetteForm: React.FC = () => {
 	  if (data.duplicate) {
 		toast.info('Cette vidéo TikTok est déjà importée.');
 	  } else {
-		toast.success('Vidéo TikTok importée dans la modération.');
+		const aiNote = data.aiUsed
+		  ? 'IA active'
+		  : `fallback ${data.aiError ? `(${data.aiError})` : '(sans IA)'}`;
+		toast.success(`Vidéo TikTok importée dans la modération - ${aiNote}.`);
 	  }
 	  setTiktokImportUrl('');
 	} catch (error: any) {

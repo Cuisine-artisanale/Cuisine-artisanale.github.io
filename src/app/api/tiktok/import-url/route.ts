@@ -207,11 +207,21 @@ function extractJsonObjectFromText(text: string) {
   return text.slice(first, last + 1);
 }
 
-async function enrichRecipeWithAi(caption: string) {
+async function enrichRecipeWithAi(caption: string): Promise<{
+  enrichment: AiRecipeEnrichment | null;
+  error: string | null;
+}> {
   const apiKey = process.env.OPENAI_API_KEY;
   const aiEnabled = process.env.AI_ENABLED === 'true';
   if (!aiEnabled || !apiKey || !caption.trim()) {
-    return null;
+    return {
+      enrichment: null,
+      error: !aiEnabled
+        ? 'AI_DISABLED'
+        : !apiKey
+          ? 'MISSING_OPENAI_API_KEY'
+          : 'EMPTY_CAPTION',
+    };
   }
 
   const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
@@ -244,20 +254,28 @@ async function enrichRecipeWithAi(caption: string) {
   });
 
   if (!response.ok) {
-    return null;
+    const errorText = await response.text().catch(() => 'OPENAI_HTTP_ERROR');
+    return {
+      enrichment: null,
+      error: `OPENAI_HTTP_${response.status}: ${errorText.slice(0, 200)}`,
+    };
   }
 
   const data = await response.json();
   const content = data?.choices?.[0]?.message?.content;
-  if (!content || typeof content !== 'string') return null;
+  if (!content || typeof content !== 'string') {
+    return { enrichment: null, error: 'OPENAI_EMPTY_CONTENT' };
+  }
 
   const jsonText = extractJsonObjectFromText(content);
-  if (!jsonText) return null;
+  if (!jsonText) {
+    return { enrichment: null, error: 'OPENAI_NO_JSON_OBJECT' };
+  }
 
   try {
-    return JSON.parse(jsonText) as AiRecipeEnrichment;
+    return { enrichment: JSON.parse(jsonText) as AiRecipeEnrichment, error: null };
   } catch {
-    return null;
+    return { enrichment: null, error: 'OPENAI_JSON_PARSE_FAILED' };
   }
 }
 
@@ -325,7 +343,8 @@ export async function POST(request: NextRequest) {
     const caption = cleanCaption(oembed?.title || '');
     const heuristicIngredients = extractIngredientsFromText(caption);
     const heuristicTitle = buildRecipeTitleFromCaption(oembed?.title || 'Recette TikTok importee');
-    const aiEnrichment = await enrichRecipeWithAi(caption);
+    const aiResult = await enrichRecipeWithAi(caption);
+    const aiEnrichment = aiResult.enrichment;
     const aiIngredients = sanitizeAiIngredients(aiEnrichment?.ingredients);
     const extractedIngredients = aiIngredients.length > 0 ? aiIngredients : heuristicIngredients;
     const aiTitleCandidate = cleanCaption(String(aiEnrichment?.title || '')).slice(0, 70);
@@ -402,6 +421,12 @@ export async function POST(request: NextRequest) {
       imported: true,
       duplicate: false,
       recipeRequestId: recipeRef.id,
+      aiUsed: Boolean(aiEnrichment),
+      titleSource: aiTitleCandidate ? 'ai' : 'heuristic',
+      ingredientsSource: aiIngredients.length > 0 ? 'ai' : 'heuristic',
+      extractedIngredientsCount: extractedIngredients.length,
+      captionLength: caption.length,
+      ...(process.env.NODE_ENV !== 'production' && { aiError: aiResult.error }),
     });
   } catch (error: any) {
     return NextResponse.json(
