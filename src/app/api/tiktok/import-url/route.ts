@@ -75,6 +75,7 @@ function buildRecipeTitleFromCaption(rawCaption: string) {
 
   const sentimentCutPatterns = [
     /\bj['’`]?aime\b/i,
+    /\b(?:ca|ça)\b/i,
     /\bje\s+vous\s+laisse\b/i,
     /\bdis[-\s]?moi\b/i,
     /\btu\s+valide[s]?\b/i,
@@ -106,6 +107,32 @@ function buildRecipeTitleFromCaption(rawCaption: string) {
   // Limite de longueur UX (titre exploitable dans la liste/admin).
   const shortTitle = candidate.slice(0, 70).trim();
   return toTitleCase(shortTitle);
+}
+
+function isLikelyTruncatedTitle(title: string) {
+  const words = cleanCaption(title).toLowerCase().split(/\s+/).filter(Boolean);
+  if (words.length < 3) return true;
+
+  const last = words[words.length - 1] || '';
+  const prev = words[words.length - 2] || '';
+  const connectors = new Set(['a', 'à', 'au', 'aux', 'de', 'du', 'des', 'la', 'le', 'les', 'et', 'ou']);
+
+  if (connectors.has(last)) return true;
+  if (last.length <= 2 && connectors.has(prev)) return true;
+
+  return false;
+}
+
+function selectBestRecipeTitle(aiTitle: string, heuristicTitle: string) {
+  if (!aiTitle) return heuristicTitle;
+  if (!isLikelyTruncatedTitle(aiTitle)) return aiTitle;
+
+  // Si l'IA renvoie un titre tronqué ("... a la po"), on préfère l'heuristique.
+  if (heuristicTitle && heuristicTitle.length >= aiTitle.length) {
+    return heuristicTitle;
+  }
+
+  return aiTitle;
 }
 
 function sanitizeRecipeTitle(rawTitle: string) {
@@ -613,8 +640,10 @@ export async function POST(request: NextRequest) {
     const extractedIngredients = aiIngredients.length > 0 ? aiIngredients : heuristicIngredients;
     const aiTitleCandidate = cleanCaption(String(aiEnrichment?.title || '')).slice(0, 70);
     const sanitizedAiTitle = sanitizeRecipeTitle(aiTitleCandidate);
-    const title =
-      sanitizedAiTitle && sanitizedAiTitle.length >= 4 ? sanitizedAiTitle : heuristicTitle;
+    const title = selectBestRecipeTitle(
+      sanitizedAiTitle && sanitizedAiTitle.length >= 4 ? sanitizedAiTitle : '',
+      heuristicTitle,
+    );
     const titleKeywords = title.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 20);
     const steps = buildStepsFromCaption(parsingText || caption);
 
