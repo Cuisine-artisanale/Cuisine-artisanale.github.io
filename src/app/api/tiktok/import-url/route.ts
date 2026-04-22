@@ -8,6 +8,24 @@ type TikTokOEmbedResponse = {
   thumbnail_url?: string;
 };
 
+type ParsedIngredient = {
+  id: string;
+  name: string;
+  quantity: string;
+  unit: string;
+};
+
+type AiIngredient = {
+  name?: string;
+  quantity?: string | number;
+  unit?: string;
+};
+
+type AiRecipeEnrichment = {
+  title?: string;
+  ingredients?: AiIngredient[];
+};
+
 function isValidTikTokUrl(url: string) {
   return /^(https?:\/\/)?(www\.)?(tiktok\.com|vm\.tiktok\.com|vt\.tiktok\.com)\/.+$/i.test(url);
 }
@@ -96,7 +114,7 @@ function extractIngredientsFromText(text: string) {
     /\b(\d+(?:[.,]\d+)?|1\/2|1\/3|1\/4|2\/3|3\/4)?\s*(g|kg|ml|l|cl|cas|cac|c\.?à\.?s|c\.?à\.?c|cuill[eè]re?s?|tasse?s?|pinc[ée]e?s?)?\s*([a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ' -]{1,45})/gi;
 
   const seen = new Set<string>();
-  const ingredients: Array<{ id: string; name: string; quantity: string; unit: string }> = [];
+  const ingredients: ParsedIngredient[] = [];
 
   // 1) Tentative prioritaire: section "ingredients"
   const sectionMatch = cleaned.match(
@@ -134,6 +152,113 @@ function extractIngredientsFromText(text: string) {
   }
 
   return ingredients.slice(0, 20);
+}
+
+function normalizeUnit(unit: string) {
+  const value = unit.toLowerCase().replace(/\s+/g, '');
+  const map: Record<string, string> = {
+    cas: 'c.à.s',
+    'càs': 'c.à.s',
+    'c.a.s': 'c.à.s',
+    'càs.': 'c.à.s',
+    cac: 'c.à.c',
+    'càc': 'c.à.c',
+    'c.a.c': 'c.à.c',
+    cuillere: 'c.à.s',
+    cuilleres: 'c.à.s',
+    pincee: 'pincée',
+    pincees: 'pincée',
+  };
+
+  return map[value] || unit.trim();
+}
+
+function sanitizeAiIngredients(aiIngredients: AiIngredient[] | undefined): ParsedIngredient[] {
+  if (!Array.isArray(aiIngredients)) return [];
+  const out: ParsedIngredient[] = [];
+  const seen = new Set<string>();
+
+  for (const ingredient of aiIngredients) {
+    const rawName = String(ingredient?.name || '').trim().toLowerCase();
+    if (!rawName || rawName.length < 2) continue;
+    if (/\b(?:recette|video|tiktok|preparation|cuisson)\b/i.test(rawName)) continue;
+
+    const quantity = String(ingredient?.quantity ?? '1').trim();
+    const unit = normalizeUnit(String(ingredient?.unit || '').trim());
+    const key = `${quantity}|${unit}|${rawName}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    out.push({
+      id: `${rawName}-${out.length + 1}`.replace(/\s+/g, '-'),
+      name: toTitleCase(rawName),
+      quantity,
+      unit,
+    });
+  }
+
+  return out.slice(0, 20);
+}
+
+function extractJsonObjectFromText(text: string) {
+  const first = text.indexOf('{');
+  const last = text.lastIndexOf('}');
+  if (first === -1 || last === -1 || last <= first) return null;
+  return text.slice(first, last + 1);
+}
+
+async function enrichRecipeWithAi(caption: string) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  const aiEnabled = process.env.AI_ENABLED === 'true';
+  if (!aiEnabled || !apiKey || !caption.trim()) {
+    return null;
+  }
+
+  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+  const systemPrompt =
+    'Tu extrais des donnees de recette depuis une caption TikTok. Reponds uniquement en JSON valide.';
+  const userPrompt = [
+    'A partir du texte ci-dessous, renvoie un JSON strict avec:',
+    '- title: nom court de recette, 3 a 8 mots, sans hashtags ni opinion.',
+    '- ingredients: tableau de {name, quantity, unit}.',
+    'Si ingredient absent du texte, renvoie ingredients: [].',
+    '',
+    `Texte: """${caption}"""`,
+  ].join('\n');
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0.1,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      max_tokens: 400,
+    }),
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = await response.json();
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content || typeof content !== 'string') return null;
+
+  const jsonText = extractJsonObjectFromText(content);
+  if (!jsonText) return null;
+
+  try {
+    return JSON.parse(jsonText) as AiRecipeEnrichment;
+  } catch {
+    return null;
+  }
 }
 
 function buildStepsFromCaption(caption: string) {
@@ -198,8 +323,14 @@ export async function POST(request: NextRequest) {
     const db = getFirebaseAdminDb();
     const oembed = await fetchTikTokOEmbed(videoUrl);
     const caption = cleanCaption(oembed?.title || '');
-    const extractedIngredients = extractIngredientsFromText(caption);
-    const title = buildRecipeTitleFromCaption(oembed?.title || 'Recette TikTok importee');
+    const heuristicIngredients = extractIngredientsFromText(caption);
+    const heuristicTitle = buildRecipeTitleFromCaption(oembed?.title || 'Recette TikTok importee');
+    const aiEnrichment = await enrichRecipeWithAi(caption);
+    const aiIngredients = sanitizeAiIngredients(aiEnrichment?.ingredients);
+    const extractedIngredients = aiIngredients.length > 0 ? aiIngredients : heuristicIngredients;
+    const aiTitleCandidate = cleanCaption(String(aiEnrichment?.title || '')).slice(0, 70);
+    const title =
+      aiTitleCandidate && aiTitleCandidate.length >= 4 ? toTitleCase(aiTitleCandidate) : heuristicTitle;
     const titleKeywords = title.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 20);
     const steps = buildStepsFromCaption(caption);
 
