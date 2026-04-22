@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import './account-detail.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { PersonalizedRecommendations, UserStats } from '@/components/features';
-import { doc, collection, getDocs, query, where, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/config/firebase';
+import { doc, collection, getDocs, query, where, updateDoc, getDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/config/firebase';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { RequireEmailVerification } from '@/components/ui';
 
@@ -16,11 +16,21 @@ interface RecentActivity {
   description: string;
 }
 
+interface TikTokUiState {
+  connected: boolean;
+  displayName?: string;
+  lastSyncAt?: string;
+  lastImportedCount?: number;
+}
+
 export default function AccountDetailPage() {
   const { user, displayName, refreshUserData } = useAuth();
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [editDialogVisible, setEditDialogVisible] = useState(false);
   const [displayNameInput, setDisplayNameInput] = useState(displayName || '');
+  const [tiktokState, setTiktokState] = useState<TikTokUiState | null>(null);
+  const [tiktokLoading, setTiktokLoading] = useState(false);
+  const [tiktokMessage, setTiktokMessage] = useState<string | null>(null);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -34,6 +44,24 @@ export default function AccountDetailPage() {
       setDisplayNameInput(displayName);
     }
   }, [displayName]);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    fetchTikTokState(user.uid);
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const tiktok = params.get('tiktok');
+    const message = params.get('message');
+
+    if (tiktok === 'connected') {
+      setTiktokMessage('Compte TikTok connecté avec succès.');
+    } else if (tiktok === 'error') {
+      setTiktokMessage(message || 'La connexion TikTok a échoué.');
+    }
+  }, []);
 
   const fetchRecentActivity = async () => {
     if (!user) return;
@@ -112,6 +140,97 @@ export default function AccountDetailPage() {
     setEditDialogVisible(false);
   };
 
+  const fetchTikTokState = async (uid: string) => {
+    try {
+      const [connectionSnap, importSnap] = await Promise.all([
+        getDoc(doc(db, `users/${uid}/socialConnections/tiktok`)),
+        getDoc(doc(db, 'tiktokImports', uid)),
+      ]);
+
+      if (!connectionSnap.exists()) {
+        setTiktokState({ connected: false });
+        return;
+      }
+
+      const connectionData = connectionSnap.data() || {};
+      const importData = importSnap.exists() ? importSnap.data() || {} : {};
+
+      setTiktokState({
+        connected: Boolean(connectionData.connected),
+        displayName: connectionData.displayName || undefined,
+        lastSyncAt: importData.lastSyncAt?.toDate?.()?.toISOString?.() || undefined,
+        lastImportedCount: typeof importData.lastImportedCount === 'number' ? importData.lastImportedCount : undefined,
+      });
+    } catch (error) {
+      console.error('Erreur lors du chargement de l’état TikTok:', error);
+      setTiktokState({ connected: false });
+    }
+  };
+
+  const getFirebaseToken = async () => {
+    if (!auth.currentUser) {
+      throw new Error('Vous devez être connecté pour utiliser TikTok.');
+    }
+    return auth.currentUser.getIdToken();
+  };
+
+  const handleConnectTikTok = async () => {
+    try {
+      setTiktokLoading(true);
+      setTiktokMessage(null);
+      const idToken = await getFirebaseToken();
+      const response = await fetch('/api/tiktok/connect/start?returnTo=%2Faccount', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data?.authUrl) {
+        throw new Error(data?.error || 'Impossible de démarrer la connexion TikTok.');
+      }
+
+      window.location.href = data.authUrl;
+    } catch (error: any) {
+      setTiktokMessage(error?.message || 'Erreur lors de la connexion TikTok.');
+      setTiktokLoading(false);
+    }
+  };
+
+  const handleImportTikTok = async () => {
+    try {
+      setTiktokLoading(true);
+      setTiktokMessage(null);
+      const idToken = await getFirebaseToken();
+      const response = await fetch('/api/tiktok/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ maxCount: 20 }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error || "L'import TikTok a échoué.");
+      }
+
+      setTiktokMessage(
+        `Import terminé: ${data.importedCount} nouvelle(s) recette(s), ${data.skippedCount} déjà importée(s).`,
+      );
+
+      if (user?.uid) {
+        await fetchTikTokState(user.uid);
+      }
+    } catch (error: any) {
+      setTiktokMessage(error?.message || "Erreur lors de l'import TikTok.");
+    } finally {
+      setTiktokLoading(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="AccountDetail">
@@ -138,6 +257,53 @@ export default function AccountDetailPage() {
         </div>
 
         {user && <UserStats userId={user.uid} isPublicProfile={false} />}
+
+        <div className="tiktok-card">
+          <div className="tiktok-card-header">
+            <h3>Intégration TikTok (MVP)</h3>
+            <p>Connecte ton compte puis importe tes vidéos vers la modération `recipesRequest`.</p>
+          </div>
+
+          <div className="tiktok-status">
+            <span className={`status-dot ${tiktokState?.connected ? 'connected' : 'disconnected'}`}></span>
+            <span>
+              {tiktokState?.connected
+                ? `Connecté${tiktokState.displayName ? ` (${tiktokState.displayName})` : ''}`
+                : 'Non connecté'}
+            </span>
+          </div>
+
+          {tiktokState?.lastSyncAt && (
+            <p className="tiktok-meta">
+              Dernier import: {new Date(tiktokState.lastSyncAt).toLocaleString('fr-FR')}
+              {typeof tiktokState.lastImportedCount === 'number' ? ` - ${tiktokState.lastImportedCount} importée(s)` : ''}
+            </p>
+          )}
+
+          <div className="tiktok-actions">
+            {!tiktokState?.connected ? (
+              <button
+                type="button"
+                className="tiktok-btn primary"
+                onClick={handleConnectTikTok}
+                disabled={tiktokLoading}
+              >
+                {tiktokLoading ? 'Connexion...' : 'Connecter TikTok'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="tiktok-btn primary"
+                onClick={handleImportTikTok}
+                disabled={tiktokLoading}
+              >
+                {tiktokLoading ? 'Import en cours...' : 'Importer maintenant'}
+              </button>
+            )}
+          </div>
+
+          {tiktokMessage && <p className="tiktok-message">{tiktokMessage}</p>}
+        </div>
 
         {recentActivity.length > 0 && (
           <div className="activity-card">

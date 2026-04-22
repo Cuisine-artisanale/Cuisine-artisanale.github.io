@@ -55,3 +55,12 @@ export type {
   RecipeToDo
 } from './shopping.types';
 
+// Social integration types
+export type {
+  SocialProvider,
+  TikTokTokenPayload,
+  TikTokConnection,
+  TikTokImportState,
+  TikTokVideoItem
+} from './social.types';
+

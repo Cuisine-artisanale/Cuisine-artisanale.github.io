@@ -28,6 +28,10 @@ export interface Recipe {
   createdBy?: string;
   createdAt?: Date | any;
   url?: string;
+  source?: 'manual' | 'tiktok';
+  sourceVideoId?: string;
+  sourceCollectionId?: string;
+  importedBy?: string;
   status?: 'pending' | 'approved' | 'rejected';
   servings?: number;
   difficulty?: 'easy' | 'medium' | 'hard';
@@ -46,6 +50,10 @@ export interface RecipeData {
   url?: string;
   createdBy?: string;
   createdAt?: Date;
+  source?: 'manual' | 'tiktok';
+  sourceVideoId?: string;
+  sourceCollectionId?: string;
+  importedBy?: string;
 }
 
 export interface RecipeRequest {
@@ -59,5 +67,10 @@ export interface RecipeRequest {
   video?: string;
   createdBy?: string;
   createdAt?: Date;
+  source?: 'manual' | 'tiktok';
+  sourceVideoId?: string;
+  sourceCollectionId?: string;
+  importedBy?: string;
+  titleKeywords?: string[];
 }
 
