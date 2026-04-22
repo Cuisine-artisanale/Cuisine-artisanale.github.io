@@ -36,34 +36,104 @@ function toTitleCase(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function normalizeTextForParsing(text: string) {
+  return text
+    .replace(/https?:\/\/\S+/gi, ' ')
+    .replace(/#[^\s#]+/g, ' ')
+    .replace(/@[^\s@]+/g, ' ')
+    .replace(/[|]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function buildRecipeTitleFromCaption(rawCaption: string) {
+  const cleaned = normalizeTextForParsing(rawCaption)
+    .replace(/\b(?:original sound|son original)\b.*$/i, '')
+    .replace(/[^\p{L}\p{N}\s'!?.,-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!cleaned) return 'Recette TikTok importee';
+
+  const sentimentCutPatterns = [
+    /\bj['’`]?aime\b/i,
+    /\bje\s+vous\s+laisse\b/i,
+    /\bdis[-\s]?moi\b/i,
+    /\btu\s+valide[s]?\b/i,
+    /\bteam\b/i,
+    /\babonne[-\s]?toi\b/i,
+    /\blike\b/i,
+  ];
+
+  let candidate = cleaned;
+  for (const pattern of sentimentCutPatterns) {
+    const match = candidate.match(pattern);
+    if (match && typeof match.index === 'number' && match.index > 8) {
+      candidate = candidate.slice(0, match.index).trim();
+      break;
+    }
+  }
+
+  // Garde la partie avant la première grosse ponctuation si elle ressemble à un nom de plat.
+  const beforePunctuation = candidate.split(/[!?]/)[0]?.trim() || candidate;
+  candidate = beforePunctuation.length >= 6 ? beforePunctuation : candidate;
+
+  candidate = candidate
+    .replace(/\b(?:recette|facile|rapide|maison|tiktok)\b/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!candidate) return 'Recette TikTok importee';
+
+  // Limite de longueur UX (titre exploitable dans la liste/admin).
+  const shortTitle = candidate.slice(0, 70).trim();
+  return toTitleCase(shortTitle);
+}
+
 function extractIngredientsFromText(text: string) {
-  // Heuristique simple: "2 oeufs", "150 g farine", etc.
+  const cleaned = normalizeTextForParsing(text);
   const ingredientRegex =
-    /\b(\d+(?:[.,]\d+)?)\s*(g|kg|ml|l|cl|c\.?à\.?s|c\.?à\.?c|cuill[eè]re?s?|tasse?s?)?\s+([a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ' -]{1,40})/gi;
+    /\b(\d+(?:[.,]\d+)?|1\/2|1\/3|1\/4|2\/3|3\/4)?\s*(g|kg|ml|l|cl|cas|cac|c\.?à\.?s|c\.?à\.?c|cuill[eè]re?s?|tasse?s?|pinc[ée]e?s?)?\s*([a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ' -]{1,45})/gi;
+
   const seen = new Set<string>();
   const ingredients: Array<{ id: string; name: string; quantity: string; unit: string }> = [];
-  let match: RegExpExecArray | null = ingredientRegex.exec(text);
 
+  // 1) Tentative prioritaire: section "ingredients"
+  const sectionMatch = cleaned.match(
+    /(?:ingredients?|ingr[eé]dients?)\s*[:\-]?\s*(.+?)(?:\b(?:preparation|etapes?|cuisson|m[eé]thode)\b|$)/i,
+  );
+  const candidateSource = sectionMatch?.[1] || cleaned;
+
+  let match: RegExpExecArray | null = ingredientRegex.exec(candidateSource);
   while (match) {
-    const quantity = (match[1] || '').replace(',', '.');
+    const quantity = (match[1] || '').replace(',', '.').trim();
     const unit = (match[2] || '').trim();
-    const name = (match[3] || '').trim().toLowerCase();
-    const key = `${quantity}|${unit}|${name}`;
+    const rawName = (match[3] || '').trim().toLowerCase();
 
-    if (name.length >= 2 && !seen.has(key)) {
+    // Filtre des faux positifs trop verbeux
+    if (
+      rawName.length < 2 ||
+      /\b(?:recette|video|tiktok|preparation|cuisson|minute|facile|rapide)\b/i.test(rawName)
+    ) {
+      match = ingredientRegex.exec(candidateSource);
+      continue;
+    }
+
+    const key = `${quantity}|${unit}|${rawName}`;
+    if (!seen.has(key)) {
       seen.add(key);
       ingredients.push({
-        id: `${name}-${ingredients.length + 1}`.replace(/\s+/g, '-'),
-        name: toTitleCase(name),
-        quantity,
+        id: `${rawName}-${ingredients.length + 1}`.replace(/\s+/g, '-'),
+        name: toTitleCase(rawName),
+        quantity: quantity || '1',
         unit,
       });
     }
 
-    match = ingredientRegex.exec(text);
+    match = ingredientRegex.exec(candidateSource);
   }
 
-  return ingredients.slice(0, 15);
+  return ingredients.slice(0, 20);
 }
 
 function buildStepsFromCaption(caption: string) {
@@ -129,7 +199,7 @@ export async function POST(request: NextRequest) {
     const oembed = await fetchTikTokOEmbed(videoUrl);
     const caption = cleanCaption(oembed?.title || '');
     const extractedIngredients = extractIngredientsFromText(caption);
-    const title = cleanCaption(oembed?.title || 'Recette TikTok importee').slice(0, 120);
+    const title = buildRecipeTitleFromCaption(oembed?.title || 'Recette TikTok importee');
     const titleKeywords = title.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 20);
     const steps = buildStepsFromCaption(caption);
 
