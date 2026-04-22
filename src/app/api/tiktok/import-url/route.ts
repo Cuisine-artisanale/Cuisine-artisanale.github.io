@@ -24,6 +24,7 @@ type AiIngredient = {
 
 type AiRecipeEnrichment = {
   title?: string;
+  slugTitle?: string;
   ingredients?: AiIngredient[];
 };
 
@@ -148,6 +149,20 @@ function sanitizeRecipeTitle(rawTitle: string) {
 
   if (!cleaned) return '';
   return toTitleCase(cleaned).slice(0, 70).trim();
+}
+
+function sanitizeSlugTitle(rawTitle: string) {
+  const cleaned = sanitizeRecipeTitle(rawTitle)
+    .replace(
+      /\b(?:ca|ça|j['’`]?aime|je\s+vous\s+laisse|dis[-\s]?moi|tu\s+valide[s]?|team|abonne[-\s]?toi|like)\b[\s\S]*$/i,
+      '',
+    )
+    .replace(/^\s*(?:les|le|la|des|du|de)\s+/i, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!cleaned) return '';
+  return toTitleCase(cleaned).slice(0, 60).trim();
 }
 
 function extractIngredientsFromText(text: string) {
@@ -298,7 +313,9 @@ function parseAiEnrichmentFromLooseText(text: string): AiRecipeEnrichment | null
 
   // Titre: accepte "title:", "titre:", ou première ligne significative.
   const titleMatch = normalized.match(/(?:^|\n)\s*(?:title|titre)\s*[:\-]\s*(.+)/i);
+  const slugTitleMatch = normalized.match(/(?:^|\n)\s*(?:slug[_\s-]?title|slug)\s*[:\-]\s*(.+)/i);
   let title = sanitizeRecipeTitle(titleMatch?.[1] || '');
+  const slugTitle = sanitizeSlugTitle(slugTitleMatch?.[1] || '');
 
   if (!title) {
     const firstLine = normalized
@@ -340,6 +357,7 @@ function parseAiEnrichmentFromLooseText(text: string): AiRecipeEnrichment | null
   if (!title && parsedIngredients.length === 0) return null;
   return {
     title: title || undefined,
+    slugTitle: slugTitle || undefined,
     ingredients: parsedIngredients,
   };
 }
@@ -420,6 +438,7 @@ async function enrichRecipeWithAi(caption: string): Promise<{
   const userPrompt = [
     'A partir du texte ci-dessous, renvoie un JSON strict avec:',
     '- title: nom court de recette, 3 a 8 mots, sans hashtags ni opinion.',
+    '- slugTitle: version encore plus courte et neutre (2 a 6 mots), sans article initial (pas "les/le/la").',
     '- ingredients: tableau de {name, quantity, unit}.',
     'Si ingredient absent du texte, renvoie ingredients: [].',
     '',
@@ -645,7 +664,13 @@ export async function POST(request: NextRequest) {
       sanitizedAiTitle && sanitizedAiTitle.length >= 4 ? sanitizedAiTitle : '',
       heuristicTitle,
     );
-    const recipeSlug = slugify(title) || slugify(`recette-tiktok-${sourceVideoId}`) || `recette-tiktok-${Date.now()}`;
+    const aiSlugTitleCandidate = sanitizeSlugTitle(
+      cleanCaption(String(aiEnrichment?.slugTitle || aiEnrichment?.title || '')).slice(0, 70),
+    );
+    const recipeSlug =
+      slugify(aiSlugTitleCandidate || title) ||
+      slugify(`recette-tiktok-${sourceVideoId}`) ||
+      `recette-tiktok-${Date.now()}`;
     const titleKeywords = title.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 20);
     const steps = buildStepsFromCaption(parsingText || caption);
 
