@@ -355,7 +355,6 @@ async function enrichRecipeWithAi(caption: string): Promise<{
                 generationConfig: {
                   temperature: 0.1,
                   maxOutputTokens: 500,
-                  responseMimeType: 'application/json',
                 },
               }),
             },
