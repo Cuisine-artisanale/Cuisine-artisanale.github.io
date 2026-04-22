@@ -225,6 +225,53 @@ function extractJsonObjectFromText(text: string) {
   return text.slice(first, last + 1);
 }
 
+function parseAiEnrichmentFromLooseText(text: string): AiRecipeEnrichment | null {
+  const normalized = text.replace(/\r/g, '').trim();
+  if (!normalized) return null;
+
+  // Titre: accepte "title:", "titre:", ou première ligne significative.
+  const titleMatch = normalized.match(/(?:^|\n)\s*(?:title|titre)\s*[:\-]\s*(.+)/i);
+  let title = cleanCaption(titleMatch?.[1] || '');
+
+  if (!title) {
+    const firstLine = normalized
+      .split('\n')
+      .map((line) => line.trim())
+      .find((line) => line.length >= 6 && !/^[-*•\d.)\s]/.test(line));
+    title = cleanCaption(firstLine || '');
+  }
+
+  // Ingrédients: lecture des lignes en puces ou numérotées.
+  const ingredientLines = normalized
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => /^[-*•]\s+/.test(line) || /^\d+[.)]\s+/.test(line))
+    .map((line) => line.replace(/^[-*•]\s+/, '').replace(/^\d+[.)]\s+/, '').trim())
+    .filter(Boolean);
+
+  const parsedIngredients: AiIngredient[] = ingredientLines.map((line) => {
+    const match = line.match(
+      /^(\d+(?:[.,]\d+)?|1\/2|1\/3|1\/4|2\/3|3\/4)?\s*(g|kg|ml|l|cl|cas|cac|c\.?à\.?s|c\.?à\.?c|cuill[eè]re?s?|tasse?s?|pinc[ée]e?s?)?\s*(.+)$/i,
+    );
+
+    if (!match) {
+      return { name: line };
+    }
+
+    return {
+      quantity: (match[1] || '').trim(),
+      unit: (match[2] || '').trim(),
+      name: (match[3] || '').trim(),
+    };
+  });
+
+  if (!title && parsedIngredients.length === 0) return null;
+  return {
+    title: title || undefined,
+    ingredients: parsedIngredients,
+  };
+}
+
 function uniqueStrings(values: Array<string | undefined | null>) {
   const cleaned = values
     .map((value) => (typeof value === 'string' ? value.trim() : ''))
@@ -310,6 +357,14 @@ async function enrichRecipeWithAi(caption: string): Promise<{
   const parseAndReturn = (content: string, provider: 'gemini' | 'openai') => {
     const jsonText = extractJsonObjectFromText(content);
     if (!jsonText) {
+      const loose = parseAiEnrichmentFromLooseText(content);
+      if (loose) {
+        return {
+          enrichment: loose,
+          error: null,
+          provider,
+        };
+      }
       return { enrichment: null, error: `${provider.toUpperCase()}_NO_JSON_OBJECT`, provider: null as null };
     }
 
