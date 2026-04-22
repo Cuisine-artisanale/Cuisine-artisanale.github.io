@@ -513,7 +513,9 @@ export async function POST(request: NextRequest) {
       ingredientsSource: aiIngredients.length > 0 ? 'ai' : 'heuristic',
       extractedIngredientsCount: extractedIngredients.length,
       captionLength: caption.length,
-      ...(process.env.NODE_ENV !== 'production' && { aiError: aiResult.error }),
+      ...((process.env.NODE_ENV !== 'production' || process.env.AI_DEBUG === 'true') && {
+        aiError: aiResult.error,
+      }),
     });
   } catch (error: any) {
     return NextResponse.json(

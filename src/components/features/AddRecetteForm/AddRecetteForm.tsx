@@ -258,7 +258,7 @@ const AddRecetteForm: React.FC = () => {
 		toast.info('Cette vidéo TikTok est déjà importée.');
 	  } else {
 		const aiNote = data.aiUsed
-		  ? 'IA active'
+		  ? `IA active (${data.aiProvider || 'provider inconnu'})`
 		  : `fallback ${data.aiError ? `(${data.aiError})` : '(sans IA)'}`;
 		toast.success(`Vidéo TikTok importée dans la modération - ${aiNote}.`);
 	  }
