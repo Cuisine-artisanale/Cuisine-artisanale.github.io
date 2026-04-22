@@ -207,6 +207,26 @@ function extractJsonObjectFromText(text: string) {
   return text.slice(first, last + 1);
 }
 
+function uniqueStrings(values: Array<string | undefined | null>) {
+  const cleaned = values
+    .map((value) => (typeof value === 'string' ? value.trim() : ''))
+    .filter(Boolean);
+  return Array.from(new Set(cleaned));
+}
+
+function getGeminiModelCandidates() {
+  return uniqueStrings([
+    process.env.GEMINI_MODEL,
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
+    'gemini-1.5-flash-latest',
+  ]);
+}
+
+function getGeminiApiVersions() {
+  return uniqueStrings([process.env.GEMINI_API_VERSION, 'v1', 'v1beta']);
+}
+
 async function enrichRecipeWithAi(caption: string): Promise<{
   enrichment: AiRecipeEnrichment | null;
   error: string | null;
@@ -266,50 +286,61 @@ async function enrichRecipeWithAi(caption: string): Promise<{
   // 1) GEMINI first
   if (geminiApiKey) {
     try {
-      const geminiModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-      const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-          geminiModel,
-        )}:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }],
+      const geminiModels = getGeminiModelCandidates();
+      const geminiApiVersions = getGeminiApiVersions();
+      let geminiSuccess = false;
+
+      for (const apiVersion of geminiApiVersions) {
+        if (geminiSuccess) break;
+        for (const geminiModel of geminiModels) {
+          const geminiResponse = await fetch(
+            `https://generativelanguage.googleapis.com/${apiVersion}/models/${encodeURIComponent(
+              geminiModel,
+            )}:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
               },
-            ],
-            generationConfig: {
-              temperature: 0.1,
-              maxOutputTokens: 500,
+              body: JSON.stringify({
+                contents: [
+                  {
+                    parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }],
+                  },
+                ],
+                generationConfig: {
+                  temperature: 0.1,
+                  maxOutputTokens: 500,
+                },
+              }),
             },
-          }),
-        },
-      );
+          );
 
-      if (geminiResponse.ok) {
-        const geminiData = await geminiResponse.json();
-        const geminiContent =
-          geminiData?.candidates?.[0]?.content?.parts
-            ?.map((part: any) => part?.text || '')
-            .join('\n')
-            .trim() || '';
+          if (geminiResponse.ok) {
+            const geminiData = await geminiResponse.json();
+            const geminiContent =
+              geminiData?.candidates?.[0]?.content?.parts
+                ?.map((part: any) => part?.text || '')
+                .join('\n')
+                .trim() || '';
 
-        if (geminiContent) {
-          const parsed = parseAndReturn(geminiContent, 'gemini');
-          if (parsed.enrichment) {
-            return parsed;
+            if (geminiContent) {
+              const parsed = parseAndReturn(geminiContent, 'gemini');
+              if (parsed.enrichment) {
+                return parsed;
+              }
+              if (parsed.error) providerErrors.push(parsed.error);
+            } else {
+              providerErrors.push(`GEMINI_EMPTY_CONTENT(${apiVersion}:${geminiModel})`);
+            }
+            geminiSuccess = true;
+            break;
           }
-          if (parsed.error) providerErrors.push(parsed.error);
-        } else {
-          providerErrors.push('GEMINI_EMPTY_CONTENT');
+          const errorText = await geminiResponse.text().catch(() => 'GEMINI_HTTP_ERROR');
+          providerErrors.push(
+            `GEMINI_HTTP_${geminiResponse.status}(${apiVersion}:${geminiModel}): ${errorText.slice(0, 200)}`,
+          );
         }
-      } else {
-        const errorText = await geminiResponse.text().catch(() => 'GEMINI_HTTP_ERROR');
-        providerErrors.push(`GEMINI_HTTP_${geminiResponse.status}: ${errorText.slice(0, 200)}`);
       }
     } catch {
       providerErrors.push('GEMINI_FETCH_FAILED');
