@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const oauthError = searchParams.get('error_description') || searchParams.get('error');
 
   const frontendBaseUrl =
-    process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || 'http://localhost:3000';
+    process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || request.nextUrl.origin;
 
   try {
     if (oauthError) {
