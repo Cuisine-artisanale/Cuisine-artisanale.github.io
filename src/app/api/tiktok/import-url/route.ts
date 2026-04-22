@@ -110,6 +110,10 @@ function buildRecipeTitleFromCaption(rawCaption: string) {
 
 function extractIngredientsFromText(text: string) {
   const cleaned = normalizeTextForParsing(text);
+  const stopwordOnlyPattern =
+    /^(les?|la|le|des|de|du|un|une|je|tu|il|elle|on|nous|vous|ils|elles|ou|et|avec|sans|pour|dans|sur|a|au|aux|j|l)$/i;
+  const likelyVerbPattern =
+    /\b(aime|adore|juge|valide|laisse|croustille|regarde|abonne|like|partage|teste)\b/i;
   const ingredientRegex =
     /\b(\d+(?:[.,]\d+)?|1\/2|1\/3|1\/4|2\/3|3\/4)?\s*(g|kg|ml|l|cl|cas|cac|c\.?à\.?s|c\.?à\.?c|cuill[eè]re?s?|tasse?s?|pinc[ée]e?s?)?\s*([a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ' -]{1,45})/gi;
 
@@ -121,18 +125,36 @@ function extractIngredientsFromText(text: string) {
     /(?:ingredients?|ingr[eé]dients?)\s*[:\-]?\s*(.+?)(?:\b(?:preparation|etapes?|cuisson|m[eé]thode)\b|$)/i,
   );
   const candidateSource = sectionMatch?.[1] || cleaned;
+  const hasExplicitSection = Boolean(sectionMatch?.[1]);
 
   let match: RegExpExecArray | null = ingredientRegex.exec(candidateSource);
   while (match) {
     const quantity = (match[1] || '').replace(',', '.').trim();
     const unit = (match[2] || '').trim();
     const rawName = (match[3] || '').trim().toLowerCase();
+    const tokenWords = rawName.split(/\s+/).filter(Boolean);
+    const hasQuantityOrUnit = Boolean(quantity || unit);
 
     // Filtre des faux positifs trop verbeux
     if (
       rawName.length < 2 ||
+      stopwordOnlyPattern.test(rawName) ||
+      likelyVerbPattern.test(rawName) ||
+      tokenWords.length > 5 ||
       /\b(?:recette|video|tiktok|preparation|cuisson|minute|facile|rapide)\b/i.test(rawName)
     ) {
+      match = ingredientRegex.exec(candidateSource);
+      continue;
+    }
+
+    // Sans section explicite, on exige quantité/unité pour éviter les phrases parasites.
+    if (!hasExplicitSection && !hasQuantityOrUnit) {
+      match = ingredientRegex.exec(candidateSource);
+      continue;
+    }
+
+    // Avec section explicite, on accepte nom seul mais on évite les phrases.
+    if (hasExplicitSection && !hasQuantityOrUnit && tokenWords.length > 3) {
       match = ingredientRegex.exec(candidateSource);
       continue;
     }
@@ -143,7 +165,7 @@ function extractIngredientsFromText(text: string) {
       ingredients.push({
         id: `${rawName}-${ingredients.length + 1}`.replace(/\s+/g, '-'),
         name: toTitleCase(rawName),
-        quantity: quantity || '1',
+        quantity: quantity || '',
         unit,
       });
     }
@@ -192,7 +214,7 @@ function sanitizeAiIngredients(aiIngredients: AiIngredient[] | undefined): Parse
     out.push({
       id: `${rawName}-${out.length + 1}`.replace(/\s+/g, '-'),
       name: toTitleCase(rawName),
-      quantity,
+      quantity: quantity === '1' && !unit ? '' : quantity,
       unit,
     });
   }
