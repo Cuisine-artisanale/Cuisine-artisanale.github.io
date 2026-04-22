@@ -201,6 +201,24 @@ function sanitizeAiIngredients(aiIngredients: AiIngredient[] | undefined): Parse
 }
 
 function extractJsonObjectFromText(text: string) {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+
+  // Cas 1: JSON direct
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    return trimmed;
+  }
+
+  // Cas 2: markdown ```json ... ```
+  const fencedMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fencedMatch?.[1]) {
+    const fenced = fencedMatch[1].trim();
+    if (fenced.startsWith('{') && fenced.endsWith('}')) {
+      return fenced;
+    }
+  }
+
+  // Cas 3: extraction best-effort d'un objet JSON noyé dans du texte
   const first = text.indexOf('{');
   const last = text.lastIndexOf('}');
   if (first === -1 || last === -1 || last <= first) return null;
@@ -337,6 +355,7 @@ async function enrichRecipeWithAi(caption: string): Promise<{
                 generationConfig: {
                   temperature: 0.1,
                   maxOutputTokens: 500,
+                  responseMimeType: 'application/json',
                 },
               }),
             },
