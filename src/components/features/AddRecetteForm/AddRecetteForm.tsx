@@ -13,6 +13,7 @@ import { db, storage } from '@/lib/config/firebase';
 import { collection, addDoc, updateDoc, doc, query, getDocs } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { compressImage } from '@/lib/utils/image';
+import { DEPARTEMENTS } from '@/constants/departements';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { toast } from 'react-toastify';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
@@ -402,18 +403,7 @@ const AddRecetteForm: React.FC = () => {
   };
 
   useEffect(() => {
-	fetch("https://geo.api.gouv.fr/departements")
-	  .then(res => res.json())
-	  .then(data => {
-		const departmentsWithDefault = [
-		  defaultDepartment,
-		  ...data.map((dept: any) => ({
-			nom: dept.nom,
-			code: dept.code
-		  }))
-		];
-		setRegions(departmentsWithDefault);
-	  });
+	setRegions([defaultDepartment, ...DEPARTEMENTS]);
 	fetchIngredients();
   }, []);
 

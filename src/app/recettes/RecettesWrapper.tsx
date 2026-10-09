@@ -8,8 +8,9 @@ import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import '@/components/layout/Breadcrumb/Breadcrumb.css';
 import { db } from '@/lib/config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import type { RecipesPage } from '@/lib/server/listings';
 
-export default function RecettesWrapper() {
+export default function RecettesWrapper({ initialPage }: { initialPage?: RecipesPage }) {
 	const searchParams = useSearchParams();
 	const recipeId = searchParams?.get('id');
 	const router = useRouter();
@@ -41,7 +42,7 @@ export default function RecettesWrapper() {
 		<div>
 			<Breadcrumb />
 			<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Chargement...</div>}>
-				{recipeId ? <RecetteDesc recipeId={recipeId} /> : <RecettesClient />}
+				{recipeId ? <RecetteDesc recipeId={recipeId} /> : <RecettesClient initialPage={initialPage} />}
 			</Suspense>
 		</div>
 	);

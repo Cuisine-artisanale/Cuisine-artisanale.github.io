@@ -1,73 +1,23 @@
 "use client";
-import { useEffect, useState } from 'react';
-import { db } from '@/lib/config/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 import Link from 'next/link';
 import Image from 'next/image';
 import { isOptimizableImage } from '@/lib/utils/image';
+import { getRecipeUrl } from '@/lib/utils/recipe-url';
+import { getDepartementName } from '@/constants/departements';
 import { Rating } from 'primereact/rating';
-import type { Recipe } from '@/types';
-import { useRecipeLikes } from '@/hooks/useRecipeLikes';
-import { useRecipeReviews } from '@/hooks/useRecipeReviews';
+import type { WeeklyRecipeData } from '@/lib/server/listings';
 import './WeeklyRecipe.css';
 
-export default function WeeklyRecipe() {
-	const [featuredRecette, setFeaturedRecette] = useState<Recipe | null>(null);
-	const [loading, setLoading] = useState(true);
+interface WeeklyRecipeProps {
+	/** Chargée côté serveur (app/page.tsx) */
+	recipe: WeeklyRecipeData | null;
+}
 
-	// Hooks pour les likes et reviews
-	const { likesCount } = useRecipeLikes({
-		recipeId: featuredRecette?.id || '',
-		userId: null,
-		onError: () => {}
-	});
-
-	const { averageRating, reviewsCount } = useRecipeReviews({
-		recipeId: featuredRecette?.id || ''
-	});
-
-	useEffect(() => {
-		fetchWeeklyRecette();
-	}, []);
-
-	const fetchWeeklyRecette = async () => {
-		try {
-			const weeklyRef = doc(db, "weeklyRecipe", "current");
-			const weeklySnap = await getDoc(weeklyRef);
-
-			if (weeklySnap.exists()) {
-				setFeaturedRecette(weeklySnap.data() as Recipe);
-			}
-		} catch (error) {
-			console.error("Erreur lors du chargement de la recette de la semaine :", error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	if (loading) {
-		return (
-			<section className="weekly-recipe">
-				<h2 className="weekly-recipe-title">🥇 Recette de la semaine</h2>
-				<div className="weekly-recipe-card">
-					<div className="weekly-recipe-skeleton-image"></div>
-					<div className="weekly-recipe-content">
-						<div className="weekly-recipe-skeleton weekly-recipe-skeleton-title"></div>
-						<div className="weekly-recipe-skeleton-meta">
-							<div className="weekly-recipe-skeleton weekly-recipe-skeleton-badge"></div>
-							<div className="weekly-recipe-skeleton weekly-recipe-skeleton-badge"></div>
-						</div>
-						<div className="weekly-recipe-skeleton weekly-recipe-skeleton-subtitle"></div>
-						<div className="weekly-recipe-skeleton-stats">
-							<div className="weekly-recipe-skeleton weekly-recipe-skeleton-stat"></div>
-							<div className="weekly-recipe-skeleton weekly-recipe-skeleton-stat"></div>
-						</div>
-						<div className="weekly-recipe-skeleton weekly-recipe-skeleton-button"></div>
-					</div>
-				</div>
-			</section>
-		);
-	}
+export default function WeeklyRecipe({ recipe }: WeeklyRecipeProps) {
+	const featuredRecette = recipe;
+	const likesCount = recipe?.likesCount ?? 0;
+	const averageRating = recipe?.averageRating ?? null;
+	const reviewsCount = recipe?.reviewsCount ?? 0;
 
 	if (!featuredRecette) {
 		return (
@@ -109,7 +59,7 @@ export default function WeeklyRecipe() {
 					</div>
 
 					{featuredRecette.position && (
-						<p className="weekly-recipe-content-location">📍 {featuredRecette.position}</p>
+						<p className="weekly-recipe-content-location">📍 {getDepartementName(featuredRecette.position) || featuredRecette.position}</p>
 					)}
 
 					<div className="weekly-recipe-stats">
@@ -155,7 +105,7 @@ export default function WeeklyRecipe() {
 						)}
 					</div>
 
-					<Link href={`/recettes/?id=${featuredRecette.id}`} className="weekly-recipe-button">
+					<Link href={getRecipeUrl({ id: featuredRecette.recetteId, url: featuredRecette.url, title: featuredRecette.title })} className="weekly-recipe-button">
 						Voir la recette
 					</Link>
 				</div>

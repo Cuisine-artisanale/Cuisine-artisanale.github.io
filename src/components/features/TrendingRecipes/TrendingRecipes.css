@@ -206,3 +206,9 @@
 	font-size: 0.85rem;
   }
 }
+
+/* La carte est désormais un lien (<a>) : conserver l'apparence d'origine */
+a.trending-recipe-card {
+  color: inherit;
+  text-decoration: none;
+}

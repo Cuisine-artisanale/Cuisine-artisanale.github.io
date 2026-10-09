@@ -168,21 +168,24 @@ export const getSimilarRecipes = async (recetteId: string, limit_count: number =
  */
 export const getTrendingRecipes = async (limit_count: number = 5) => {
   try {
-	const recipesRef = collection(db, "recipes");
-	const q = query(recipesRef);
-	const querySnapshot = await getDocs(q);
+	// Une seule lecture des likes (au lieu d'une requête par recette), puis lecture des recettes gagnantes
+	const likesSnapshot = await getDocs(collection(db, "likes"));
+	const counts = new Map<string, number>();
+	likesSnapshot.forEach((like) => {
+	  const id = like.data().recetteId;
+	  if (typeof id === "string" && id) counts.set(id, (counts.get(id) || 0) + 1);
+	});
 
-	const recipesWithLikeCounts = await Promise.all(
-	  querySnapshot.docs.map(async (doc) => ({
-		id: doc.id,
-		...doc.data(),
-		likesCount: await countRecipeLikes(doc.id)
-	  }))
-	);
+	const topIds = Array.from(counts.entries())
+	  .sort((a, b) => b[1] - a[1])
+	  .slice(0, limit_count * 2)
+	  .map(([id]) => id);
 
-	// Trier par nombre de likes décroissant
-	return recipesWithLikeCounts
-	  .sort((a, b) => b.likesCount - a.likesCount)
+	const recipeSnaps = await Promise.all(topIds.map((id) => getDoc(doc(db, "recipes", id))));
+
+	return recipeSnaps
+	  .filter((snap) => snap.exists())
+	  .map((snap) => ({ id: snap.id, ...snap.data(), likesCount: counts.get(snap.id) || 0 }))
 	  .slice(0, limit_count);
   } catch (error) {
 	console.error("Error fetching trending recipes: ", error);

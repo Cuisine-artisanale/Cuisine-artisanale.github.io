@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { DEPARTEMENT_NAMES } from '@/constants/departements';
 import './RecettesClient.css';
 import Filtre from '@/components/features/Filtre/Filtre';
 import Recette from '@/components/features/Recette/Recette';
 import AddRecette from '@/components/features/AddRecette/AddRecette';
 import { db } from '@/lib/config/firebase';
-import { collection, getDocs, query, where, limit, startAfter, orderBy, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, query, where, limit, startAfter, orderBy, documentId } from 'firebase/firestore';
 import { useSearchParams } from 'next/navigation';
+import type { RecipesPage } from '@/lib/server/listings';
+
+type Cursor = { title: string; id: string } | null;
 
 interface RecetteData {
 	recetteId: string;
@@ -14,28 +18,42 @@ interface RecetteData {
 	type: string;
 	images?: string[];
 	position: string;
+	url?: string;
 	score?: number;
 }
 
-export default function RecettesClient() {
-	const [displayedRecettes, setDisplayedRecettes] = useState<RecetteData[]>([]);
+interface RecettesClientProps {
+	/** Première page (sans filtre) rendue côté serveur */
+	initialPage?: RecipesPage;
+}
+
+export default function RecettesClient({ initialPage }: RecettesClientProps) {
+	const [displayedRecettes, setDisplayedRecettes] = useState<RecetteData[]>(initialPage?.recettes ?? []);
+	// Évite de recharger la première page déjà fournie par le serveur
+	const skipInitialFetch = useRef(!!initialPage);
 	const searchParams = useSearchParams();
-	const [departements, setDepartements] = useState<Map<string, string>>(new Map());
+	const departements = DEPARTEMENT_NAMES;
 	const [itemsPerPage] = useState(12);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const [hasMore, setHasMore] = useState(true);
-	const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+	const [hasMore, setHasMore] = useState(initialPage ? initialPage.hasMore : true);
+	const [lastVisible, setLastVisible] = useState<Cursor>(initialPage?.cursor ?? null);
 	const [currentFilters, setCurrentFilters] = useState({ type: '', position: '', keywords: '' });
 
 	useEffect(() => {
-		setDisplayedRecettes([]);
-		setLastVisible(null);
-		setHasMore(true);
 		const type = searchParams.get("type") || '';
 		const position = searchParams.get("position") || '';
 		const keywords = searchParams.get("keywords") || '';
 		setCurrentFilters({ type, position, keywords });
+
+		if (skipInitialFetch.current) {
+			skipInitialFetch.current = false;
+			if (!type && !position && !keywords) return;
+		}
+
+		setDisplayedRecettes([]);
+		setLastVisible(null);
+		setHasMore(true);
 		fetchRecettes(null, { type, position, keywords });
 	}, [searchParams.toString()]);
 
@@ -80,7 +98,7 @@ export default function RecettesClient() {
 		return 1 - levenshtein(a.toLowerCase(), b.toLowerCase()) / maxLen;
 	}
 
-	const fetchRecettes = async (cursorDoc: QueryDocumentSnapshot<DocumentData> | null, filters: { type: string; position: string; keywords: string }) => {
+	const fetchRecettes = async (cursorDoc: Cursor, filters: { type: string; position: string; keywords: string }) => {
 		try {
 			setIsLoading(true);
 			const recettesCollection = collection(db, "recipes");
@@ -117,6 +135,7 @@ export default function RecettesClient() {
 								position: data.position,
 								recetteId: doc.id,
 								images: data.images ?? [],
+								url: data.url,
 							});
 						});
 					}
@@ -137,6 +156,7 @@ export default function RecettesClient() {
 								position: data.position,
 								recetteId: doc.id,
 								images: data.images ?? [],
+								url: data.url,
 							});
 						});
 					}
@@ -158,6 +178,7 @@ export default function RecettesClient() {
 							position: data.position,
 							recetteId: doc.id,
 							images: data.images ?? [],
+							url: data.url,
 						});
 					});
 				}
@@ -203,7 +224,8 @@ export default function RecettesClient() {
 				const firestoreQuery = query(
 					recettesCollection,
 					orderBy("title"),
-					...(cursorDoc ? [startAfter(cursorDoc)] : []),
+					orderBy(documentId()),
+					...(cursorDoc ? [startAfter(cursorDoc.title, cursorDoc.id)] : []),
 					limit(itemsPerPage + 1) // +1 pour vérifier s'il y a plus d'éléments
 				);
 
@@ -218,6 +240,7 @@ export default function RecettesClient() {
 						position: data.position,
 						recetteId: doc.id,
 						images: data.images ?? [],
+						url: data.url,
 					});
 				});
 
@@ -225,7 +248,8 @@ export default function RecettesClient() {
 
 				// Vérifier s'il y a plus d'éléments
 				if (querySnapshot.docs.length > itemsPerPage) {
-					setLastVisible(querySnapshot.docs[itemsPerPage - 1]);
+					const lastDoc = querySnapshot.docs[itemsPerPage - 1];
+					setLastVisible({ title: lastDoc.data().title || '', id: lastDoc.id });
 					setHasMore(true);
 					recettesData = recettesData.slice(0, itemsPerPage);
 				} else {
@@ -275,15 +299,6 @@ export default function RecettesClient() {
 		};
 	}, [loadMoreRecettes, isLoading, hasMore]);
 
-	useEffect(() => {
-		fetch("https://geo.api.gouv.fr/departements")
-			.then(res => res.json())
-			.then(data => {
-				const departementMap: Map<string, string> = new Map(data.map((dep: { code: string; nom: string }) => [dep.code, dep.nom]));
-				setDepartements(departementMap);
-			});
-	}, []);
-
 	return (
 		<div className="Recettes">
 			<section className='filter_section'>
@@ -306,8 +321,9 @@ export default function RecettesClient() {
 
 				{displayedRecettes.map((recette, index) => (
 					<Recette
-						key={index}
+						key={recette.recetteId}
 						recetteId={recette.recetteId}
+						url={recette.url}
 						title={recette.title}
 						type={recette.type}
 						images={recette.images}

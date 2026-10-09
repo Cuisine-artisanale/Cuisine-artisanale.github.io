@@ -22,9 +22,11 @@ interface RecetteProps {
 	fromRequest?: boolean;
 	images?: string[];
 	position?: string;
+	/** Slug de la recette (champ url) : sans lui, le lien est déduit du titre */
+	url?: string;
 }
 
-export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromRequest = false, images = [], position = ''}) => {
+export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromRequest = false, images = [], position = '', url}) => {
 	const { user, role } = useAuth();
 	const { showToast } = useToast();
 	const userId = user?.uid;
@@ -159,7 +161,7 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 					<div className="main-actions">
 						{!fromRequest && (
 							<div className='recipes-buttons'>
-								<Link href={getRecipeUrl({ id: recetteId, title })} className="view-recipe">
+								<Link href={getRecipeUrl({ id: recetteId, title, url })} className="view-recipe">
 									<Button
 										label="Voir la recette"
 										icon="pi pi-eye"

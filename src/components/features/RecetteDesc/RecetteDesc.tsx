@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
+import { DEPARTEMENT_NAMES } from '@/constants/departements';
 import './RecetteDesc.css';
 import VideoEmbed from '@/components/ui/VideoEmbed/VideoEmbed';
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader/SkeletonLoader';
@@ -48,7 +49,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 	const [hasLiked, setHasLiked] = useState<boolean>(false);
 	const userId = user?.uid;
 	const [recette, setRecette] = React.useState<Recipe | null>(initialRecipe ?? null);
-	const [departements, setDepartements] = useState<Map<string, string>>(new Map());
+	const departements = DEPARTEMENT_NAMES;
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -153,15 +154,6 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 		};
 		fetchCreatorInfo();
 	}, [recette?.createdBy]);
-
-	useEffect(() => {
-		fetch("https://geo.api.gouv.fr/departements")
-			.then(res => res.json())
-			.then(data => {
-				const departementMap: Map<string, string> = new Map(data.map((dep: { code: string; nom: string }) => [dep.code, dep.nom]));
-				setDepartements(departementMap);
-			});
-	}, []);
 
 
 	useEffect(() => {
