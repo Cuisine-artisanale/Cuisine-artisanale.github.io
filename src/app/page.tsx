@@ -1,34 +1,23 @@
-import React from 'react';
+import type { Metadata } from 'next';
 import PostsClient from './PostsClient';
 import { TrendingRecipes, WeeklyRecipe } from '@/components/features';
 
-export const metadata = {
-	title: 'Accueil',
-	description: 'Découvrez les dernières actualités culinaires, les recettes tendances et la recette de la semaine sur Cuisine Artisanale. Explorez la gastronomie française traditionnelle.',
+export const metadata: Metadata = {
+	// Titre complet (sans le suffixe du layout)
+	title: { absolute: 'Cuisine Artisanale - Recettes traditionnelles françaises' },
+	description: 'Recettes artisanales françaises authentiques : recette de la semaine, recettes populaires, actualités culinaires et carte des spécialités régionales.',
+	alternates: { canonical: '/' },
 	openGraph: {
-		title: 'Accueil | Cuisine Artisanale',
-		description: 'Découvrez les dernières actualités culinaires, les recettes tendances et la recette de la semaine sur Cuisine Artisanale.',
-		url: 'https://www.cuisine-artisanale.fr/',
-		images: [
-			{
-				url: 'https://www.cuisine-artisanale.fr/screenshot-wide.png',
-				width: 1280,
-				height: 720,
-				alt: 'Cuisine Artisanale - Aperçu du site',
-			},
-		],
-	},
-	twitter: {
-		card: 'summary_large_image',
-		title: 'Accueil | Cuisine Artisanale',
-		description: 'Découvrez les dernières actualités culinaires, les recettes tendances et la recette de la semaine sur Cuisine Artisanale.',
-		images: ['https://www.cuisine-artisanale.fr/screenshot-wide.png'],
+		url: '/',
+		title: 'Cuisine Artisanale - Recettes traditionnelles françaises',
+		description: 'Recette de la semaine, recettes populaires et spécialités régionales françaises.',
 	},
 };
 
 export default function Page() {
 	return (
 		<div className="Home">
+			<h1 className="sr-only">Cuisine Artisanale : recettes traditionnelles françaises</h1>
 			<WeeklyRecipe />
 			<TrendingRecipes />
 			<PostsClient />

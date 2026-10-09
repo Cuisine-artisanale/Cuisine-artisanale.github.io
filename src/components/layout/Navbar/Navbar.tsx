@@ -100,7 +100,7 @@ const Navbar: React.FC = () => {
 	  <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''} ${!isNavbarVisible ? 'navbar-hidden' : ''}`}>
 		<div className="navbar-container">
 		  <div className="navbar-brand">
-			<h1 className="site-title">Cuisine Artisanale</h1>
+			<p className="site-title">Cuisine Artisanale</p>
 		  </div>
 
 		  <div className="navbar-navigation">

@@ -1,65 +1,43 @@
-import { MetadataRoute } from 'next';
-import { db } from '@/lib/config/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import type { MetadataRoute } from 'next';
+import { getFirebaseAdminDb } from '@/lib/config/firebase-admin';
+import { SITE_URL } from '@/lib/server/recipes';
+
+// Régénéré au plus toutes les heures : les nouvelles recettes y apparaissent sans redéploiement
+export const revalidate = 3600;
+
+function toDate(value: unknown): Date | undefined {
+	if (!value) return undefined;
+	if (value instanceof Date) return value;
+	if (typeof (value as { toDate?: () => Date }).toDate === 'function') {
+		return (value as { toDate: () => Date }).toDate();
+	}
+	const parsed = new Date(value as string);
+	return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-	const baseUrl = 'https://www.cuisine-artisanale.fr';
-
-	// Routes statiques
 	const staticRoutes: MetadataRoute.Sitemap = [
-		{
-			url: baseUrl,
-			lastModified: new Date(),
-			changeFrequency: 'weekly',
-			priority: 1.0,
-		},
-		{
-			url: `${baseUrl}/recettes`,
-			lastModified: new Date(),
-			changeFrequency: 'weekly',
-			priority: 0.9,
-		},
-		{
-			url: `${baseUrl}/about`,
-			lastModified: new Date(),
-			changeFrequency: 'monthly',
-			priority: 0.7,
-		},
-		{
-			url: `${baseUrl}/map`,
-			lastModified: new Date(),
-			changeFrequency: 'weekly',
-			priority: 0.8,
-		},
-		{
-			url: `${baseUrl}/mentions-legales`,
-			lastModified: new Date(),
-			changeFrequency: 'yearly',
-			priority: 0.3,
-		},
-		{
-			url: `${baseUrl}/politique-confidentialite`,
-			lastModified: new Date(),
-			changeFrequency: 'yearly',
-			priority: 0.3,
-		},
+		{ url: `${SITE_URL}/`, changeFrequency: 'daily', priority: 1.0 },
+		{ url: `${SITE_URL}/recettes`, changeFrequency: 'daily', priority: 0.9 },
+		{ url: `${SITE_URL}/map`, changeFrequency: 'weekly', priority: 0.7 },
+		{ url: `${SITE_URL}/about`, changeFrequency: 'monthly', priority: 0.5 },
+		{ url: `${SITE_URL}/mentions-legales`, changeFrequency: 'yearly', priority: 0.2 },
+		{ url: `${SITE_URL}/politique-confidentialite`, changeFrequency: 'yearly', priority: 0.2 },
 	];
 
-	// Récupération des recettes depuis Firebase
 	let recipeRoutes: MetadataRoute.Sitemap = [];
 	try {
-		const recipesRef = collection(db, 'recipes');
-		const querySnapshot = await getDocs(recipesRef);
+		const snapshot = await getFirebaseAdminDb().collection('recipes').get();
 
-		recipeRoutes = querySnapshot.docs.map((doc) => {
+		recipeRoutes = snapshot.docs.map((doc) => {
 			const recipe = doc.data();
-			const slug = recipe.url || doc.id;
-
+			const images: string[] = Array.isArray(recipe.images) ? recipe.images.slice(0, 3) : [];
 			return {
-				url: `${baseUrl}/recettes/${slug}`,
-				lastModified: recipe.updatedAt?.toDate() || new Date(),
-				changeFrequency: 'weekly' as const,
-				priority: 0.9,
+				url: `${SITE_URL}/recettes/${recipe.url || doc.id}`,
+				lastModified: toDate(recipe.updatedAt) || toDate(recipe.createdAt),
+				changeFrequency: 'monthly' as const,
+				priority: 0.8,
+				images: images.length ? images : undefined,
 			};
 		});
 	} catch (error) {
@@ -68,4 +46,3 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 	return [...staticRoutes, ...recipeRoutes];
 }
-

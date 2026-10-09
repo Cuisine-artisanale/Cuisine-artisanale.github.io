@@ -3,8 +3,9 @@ import './mentions-legales.css';
 import { Breadcrumb } from '@/components/layout';
 
 export const metadata: Metadata = {
-	title: "Mentions légales | Cuisine artisanale",
-	description: "Mentions légales du site Cuisine artisanale",
+	title: "Mentions légales",
+	description: "Mentions légales du site Cuisine Artisanale",
+	alternates: { canonical: "/mentions-legales" },
 };
 
 export default function Page() {

@@ -1,24 +1,19 @@
-# Allow all crawlers to access the site
+# Tous les robots : le site est indexable.
+# /_next/ (JS et CSS) doit rester accessible pour que Google puisse afficher les pages.
 User-agent: *
 Allow: /
+Allow: /api/og-image
 
-# Disallow sensitive pages
+# Espaces privés et pages techniques
 Disallow: /admin-panel
 Disallow: /account
-Disallow: /api
-Disallow: /*.json$
-Disallow: /_next/
+Disallow: /api/
+Disallow: /login
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /delete-account
+Disallow: /unsubscribe
+Disallow: /recettes/edit
+Disallow: /recettes/add-recipe
 
-# Disallow private/temporary pages
-Disallow: /*_
-Disallow: /search
-
-# Allow recipe pages with query params
-Allow: /recettes/?id=*
-
-# Crawl delay (optional - in seconds)
-Crawl-delay: 1
-
-# Sitemap
 Sitemap: https://www.cuisine-artisanale.fr/sitemap.xml
-

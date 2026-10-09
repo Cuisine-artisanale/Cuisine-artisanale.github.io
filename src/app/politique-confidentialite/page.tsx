@@ -3,8 +3,9 @@ import './politique-confidentialite.css';
 import { Breadcrumb } from '@/components/layout';
 
 export const metadata: Metadata = {
-	title: "Politique de confidentialité | Cuisine artisanale",
-	description: "Politique de confidentialité du site Cuisine artisanale",
+	title: "Politique de confidentialité",
+	description: "Politique de confidentialité du site Cuisine Artisanale",
+	alternates: { canonical: "/politique-confidentialite" },
 };
 
 export default function Page() {

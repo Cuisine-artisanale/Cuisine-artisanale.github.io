@@ -65,12 +65,6 @@ export const metadata = {
 	formatDetection: {
 		telephone: false,
 	},
-	alternates: {
-		canonical: 'https://www.cuisine-artisanale.fr/',
-		languages: {
-			'fr-FR': 'https://www.cuisine-artisanale.fr/',
-		},
-	},
 	icons: {
 		icon: [
 			{ url: '/icon.png', sizes: '192x192', type: 'image/png' },
@@ -160,12 +154,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 						}),
 					}}
 				/>
-				{/* Meta image pour le référencement Google */}
-				<meta property="og:image" content="https://www.cuisine-artisanale.fr/screenshot-wide.png" />
-				<meta property="og:image:width" content="1280" />
-				<meta property="og:image:height" content="720" />
-				<meta property="og:image:alt" content="Cuisine Artisanale - Aperçu du site" />
-				<meta name="twitter:image" content="https://www.cuisine-artisanale.fr/screenshot-wide.png" />
 				{/* Hotjar Tracking Code for site recette */}
 				<script
 					dangerouslySetInnerHTML={{

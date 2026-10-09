@@ -4,8 +4,9 @@ import { LienUtiles } from '@/components/layout';
 import { Breadcrumb } from '@/components/layout';
 
 export const metadata: Metadata = {
-	title: "À propos | Cuisine artisanale",
+	title: "À propos",
 	description: "Découvrez la mission, l'histoire et les valeurs de Cuisine Artisanale.",
+	alternates: { canonical: "/about" },
 };
 
 const features = [
