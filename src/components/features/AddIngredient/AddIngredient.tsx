@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import './AddIngredient.css';
 import { Button } from 'primereact/button';
-import { AddIngredientForm } from '@/components/features';
+import AddIngredientForm from '@/components/features/AddIngredientForm/AddIngredientForm';
 
 const AddIngredient: React.FC = () => {
   const [dialogVisible, setDialogVisible] = useState(false);

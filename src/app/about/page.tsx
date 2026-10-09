@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './about.css';
-import { LienUtiles } from '@/components/layout';
-import { Breadcrumb } from '@/components/layout';
+import LienUtiles from '@/components/layout/LienUtiles/LienUtiles';
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 
 export const metadata: Metadata = {
 	title: "À propos",

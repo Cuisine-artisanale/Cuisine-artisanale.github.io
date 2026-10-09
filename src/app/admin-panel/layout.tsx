@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import React, { useEffect } from "react";
 import "./admin-panel.css";
 import { useAuth } from "@/contexts/AuthContext/AuthContext";
-import { SideBarAdminPanel as Sidebar } from "@/components/layout";
+import Sidebar from '@/components/layout/SideBarAdminPanel/SideBarAdminPanel';
 import { useRouter } from "next/navigation";
-import { Breadcrumb } from "@/components/layout";
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 
 export default function AdminPanelRootLayout({ children }: { children: ReactNode }) {
 	const { user, role } = useAuth();

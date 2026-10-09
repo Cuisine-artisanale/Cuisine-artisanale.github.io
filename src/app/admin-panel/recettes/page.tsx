@@ -5,8 +5,8 @@ import { db } from '@/lib/config/firebase';
 import { collection, onSnapshot, orderBy, query, deleteDoc, doc, getDoc, addDoc, updateDoc, limit } from 'firebase/firestore';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
-import { ConfirmDialog } from '@/components/ui';
-import { useConfirmDialog } from '@/hooks';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog/ConfirmDialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import type { RecipePart } from '@/types';
 
 interface RecetteInterface {

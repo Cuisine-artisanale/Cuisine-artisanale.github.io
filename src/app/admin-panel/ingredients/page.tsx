@@ -3,11 +3,11 @@ import React, { useEffect, useState } from 'react';
 import './ingredients-admin.css';
 import { collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
-import { AddIngredient } from '@/components/features';
+import AddIngredient from '@/components/features/AddIngredient/AddIngredient';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
-import { ConfirmDialog } from '@/components/ui';
-import { useConfirmDialog } from '@/hooks';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog/ConfirmDialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 interface Ingredient {
   id: string;

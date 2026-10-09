@@ -4,7 +4,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, storage } from '@/lib/config/firebase';
 import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { Breadcrumb } from '@/components/layout';
+import { compressImage } from '@/lib/utils/image';
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import type { Recipe, RecipePart } from '@/types/recipe.types';
 import './edit-recette.css';
 
@@ -189,7 +190,8 @@ function EditRecetteContent() {
     let completedUploads = 0;
 
     // Télécharger les nouvelles images
-    for (const image of images) {
+    for (const original of images) {
+      const image = await compressImage(original);
       // Créer un nom unique pour éviter les conflits
       const timestamp = Date.now();
       const fileName = `${timestamp}_${image.name}`;

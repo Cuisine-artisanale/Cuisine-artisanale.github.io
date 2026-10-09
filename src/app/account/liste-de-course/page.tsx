@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './liste-de-course.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import { RequireEmailVerification } from '@/components/ui';
+import RequireEmailVerification from '@/components/ui/RequireEmailVerification/RequireEmailVerification';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import {
   getOrCreateShoppingList,

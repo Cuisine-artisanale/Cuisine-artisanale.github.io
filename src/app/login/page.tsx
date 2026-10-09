@@ -2,7 +2,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import { Password } from '@/components/ui';
+import { Password } from '@/components/ui/Password/Password';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import './login.css';
 

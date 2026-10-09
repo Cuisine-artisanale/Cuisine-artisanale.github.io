@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from 'react';
 import './LegalMention.css';
-import { LienUtiles } from '@/components/layout';
+import LienUtiles from '@/components/layout/LienUtiles/LienUtiles';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 

@@ -4,6 +4,7 @@ import './Recette.css';
 import { Button } from 'primereact/button';
 import Link from 'next/link';
 import Image from 'next/image';
+import { isOptimizableImage } from '@/lib/utils/image';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { slugify } from '@/lib/utils/slug';
@@ -11,7 +12,8 @@ import { addDoc, collection, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
-import { useRecipeLikes, useRecipeReviews } from '@/hooks';
+import { useRecipeLikes } from '@/hooks/useRecipeLikes';
+import { useRecipeReviews } from '@/hooks/useRecipeReviews';
 
 interface RecetteProps {
 	recetteId: string;
@@ -104,7 +106,7 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 				height={400}
 				loading="lazy"
 				sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-				unoptimized={true}
+				unoptimized={!isOptimizableImage(images[0])}
 			/>
 		);
 	};

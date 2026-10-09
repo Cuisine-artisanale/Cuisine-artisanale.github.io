@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react';
 import './mes-recettes.css';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
-import { Recette } from '@/components/features';
+import Recette from '@/components/features/Recette/Recette';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { useRouter } from 'next/navigation';
-import { RequireEmailVerification } from '@/components/ui';
+import RequireEmailVerification from '@/components/ui/RequireEmailVerification/RequireEmailVerification';
 
 interface RecetteInterface {
   recetteId: string;

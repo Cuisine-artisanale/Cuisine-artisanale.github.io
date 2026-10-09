@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import './CookiesConsent.css';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
+import { COOKIE_CONSENT_EVENT } from '@/components/ui/ThirdPartyScripts/ThirdPartyScripts';
 
 
 
@@ -31,6 +32,8 @@ const CookieConsent: React.FC = () => {
   const saveConsent = async (finalChoices: CookieChoice) => {
 	localStorage.setItem('cookieConsent', JSON.stringify(finalChoices));
 	setShowBanner(false);
+	// Prévient ThirdPartyScripts pour charger (ou non) Hotjar / AdSense
+	window.dispatchEvent(new Event(COOKIE_CONSENT_EVENT));
 
 	const storedAnonId = localStorage.getItem('anonId');
 	if (!storedAnonId) {

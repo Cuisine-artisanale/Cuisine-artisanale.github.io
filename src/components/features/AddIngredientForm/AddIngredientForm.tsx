@@ -11,7 +11,7 @@ import { addDoc, collection, getDocs, query, updateDoc } from 'firebase/firestor
 import { db } from '@/lib/config/firebase';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
-import { AddUnitForm } from '@/components/features';
+import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
 import type { Unit } from '@/types';
 
 interface AddIngredientFormProps {

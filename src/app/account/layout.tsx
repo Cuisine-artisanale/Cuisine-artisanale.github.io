@@ -5,7 +5,7 @@ import './account.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Breadcrumb } from '@/components/layout';
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 
 export default function AccountSectionLayout({ children }: { children: ReactNode }) {
 	const { user, logout } = useAuth();

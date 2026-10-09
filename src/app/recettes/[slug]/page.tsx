@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { RecetteDesc } from '@/components/features';
-import { Breadcrumb } from '@/components/layout';
+import RecetteDesc from '@/components/features/RecetteDesc/RecetteDesc';
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import '@/components/layout/Breadcrumb/Breadcrumb.css';
 import {
   SITE_URL,

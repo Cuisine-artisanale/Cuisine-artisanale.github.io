@@ -5,8 +5,8 @@ import { collection, onSnapshot, orderBy, query, deleteDoc, doc, addDoc, limit }
 import { db } from '@/lib/config/firebase';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
-import { ConfirmDialog } from '@/components/ui';
-import { useConfirmDialog } from '@/hooks';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog/ConfirmDialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import type { Post } from '@/types';
 
 interface PostAdmin extends Post {

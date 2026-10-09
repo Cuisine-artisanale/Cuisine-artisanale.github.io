@@ -3,8 +3,8 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
 import RecettesClient from './RecettesClient';
-import { RecetteDesc } from '@/components/features';
-import { Breadcrumb } from '@/components/layout';
+import RecetteDesc from '@/components/features/RecetteDesc/RecetteDesc';
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import '@/components/layout/Breadcrumb/Breadcrumb.css';
 import { db } from '@/lib/config/firebase';
 import { doc, getDoc } from 'firebase/firestore';

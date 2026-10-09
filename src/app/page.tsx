@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import PostsClient from './PostsClient';
-import { TrendingRecipes, WeeklyRecipe } from '@/components/features';
+import TrendingRecipes from '@/components/features/TrendingRecipes/TrendingRecipes';
+import WeeklyRecipe from '@/components/features/WeeklyRecipe/WeeklyRecipe';
 
 export const metadata: Metadata = {
 	// Titre complet (sans le suffixe du layout)

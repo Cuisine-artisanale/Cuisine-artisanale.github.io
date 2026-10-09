@@ -1,4 +1,4 @@
-import { AddRecetteForm } from "@/components/features";
+import AddRecetteForm from '@/components/features/AddRecetteForm/AddRecetteForm';
 
 export const metadata = {
 	title: "Ajouter une recette",

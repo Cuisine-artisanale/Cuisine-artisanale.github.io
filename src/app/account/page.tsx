@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import './account-detail.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import { PersonalizedRecommendations, UserStats } from '@/components/features';
+import PersonalizedRecommendations from '@/components/features/PersonalizedRecommendations/PersonalizedRecommendations';
+import UserStats from '@/components/features/UserStats/UserStats';
 import { doc, collection, getDocs, query, where, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/config/firebase';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
-import { RequireEmailVerification } from '@/components/ui';
+import RequireEmailVerification from '@/components/ui/RequireEmailVerification/RequireEmailVerification';
 
 interface RecentActivity {
   id: string;

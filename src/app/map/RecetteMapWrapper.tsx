@@ -1,6 +1,6 @@
 "use client";
 
-import { Breadcrumb } from "@/components/layout";
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import "@/components/layout/Breadcrumb/Breadcrumb.css";
 import MapClientOnly from './MapClientOnly';
 

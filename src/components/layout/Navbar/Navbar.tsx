@@ -7,9 +7,9 @@ import { Button } from 'primereact/button';
 import { Avatar } from 'primereact/avatar';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { ThemeContext } from '@/contexts/ThemeContext/ThemeContext';
-import { ButtonLinkNav } from '@/components/ui';
+import ButtonLinkNav from '@/components/ui/ButtonLinkNav/ButtonLinkNav';
 import { usePathname, useRouter } from 'next/navigation';
-import { useScroll } from '@/hooks';
+import { useScroll } from '@/hooks/useScroll';
 
 const Navbar: React.FC = () => {
   const { user, logout, signInWithGoogle, role, displayName } = useAuth();

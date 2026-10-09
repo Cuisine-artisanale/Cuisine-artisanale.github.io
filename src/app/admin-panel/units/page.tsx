@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import './units-admin.css';
-import { AddUnit } from '@/components/features';
+import AddUnit from '@/components/features/AddUnit/AddUnit';
 import { collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
-import { ConfirmDialog } from '@/components/ui';
-import { useConfirmDialog } from '@/hooks';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog/ConfirmDialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 interface Unit {
   id: string;

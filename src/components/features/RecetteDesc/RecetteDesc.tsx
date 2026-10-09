@@ -1,8 +1,10 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
 import './RecetteDesc.css';
-import { VideoEmbed, SkeletonLoader } from '@/components/ui';
+import VideoEmbed from '@/components/ui/VideoEmbed/VideoEmbed';
+import { SkeletonLoader } from '@/components/ui/SkeletonLoader/SkeletonLoader';
 import Image from 'next/image';
+import { isOptimizableImage } from '@/lib/utils/image';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -775,7 +777,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 							height={400}
 							priority={currentImageIndex === 0}
 							sizes="(max-width: 768px) 100vw, 50vw"
-							unoptimized={true}
+							unoptimized={!isOptimizableImage(recette.images[currentImageIndex])}
 						/>
 						</div>
 						{recette.images.length > 1 && (
@@ -792,7 +794,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 								width={100}
 								height={100}
 								sizes="100px"
-								unoptimized={true}
+								unoptimized={!isOptimizableImage(image)}
 								/>
 							</div>
 							))}
@@ -928,7 +930,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 										height={200}
 										loading="lazy"
 										sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-										unoptimized={true}
+										unoptimized={!isOptimizableImage(recipe.images[0])}
 									/>
 								)}
 								<div className="similar-recipe-content">

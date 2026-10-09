@@ -4,9 +4,11 @@ import { db } from '@/lib/config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import Link from 'next/link';
 import Image from 'next/image';
+import { isOptimizableImage } from '@/lib/utils/image';
 import { Rating } from 'primereact/rating';
 import type { Recipe } from '@/types';
-import { useRecipeLikes, useRecipeReviews } from '@/hooks';
+import { useRecipeLikes } from '@/hooks/useRecipeLikes';
+import { useRecipeReviews } from '@/hooks/useRecipeReviews';
 import './WeeklyRecipe.css';
 
 export default function WeeklyRecipe() {
@@ -89,7 +91,7 @@ export default function WeeklyRecipe() {
 							width={600}
 							priority
 							sizes="(max-width: 768px) 100vw, 50vw"
-							unoptimized={true}
+							unoptimized={!isOptimizableImage(featuredRecette.images[0])}
 						/>
 					</div>
 				)}

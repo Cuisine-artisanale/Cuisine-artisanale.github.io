@@ -1,9 +1,9 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import type { RecipeExportData } from '@/types';
 
 export const exportRecipePDF = async (recipe: RecipeExportData) => {
   try {
+    // jsPDF (~300 Ko) n'est chargé qu'au moment de l'export
+    const { default: jsPDF } = await import('jspdf');
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -66,7 +66,6 @@ export const exportRecipePDF = async (recipe: RecipeExportData) => {
           img.onerror = reject;
         });
 
-        const canvas = await html2canvas(document.createElement('canvas'));
         const imgWidth = maxWidth;
         const imgHeight = (img.height / img.width) * imgWidth;
 

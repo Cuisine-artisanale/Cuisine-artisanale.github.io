@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState, useMemo, Suspense } from 'react';
 import './PostsClient.css';
-import { AddPost, Post as PostComponent } from '@/components/features';
+import AddPost from '@/components/features/AddPost/AddPost';
+import PostComponent from '@/components/features/Post/Post';
 import { db } from '@/lib/config/firebase';
 import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';

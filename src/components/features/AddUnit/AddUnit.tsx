@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import './AddUnit.css';
 import { Button } from 'primereact/button';
-import { AddUnitForm } from '@/components/features';
+import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
 
 const AddUnit: React.FC = () => {
   const [dialogVisible, setDialogVisible] = useState(false);

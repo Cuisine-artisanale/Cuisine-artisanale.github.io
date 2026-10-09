@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './politique-confidentialite.css';
-import { Breadcrumb } from '@/components/layout';
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 
 export const metadata: Metadata = {
 	title: "Politique de confidentialité",

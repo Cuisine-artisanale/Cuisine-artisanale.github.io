@@ -2,7 +2,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
-import { Password } from '@/components/ui';
+import { Password } from '@/components/ui/Password/Password';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { auth } from '@/lib/config/firebase';
 import './reset-password.css';

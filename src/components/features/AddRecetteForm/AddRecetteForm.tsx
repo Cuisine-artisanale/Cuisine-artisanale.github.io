@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import './AddRecetteForm.css';
-import { Breadcrumb } from '@/components/layout';
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
@@ -12,10 +12,11 @@ import { AutoComplete } from 'primereact/autocomplete';
 import { db, storage } from '@/lib/config/firebase';
 import { collection, addDoc, updateDoc, doc, query, getDocs } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { compressImage } from '@/lib/utils/image';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { toast } from 'react-toastify';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
-import { AddIngredientForm } from '@/components/features';
+import AddIngredientForm from '@/components/features/AddIngredientForm/AddIngredientForm';
 import type { Ingredient, Department } from '@/types';
 
 /** Partie de recette telle que manipulée dans le formulaire (avant mise en forme pour Firestore) */
@@ -441,7 +442,8 @@ const AddRecetteForm: React.FC = () => {
 	const urls: string[] = [];
 	const safeFolder = folderName.trim() || 'sans-titre';
 
-	for (const image of files) {
+	for (const original of files) {
+	  const image = await compressImage(original);
 	  // Préfixe horodaté : évite d'écraser l'image d'une autre recette portant le même nom
 	  const storageRef = ref(storage, `recipes/${safeFolder}/${Date.now()}_${image.name}`);
 	  const uploadTask = uploadBytesResumable(storageRef, image);

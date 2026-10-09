@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import './user-profile.css';
 import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
-import { UserStats, Recette } from '@/components/features';
-import { Breadcrumb } from '@/components/layout';
+import UserStats from '@/components/features/UserStats/UserStats';
+import Recette from '@/components/features/Recette/Recette';
+import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 
 interface UserData {
   displayName: string;

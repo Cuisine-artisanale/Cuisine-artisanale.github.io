@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from 'react';
 import './RecettesClient.css';
-import { Filtre, Recette, AddRecette } from '@/components/features';
+import Filtre from '@/components/features/Filtre/Filtre';
+import Recette from '@/components/features/Recette/Recette';
+import AddRecette from '@/components/features/AddRecette/AddRecette';
 import { db } from '@/lib/config/firebase';
 import { collection, getDocs, query, where, limit, startAfter, orderBy, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { useSearchParams } from 'next/navigation';
