@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import PostsClient from './PostsClient';
 import TrendingRecipes from '@/components/features/TrendingRecipes/TrendingRecipes';
 import WeeklyRecipe from '@/components/features/WeeklyRecipe/WeeklyRecipe';
-import { getTrendingRecipes, getWeeklyRecipe } from '@/lib/server/listings';
+import { getRecentPosts, getTrendingRecipes, getWeeklyRecipe } from '@/lib/server/listings';
 
 // Page générée côté serveur et mise en cache, régénérée au plus toutes les 10 minutes
 export const revalidate = 600;
@@ -20,13 +20,17 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-	const [weekly, trending] = await Promise.all([
+	const [weekly, trending, posts] = await Promise.all([
 		getWeeklyRecipe().catch((error) => {
 			console.error('Recette de la semaine indisponible :', error);
 			return null;
 		}),
 		getTrendingRecipes(4).catch((error) => {
 			console.error('Recettes populaires indisponibles :', error);
+			return [];
+		}),
+		getRecentPosts(30).catch((error) => {
+			console.error('Posts indisponibles :', error);
 			return [];
 		}),
 	]);
@@ -36,7 +40,7 @@ export default async function Page() {
 			<h1 className="sr-only">Cuisine Artisanale : recettes traditionnelles françaises</h1>
 			<WeeklyRecipe recipe={weekly} />
 			<TrendingRecipes recipes={trending} />
-			<PostsClient />
+			<PostsClient initialPosts={posts} />
 		</div>
 	);
 }

@@ -1,21 +1,29 @@
 "use client";
-import { useEffect, useState, useMemo, Suspense } from 'react';
+import { useCallback, useEffect, useState, useMemo, Suspense } from 'react';
 import './PostsClient.css';
 import AddPost from '@/components/features/AddPost/AddPost';
 import PostComponent from '@/components/features/Post/Post';
-import { db } from '@/lib/config/firebase';
-import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import type { Post } from '@/types';
+import { toPostCard, type PostCardData } from '@/lib/utils/post-card';
 
 const nbPostsToDisplay = 5;
 
-export default function PostsClient() {
-	const [allPosts, setAllPosts] = useState<Post[]>([]);
+type HomePost = Omit<PostCardData, 'createdAt'> & { createdAt: Date };
+
+const toHomePost = (post: PostCardData): HomePost => ({ ...post, createdAt: new Date(post.createdAt) });
+
+interface PostsClientProps {
+	/** Posts visibles chargés côté serveur (app/page.tsx) */
+	initialPosts?: PostCardData[];
+}
+
+export default function PostsClient({ initialPosts = [] }: PostsClientProps) {
+	const [allPosts, setAllPosts] = useState<HomePost[]>(() => initialPosts.map(toHomePost));
 	const [displayedPostsCount, setDisplayedPostsCount] = useState<number>(nbPostsToDisplay);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
-	const { role, user } = useAuth();
+	const { role } = useAuth();
 
 	const formatDate = (date: Date) =>
 		date.toLocaleDateString("fr-FR", {
@@ -27,43 +35,26 @@ export default function PostsClient() {
 			minute: "2-digit"
 		});
 
-	const setupPostsListener = () => {
+	/**
+	 * Recharge la liste depuis Firestore (chargé à la demande) : utilisé pour les admins
+	 * (qui voient aussi les posts masqués) et après la publication d'un post.
+	 */
+	const reloadPosts = useCallback(async () => {
 		setLoading(true);
 		try {
-			const postsQuery = query(
-				collection(db, "posts"),
-				orderBy("createdAt", "desc"),
-				limit(100) // Limiter à 100 posts pour éviter trop de lectures
-			);
-
-			// Utiliser onSnapshot pour écouter les changements en temps réel
-			const unsubscribe = onSnapshot(postsQuery, (querySnapshot) => {
-				const postsData: Post[] = querySnapshot.docs.map((doc) => {
-					const data = doc.data();
-					return {
-						id: doc.id,
-						title: data.title,
-						content: data.content,
-						createdAt: data.createdAt?.toDate() || new Date(),
-						visible: data.visible !== false,
-						userName: data.userName
-					} as Post;
-				});
-				setAllPosts(postsData);
-				setLoading(false);
-			}, (error) => {
-				console.error("Error fetching posts:", error);
-				setLoading(false);
-			});
-
-			// Retourner la fonction de nettoyage pour se désabonner
-			return unsubscribe;
+			const { db, collection, getDocs, limit, orderBy, query } = await loadFirestore();
+			const snapshot = await getDocs(query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(100)));
+			setAllPosts(snapshot.docs.map((d) => toHomePost(toPostCard(d.id, d.data()))));
 		} catch (error) {
-			console.error("Error setting up posts listener:", error);
+			console.error("Error fetching posts:", error);
+		} finally {
 			setLoading(false);
-			return () => {}; // Retourner une fonction vide en cas d'erreur
 		}
-	};
+	}, []);
+
+	const handlePostDeleted = useCallback((postId: string) => {
+		setAllPosts((prev) => prev.filter((p) => p.id !== postId));
+	}, []);
 
 	const loadMorePosts = () => {
 		if (loading) return;
@@ -74,13 +65,14 @@ export default function PostsClient() {
 	const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
 	useEffect(() => {
-		const unsubscribe = setupPostsListener();
 		window.addEventListener('scroll', handleScroll);
-		return () => {
-			if (unsubscribe) unsubscribe();
-			window.removeEventListener('scroll', handleScroll);
-		};
-	}, [user, role]);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
+
+	// Les admins voient aussi les posts masqués : rechargement complet côté client
+	useEffect(() => {
+		if (role === 'admin') reloadPosts();
+	}, [role, reloadPosts]);
 
 	// Filtrer et limiter les posts selon le rôle (memoized)
 	const visiblePosts = useMemo(() => {
@@ -123,6 +115,8 @@ export default function PostsClient() {
 							createdAt={formatDate(post.createdAt)}
 							visible={post.visible}
 							userName={post.userName}
+							likes={post.likes}
+							onDeleted={handlePostDeleted}
 						/>
 					</Suspense>
 				))}
@@ -153,7 +147,7 @@ export default function PostsClient() {
 			</section>
 
 			<section className="AddPost_section">
-				<AddPost />
+				<AddPost onPosted={reloadPosts} />
 			</section>
 
 			<button

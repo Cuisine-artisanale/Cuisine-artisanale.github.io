@@ -13,6 +13,8 @@ import { useAuth } from '@/contexts/AuthContext/AuthContext';
 
 interface AddPostFormProps {
   closeForm: () => void;
+  /** Appelé après une publication réussie */
+  onPosted?: () => void;
 }
 
 // List of inappropriate words and phrases (you can expand this list)
@@ -29,7 +31,7 @@ const checkInappropriateContent = (text: string): boolean => {
   return inappropriateContent.some(word => lowerText.includes(word));
 };
 
-const AddPostForm: React.FC<AddPostFormProps> = ({ closeForm }) => {
+const AddPostForm: React.FC<AddPostFormProps> = ({ closeForm, onPosted }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
@@ -58,6 +60,7 @@ const AddPostForm: React.FC<AddPostFormProps> = ({ closeForm }) => {
 		userName: user.displayName || 'Anonymous',
 		visible: true
 	  });
+	  onPosted?.();
 	  closeForm();
 	} catch (error) {
 	  console.error('Error adding post:', error);

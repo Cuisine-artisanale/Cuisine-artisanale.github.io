@@ -6,8 +6,7 @@ import './RecettesClient.css';
 import Filtre from '@/components/features/Filtre/Filtre';
 import Recette from '@/components/features/Recette/Recette';
 import AddRecette from '@/components/features/AddRecette/AddRecette';
-import { db } from '@/lib/config/firebase';
-import { collection, getDocs, query, where, limit, startAfter, orderBy, documentId } from 'firebase/firestore';
+import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { useSearchParams } from 'next/navigation';
 import type { RecipesPage } from '@/lib/server/listings';
 
@@ -103,6 +102,8 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 	const fetchRecettes = async (cursorDoc: Cursor, filters: { type: string; position: string; keywords: string }) => {
 		try {
 			setIsLoading(true);
+			// Firestore n'est chargé qu'au premier besoin (filtre ou page suivante)
+			const { db, collection, getDocs, query, where, limit, startAfter, orderBy, documentId } = await loadFirestore();
 			const recettesCollection = collection(db, "recipes");
 			const { keywords, type, position } = filters;
 

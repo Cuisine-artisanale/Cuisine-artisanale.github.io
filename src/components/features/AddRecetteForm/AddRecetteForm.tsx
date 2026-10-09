@@ -9,7 +9,8 @@ import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { AutoComplete } from 'primereact/autocomplete';
 
-import { db, storage } from '@/lib/config/firebase';
+import { db } from '@/lib/config/firebase';
+import { storage } from '@/lib/config/firebase-storage';
 import { collection, addDoc, updateDoc, doc, query, getDocs } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { compressImage } from '@/lib/utils/image';

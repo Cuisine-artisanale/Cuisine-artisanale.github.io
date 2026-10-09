@@ -1,11 +1,9 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './Post.css';
 import { Button } from 'primereact/button';
-import { toggleLikePost, unlikePost } from '@/lib/services/post.service';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import { deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/config/firebase';
+import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog/ConfirmDialog';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { toastMessages } from '@/lib/utils/toast';
@@ -19,28 +17,20 @@ interface PostProps {
   userName: string;
   fromRequest?: boolean;
   visible?: boolean;
+  /** ids des utilisateurs ayant liké (chargés avec le post, sans écoute temps réel) */
+  likes?: string[];
+  /** Appelé après suppression, pour retirer le post de la liste */
+  onDeleted?: (postId: string) => void;
 }
 
-const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequest = false, visible = true, userName }) => {
+const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequest = false, visible = true, userName, likes: initialLikes = [], onDeleted }) => {
   const { user, role } = useAuth();
-  const [likes, setLikes] = useState<string[]>([]);
+  const [likes, setLikes] = useState<string[]>(initialLikes);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(visible);
   const userId = user?.uid;
   const { showToast } = useToast();
   const { confirm, visible: dialogVisible, dialogState, handleAccept, handleReject } = useConfirmDialog();
-
-  useEffect(() => {
-	const unsubscribe = onSnapshot(doc(db, "posts", postId), (docSnapshot) => {
-	  if (docSnapshot.exists()) {
-		const data = docSnapshot.data();
-		setLikes(data.likes || []);
-		setIsVisible(data.visible !== false); // Default to true if not set
-	  }
-	});
-
-	return () => unsubscribe();
-  }, [postId]);
 
   const hasLiked = userId ? likes.includes(userId) : false;
 
@@ -56,10 +46,14 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 
 	setIsLoading(true);
 	try {
+	  // Service chargé à la demande (Firestore n'est téléchargé qu'au premier clic)
+	  const { toggleLikePost, unlikePost } = await import('@/lib/services/post.service');
 	  if (hasLiked) {
 		await unlikePost(postId, userId);
+		setLikes((prev) => prev.filter((id) => id !== userId));
 	  } else {
 		await toggleLikePost(postId, userId);
+		setLikes((prev) => (prev.includes(userId) ? prev : [...prev, userId]));
 	  }
 	} catch (error) {
 	  showToast({
@@ -74,6 +68,7 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
   const handleVisibilityToggle = async () => {
 	setIsLoading(true);
 	try {
+	  const { db, doc, updateDoc } = await loadFirestore();
 	  const postRef = doc(db, 'posts', postId);
 	  await updateDoc(postRef, {
 		visible: !isVisible
@@ -108,8 +103,10 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
   const handleDelete = async () => {
 	setIsLoading(true);
 	try {
+	  const { db, doc, deleteDoc } = await loadFirestore();
 	  const postRef = doc(db, 'posts', postId);
 	  await deleteDoc(postRef);
+	  onDeleted?.(postId);
 	  showToast({
 		severity: 'success',
 		summary: toastMessages.success.default,
@@ -140,7 +137,7 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 		/>
 	  )}
 	  <div className={`Post ${fromRequest ? 'Post_request' : ''} ${!isVisible ? 'Post-hidden' : ''}`}>
-		<h1>{title}</h1>
+		<h2>{title}</h2>
 		<p style={{ whiteSpace: 'pre-wrap' }}>{content}</p>
 
 		<section className='Section_buttons'>

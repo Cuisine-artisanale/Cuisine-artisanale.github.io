@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "@/lib/config/firebase";
+import { auth } from "@/lib/config/firebase-app";
+import { loadFirestore } from "@/lib/config/firestore-lazy";
 import {
   User,
   onAuthStateChanged,
@@ -11,7 +12,6 @@ import {
   signInWithEmailAndPassword,
   updateProfile
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 // Flag pour désactiver temporairement la vérification email
 // Mettre à true pour réactiver la vérification email
@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   const fetchUserRole = async (userId: string) => {
-	const db = getFirestore();
+	const { db, doc, getDoc } = await loadFirestore();
 	const userRef = doc(db, "users", userId);
 	const userDoc = await getDoc(userRef);
 	if (userDoc.exists()) {
@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserDisplayName = async (userId: string, googleDisplayName: string | null) => {
 	try {
-	  const db = getFirestore();
+	  const { db, doc, getDoc } = await loadFirestore();
 	  const userRef = doc(db, "users", userId);
 	  const userDoc = await getDoc(userRef);
 
@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const createUserInFirestore = async (userId: string, email: string, displayName: string, emailVerified: boolean = false) => {
-	const db = getFirestore();
+	const { db, doc, setDoc } = await loadFirestore();
 	const userRef = doc(db, "users", userId);
 	await setDoc(userRef, {
 	  email: email,
@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshUserData = async () => {
 	if (!user) return;
 	try {
-	  const db = getFirestore();
+	  const { db, doc, getDoc } = await loadFirestore();
 	  const userRef = doc(db, "users", user.uid);
 	  const userDoc = await getDoc(userRef);
 

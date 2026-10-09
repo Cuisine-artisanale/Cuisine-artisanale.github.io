@@ -2,7 +2,8 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db, storage } from '@/lib/config/firebase';
+import { db } from '@/lib/config/firebase';
+import { storage } from '@/lib/config/firebase-storage';
 import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { compressImage } from '@/lib/utils/image';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';

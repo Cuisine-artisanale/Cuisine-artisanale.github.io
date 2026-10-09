@@ -2,6 +2,9 @@ import { unstable_cache } from 'next/cache';
 import { FieldPath } from 'firebase-admin/firestore';
 import { getFirebaseAdminDb } from '@/lib/config/firebase-admin';
 import { getRecipeStats, type RecipeStats } from '@/lib/utils/recipe-stats';
+import { toPostCard, type PostCardData } from '@/lib/utils/post-card';
+
+export type { PostCardData };
 
 /** Données minimales d'une carte recette (sérialisables, passées aux composants client). */
 export interface RecipeCardData {
@@ -144,4 +147,17 @@ export async function getRecipeSlugById(id: string): Promise<string | null> {
   const snap = await getFirebaseAdminDb().collection('recipes').doc(id).get();
   if (!snap.exists) return null;
   return (snap.get('url') as string) || snap.id;
+}
+
+/** Derniers posts visibles pour l'accueil (les admins rechargent la liste complète côté client). */
+export async function getRecentPosts(count = 30): Promise<PostCardData[]> {
+  const snapshot = await getFirebaseAdminDb()
+    .collection('posts')
+    .orderBy('createdAt', 'desc')
+    .limit(count * 2)
+    .get();
+  return snapshot.docs
+    .map((d) => toPostCard(d.id, d.data()))
+    .filter((p) => p.visible)
+    .slice(0, count);
 }

@@ -2,10 +2,13 @@
 import React, { useState } from 'react';
 import './AddPost.css';
 import { Button } from 'primereact/button';
-import AddPostForm from '@/components/features/AddPostForm/AddPostForm';
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 
-const AddPost: React.FC = () => {
+// Formulaire (et Firestore) chargés seulement à l'ouverture
+const AddPostForm = dynamic(() => import('@/components/features/AddPostForm/AddPostForm'), { ssr: false });
+
+const AddPost: React.FC<{ onPosted?: () => void }> = ({ onPosted }) => {
   const [showForm, setShowForm] = useState(false);
   const { user } = useAuth();
 
@@ -38,7 +41,7 @@ const AddPost: React.FC = () => {
 		/>
 	  </div>
 
-	  {showForm && <AddPostForm closeForm={handleCloseForm} />}
+	  {showForm && <AddPostForm closeForm={handleCloseForm} onPosted={onPosted} />}
 	</div>
   );
 };

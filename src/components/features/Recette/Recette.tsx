@@ -8,11 +8,9 @@ import { isOptimizableImage } from '@/lib/utils/image';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { slugify } from '@/lib/utils/slug';
-import { addDoc, collection, deleteDoc, doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/config/firebase';
+import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
-import { toggleLikeRecipes, unlikeRecipes } from '@/lib/services/recipe.service';
 import type { RecipeStats } from '@/lib/utils/recipe-stats';
 
 interface RecetteProps {
@@ -50,7 +48,8 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 			setHasLiked(false);
 			return;
 		}
-		getDoc(doc(db, 'likes', `${userId}_${recetteId}`))
+		loadFirestore()
+			.then(({ db, doc, getDoc }) => getDoc(doc(db, 'likes', `${userId}_${recetteId}`)))
 			.then((snap) => { if (!cancelled) setHasLiked(snap.exists()); })
 			.catch(() => {});
 		return () => { cancelled = true; };
@@ -64,6 +63,7 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 		setLikesCount((c) => Math.max(0, c + (wasLiked ? -1 : 1)));
 		setLikePending(true);
 		try {
+			const { toggleLikeRecipes, unlikeRecipes } = await import('@/lib/services/recipe.service');
 			if (wasLiked) {
 				await unlikeRecipes(recetteId, userId);
 			} else {
@@ -101,6 +101,7 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 
 	const handleAcceptRequest = async () => {
 		try {
+			const { db, doc, getDoc, addDoc, collection } = await loadFirestore();
 			const recetteRef = doc(db, 'recipesRequest', recetteId);
 			const recetteSnap = await getDoc(recetteRef);
 			if (!recetteSnap.exists()) return;
@@ -123,6 +124,7 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 
 	const declineRequest = async () => {
 		try {
+			const { db, doc, deleteDoc } = await loadFirestore();
 			await deleteDoc(doc(db, 'recipesRequest', recetteId));
 		} catch (error) {
 			console.error('Error declining recipe:', error);
