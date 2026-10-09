@@ -1,0 +1,297 @@
+[
+  {
+    "id": "mg",
+    "name": "milligramme",
+    "plural": "milligrammes",
+    "abbreviation": "mg",
+    "type": "mass",
+    "useAbbreviation": true,
+    "aliases": [
+      "milligr"
+    ],
+    "toBase": 0.001
+  },
+  {
+    "id": "g",
+    "name": "gramme",
+    "plural": "grammes",
+    "abbreviation": "g",
+    "type": "mass",
+    "useAbbreviation": true,
+    "aliases": [
+      "gr",
+      "grs",
+      "gramme",
+      "grammes",
+      "grams",
+      "gram"
+    ],
+    "toBase": 1
+  },
+  {
+    "id": "kg",
+    "name": "kilogramme",
+    "plural": "kilogrammes",
+    "abbreviation": "kg",
+    "type": "mass",
+    "useAbbreviation": true,
+    "aliases": [
+      "kilo",
+      "kilos",
+      "kgs",
+      "kilogramme"
+    ],
+    "toBase": 1000
+  },
+  {
+    "id": "ml",
+    "name": "millilitre",
+    "plural": "millilitres",
+    "abbreviation": "ml",
+    "type": "volume",
+    "useAbbreviation": true,
+    "aliases": [
+      "mls",
+      "millilitre"
+    ],
+    "toBase": 1
+  },
+  {
+    "id": "cl",
+    "name": "centilitre",
+    "plural": "centilitres",
+    "abbreviation": "cl",
+    "type": "volume",
+    "useAbbreviation": true,
+    "aliases": [
+      "cls"
+    ],
+    "toBase": 10
+  },
+  {
+    "id": "dl",
+    "name": "décilitre",
+    "plural": "décilitres",
+    "abbreviation": "dl",
+    "type": "volume",
+    "useAbbreviation": true,
+    "aliases": [],
+    "toBase": 100
+  },
+  {
+    "id": "l",
+    "name": "litre",
+    "plural": "litres",
+    "abbreviation": "l",
+    "type": "volume",
+    "useAbbreviation": true,
+    "aliases": [
+      "litre",
+      "litres",
+      "lt",
+      "ltr"
+    ],
+    "toBase": 1000
+  },
+  {
+    "id": "cac",
+    "name": "cuillère à café",
+    "plural": "cuillères à café",
+    "abbreviation": "c. à c.",
+    "type": "volume",
+    "useAbbreviation": true,
+    "aliases": [
+      "cac",
+      "c.a.c",
+      "càc",
+      "c.à.c",
+      "cc",
+      "cuillere a cafe",
+      "cuilleres a cafe",
+      "cuil. a cafe",
+      "tsp",
+      "teaspoon"
+    ],
+    "toBase": 5
+  },
+  {
+    "id": "cas",
+    "name": "cuillère à soupe",
+    "plural": "cuillères à soupe",
+    "abbreviation": "c. à s.",
+    "type": "volume",
+    "useAbbreviation": true,
+    "aliases": [
+      "cas",
+      "c.a.s",
+      "càs",
+      "c.à.s",
+      "cs",
+      "cuillere a soupe",
+      "cuilleres a soupe",
+      "cuillere",
+      "cuilleres",
+      "cuil. a soupe",
+      "tbsp",
+      "tablespoon"
+    ],
+    "toBase": 15
+  },
+  {
+    "id": "tasse",
+    "name": "tasse",
+    "plural": "tasses",
+    "abbreviation": "",
+    "type": "volume",
+    "useAbbreviation": false,
+    "aliases": [
+      "cup",
+      "cups"
+    ],
+    "toBase": 250
+  },
+  {
+    "id": "verre",
+    "name": "verre",
+    "plural": "verres",
+    "abbreviation": "",
+    "type": "volume",
+    "useAbbreviation": false,
+    "aliases": [],
+    "toBase": 200
+  },
+  {
+    "id": "pincee",
+    "name": "pincée",
+    "plural": "pincées",
+    "abbreviation": "",
+    "type": "other",
+    "useAbbreviation": false,
+    "aliases": [
+      "pincee",
+      "pincees",
+      "pinch"
+    ]
+  },
+  {
+    "id": "piece",
+    "name": "pièce",
+    "plural": "pièces",
+    "abbreviation": "",
+    "type": "count",
+    "useAbbreviation": false,
+    "aliases": [
+      "pc",
+      "pcs",
+      "unite",
+      "unites",
+      "u"
+    ]
+  },
+  {
+    "id": "tranche",
+    "name": "tranche",
+    "plural": "tranches",
+    "abbreviation": "",
+    "type": "count",
+    "useAbbreviation": false,
+    "aliases": []
+  },
+  {
+    "id": "gousse",
+    "name": "gousse",
+    "plural": "gousses",
+    "abbreviation": "",
+    "type": "count",
+    "useAbbreviation": false,
+    "aliases": []
+  },
+  {
+    "id": "feuille",
+    "name": "feuille",
+    "plural": "feuilles",
+    "abbreviation": "",
+    "type": "count",
+    "useAbbreviation": false,
+    "aliases": []
+  },
+  {
+    "id": "brin",
+    "name": "brin",
+    "plural": "brins",
+    "abbreviation": "",
+    "type": "count",
+    "useAbbreviation": false,
+    "aliases": []
+  },
+  {
+    "id": "botte",
+    "name": "botte",
+    "plural": "bottes",
+    "abbreviation": "",
+    "type": "count",
+    "useAbbreviation": false,
+    "aliases": []
+  },
+  {
+    "id": "sachet",
+    "name": "sachet",
+    "plural": "sachets",
+    "abbreviation": "",
+    "type": "count",
+    "useAbbreviation": false,
+    "aliases": []
+  },
+  {
+    "id": "boite",
+    "name": "boîte",
+    "plural": "boîtes",
+    "abbreviation": "",
+    "type": "count",
+    "useAbbreviation": false,
+    "aliases": [
+      "boite",
+      "boites",
+      "conserve"
+    ]
+  },
+  {
+    "id": "poignee",
+    "name": "poignée",
+    "plural": "poignées",
+    "abbreviation": "",
+    "type": "other",
+    "useAbbreviation": false,
+    "aliases": [
+      "poignee",
+      "poignees"
+    ]
+  },
+  {
+    "id": "noix",
+    "name": "noix",
+    "plural": "noix",
+    "abbreviation": "",
+    "type": "other",
+    "useAbbreviation": false,
+    "aliases": []
+  },
+  {
+    "id": "filet",
+    "name": "filet",
+    "plural": "filets",
+    "abbreviation": "",
+    "type": "other",
+    "useAbbreviation": false,
+    "aliases": []
+  },
+  {
+    "id": "zeste",
+    "name": "zeste",
+    "plural": "zestes",
+    "abbreviation": "",
+    "type": "count",
+    "useAbbreviation": false,
+    "aliases": []
+  }
+]

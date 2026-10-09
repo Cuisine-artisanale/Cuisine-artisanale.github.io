@@ -6,7 +6,12 @@ export interface Ingredient {
   id: string;
   name: string;
   quantity?: string;
+  /** Libellé d'unité saisi (anciennes recettes, imports) ou abréviation de l'unité choisie */
   unit?: string;
+  /** Identifiant de l'unité dans la collection "units" (recettes créées depuis la refonte) */
+  unitId?: string;
+  /** Fiche ingrédient uniquement : unité proposée par défaut dans les recettes */
+  defaultUnitId?: string;
 }
 
 export interface RecipePart {

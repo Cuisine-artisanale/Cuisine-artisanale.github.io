@@ -146,8 +146,22 @@ service cloud.firestore {
       // Lecture publique
       allow read: if true;
 
-      // Écriture uniquement pour les admins
-      allow create, update, delete: if isAdminUser();
+      // Tout utilisateur connecté peut créer une unité manquante (champs contrôlés)
+      allow create: if isAdminUser() || (
+        isSignedIn()
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 40
+        && request.resource.data.get('abbreviation', '') is string
+        && request.resource.data.get('abbreviation', '').size() <= 10
+        && request.resource.data.type in ['mass', 'volume', 'count', 'other']
+        && (!('toBase' in request.resource.data)
+            || (request.resource.data.toBase is number && request.resource.data.toBase > 0))
+        && request.resource.data.get('createdBy', request.auth.uid) == request.auth.uid
+      );
+
+      // Modification / suppression : admins uniquement
+      allow update, delete: if isAdminUser();
     }
 
     // === Abonnés newsletter ===

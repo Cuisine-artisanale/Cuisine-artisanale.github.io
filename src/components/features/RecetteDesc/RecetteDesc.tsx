@@ -10,7 +10,9 @@ import { isOptimizableImage } from '@/lib/utils/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
-import { scaleQuantity } from '@/lib/utils/quantity';
+import { formatAmount, type UnitDef } from '@/lib/utils/units';
+import { useUnits } from '@/hooks/useUnits';
+import { mergeIngredientDetails } from '@/lib/utils/recipe-ingredients';
 import { doc, getDoc, deleteDoc, onSnapshot, query, where, collection, orderBy, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { Button } from 'primereact/button';
@@ -36,9 +38,11 @@ interface RecetteDescProps {
 	recipeId?: string;
 	/** Recette chargée côté serveur : permet un premier rendu complet (SEO) */
 	initialRecipe?: Recipe;
+	/** Catalogue d'unités chargé côté serveur */
+	initialUnits?: UnitDef[];
 }
 
-const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initialRecipe }) => {
+const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initialRecipe, initialUnits }) => {
 	const [id, setId] = useState<string | null>(initialRecipe?.id ?? null);
 	const searchParams = useSearchParams();
 	const queryRecipeId = searchParams?.get('id');
@@ -78,7 +82,9 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 	}, [baseServings, recette?.id]);
 
 	const factor = baseServings && servings ? servings / baseServings : multiplier;
-	const scaled = (quantity: string | undefined) => scaleQuantity(quantity, factor);
+	const { index: unitIndex } = useUnits(initialUnits);
+	/** Quantité + unité ajustées au nombre de personnes, avec conversion (1 500 g → 1,5 kg) */
+	const amount = (ing: Ingredient) => formatAmount(ing.quantity, unitIndex, { unit: ing.unit, unitId: ing.unitId, factor });
 
 	const changeServings = (delta: number) => {
 		if (baseServings) {
@@ -112,34 +118,24 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 			const recetteData = recetteSnap.data() as Recipe;
 			setId(docId);
 
-			// Traitement des ingrédients pour chaque partie
+			// Noms à jour depuis la fiche ingrédient ; unité choisie dans la recette ;
+			// les ingrédients sans fiche (imports TikTok) restent affichés
 			const updatedRecipeParts = await Promise.all(
 				recetteData.recipeParts.map(async (part) => {
-				const ingredientsDetails = await Promise.all(
-					part.ingredients.map(async (ingredient) => {
-					const ingredientRef = doc(db, 'ingredients', ingredient.id);
-					const ingredientSnap = await getDoc(ingredientRef);
-
-					if (ingredientSnap.exists()) {
-						const ingredientData = ingredientSnap.data();
-						return {
-						id: ingredient.id,
-						name: ingredientData.name,
-						quantity: ingredient.quantity,
-						unit: ingredientData.unit,
-						};
-					} else {
-						console.warn(`Ingrédient avec l'ID ${ingredient.id} introuvable`);
-						return null;
-					}
-					})
-				);
-
-				const filteredIngredients = ingredientsDetails.filter((ing) => ing !== null);
-				return {
-					...part,
-					ingredients: filteredIngredients
-				};
+					const ingredientsDetails = await Promise.all(
+						part.ingredients.map(async (ingredient) => {
+							let reference: { name?: string; unit?: string } | null = null;
+							if (ingredient.id && !ingredient.id.includes('/')) {
+								const ingredientSnap = await getDoc(doc(db, 'ingredients', ingredient.id)).catch(() => null);
+								if (ingredientSnap?.exists()) reference = ingredientSnap.data() as { name?: string; unit?: string };
+							}
+							return mergeIngredientDetails(ingredient, reference);
+						})
+					);
+					return {
+						...part,
+						ingredients: ingredientsDetails.filter((ing): ing is Ingredient => ing !== null)
+					};
 				})
 			);
 
@@ -391,8 +387,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 					title: part.title,
 					ingredients: part.ingredients.map(ing => ({
 						name: ing.name,
-						quantity: scaled(ing.quantity),
-						unit: ing.unit ?? ''
+						quantity: amount(ing).quantity,
+						unit: amount(ing).unit
 					})),
 					steps: part.steps
 				})),
@@ -438,8 +434,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 					title: part.title,
 					ingredients: part.ingredients.map(ing => ({
 						name: ing.name,
-						quantity: scaled(ing.quantity),
-						unit: ing.unit ?? ''
+						quantity: amount(ing).quantity,
+						unit: amount(ing).unit
 					})),
 					steps: part.steps
 				})),
@@ -546,7 +542,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 				part.ingredients.forEach(ing => {
 					if (selectedIngredients.has(ing.id)) {
 						// Quantités ajustées au nombre de personnes choisi
-						allIngredients.push({ ...ing, quantity: scaled(ing.quantity) });
+						const a = amount(ing);
+						allIngredients.push({ ...ing, quantity: a.quantity, unit: a.unit, ...(a.unitId ? { unitId: a.unitId } : {}) });
 					}
 				});
 			});
@@ -784,6 +781,13 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 						<i className="pi pi-hourglass"></i>
 						<strong>Temps de cuisson:</strong> {recette?.cookingTime} min
 					</p>
+					<p>
+						<i className="pi pi-users"></i>
+						<strong>Quantités pour :</strong>{' '}
+						{baseServings
+							? `${baseServings} personne${baseServings > 1 ? 's' : ''}`
+							: 'nombre de personnes non précisé'}
+					</p>
 					</div>
 					{recette?.video && (
 					<h3 className='recette-desc-video'>
@@ -869,8 +873,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 							<li key={idx}>
 							<p>
 								{ingredient.name}
-								{scaled(ingredient.quantity) && (
-									<> - <span className={factor !== 1 ? 'recette-desc-quantity-scaled' : undefined}>{scaled(ingredient.quantity)} {ingredient.unit}</span></>
+								{amount(ingredient).text && (
+									<> - <span className={factor !== 1 ? 'recette-desc-quantity-scaled' : undefined}>{amount(ingredient).text}</span></>
 								)}
 							</p>
 							</li>
@@ -1078,9 +1082,9 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 												<div style={{ fontWeight: 500, color: 'var(--text-color)' }}>
 													{ingredient.name}
 												</div>
-												{scaled(ingredient.quantity) && (
+												{amount(ingredient).text && (
 													<div style={{ fontSize: '0.9rem', color: 'var(--text-color-secondary)' }}>
-														{scaled(ingredient.quantity)} {ingredient.unit}
+														{amount(ingredient).text}
 													</div>
 												)}
 											</div>

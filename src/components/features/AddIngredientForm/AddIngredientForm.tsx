@@ -7,12 +7,13 @@ import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
-import { addDoc, collection, getDocs, query, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
-import type { Unit } from '@/types';
+import { useUnits } from '@/hooks/useUnits';
+import { selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
 
 interface AddIngredientFormProps {
   visible: boolean;
@@ -24,8 +25,9 @@ interface AddIngredientFormProps {
 const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, initialName, onIngredientCreated }) => {
 	const [name, setName] = useState('');
 	const [price, setPrice] = useState<number | null>(0);
-	const [unit, setUnit] = useState<Unit | null>(null);
-	const [units, setUnits] = useState<Unit[]>([]);
+	const [unit, setUnit] = useState<UnitDef | null>(null);
+	const { units: allUnits, reload: reloadUnits } = useUnits();
+	const units = selectableUnits(allUnits).map((u) => ({ ...u, label: unitOptionLabel(u) }));
 	const [loading, setLoading] = useState(false);
 	const [formErrors, setFormErrors] = useState<{
 		name?: string;
@@ -38,7 +40,6 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 	useEffect(() => {
 		if (visible) {
 			setName(initialName || '');
-			fetchUnits();
 		}
 	}, [visible, initialName]);
 
@@ -47,9 +48,6 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 
 		if (!name.trim()) {
 			errors.name = 'Le nom est requis';
-		}
-		if (!unit) {
-			errors.unit = 'L\'unité est requise';
 		}
 
 		setFormErrors(errors);
@@ -69,7 +67,9 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 			const docRef = await addDoc(collection(db, 'ingredients'), {
 				name: name.trim(),
 				price: price,
-				unit: unit?.abbreviation,
+				// Unité proposée par défaut dans les recettes (chaque recette peut en choisir une autre)
+				unit: unit ? unit.abbreviation || unit.name : '',
+				...(unit ? { defaultUnitId: unit.id } : {}),
 				createdAt: new Date(),
 			});
 
@@ -81,7 +81,8 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 				id: docRef.id,
 				name: name.trim(),
 				price,
-				unit: unit?.abbreviation,
+				unit: unit ? unit.abbreviation || unit.name : '',
+				defaultUnitId: unit?.id,
 			};
 
 			showToast({
@@ -107,27 +108,6 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 		} finally {
 			setLoading(false);
 		}
-  };
-
-  const fetchUnits = async () => {
-	try {
-	  const unitsQuery = query(collection(db, 'units'));
-	  const querySnapshot = await getDocs(unitsQuery);
-	  const unitsData = querySnapshot.docs.map((doc) => ({
-		id: doc.id,
-		...doc.data()
-	  })) as Unit[];
-
-	  setUnits(unitsData);
-	} catch (error) {
-	  console.error('Error fetching units:', error);
-	  showToast({
-		severity: 'error',
-		summary: 'Erreur',
-		detail: 'Impossible de charger les unités',
-		life: 3000
-	  });
-	}
   };
 
 	useEffect(() => {
@@ -217,7 +197,7 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 
 				<div className="form-field">
 					<label htmlFor="unit">
-					Unité <span className="required">*</span>
+					Unité par défaut <small>(facultatif)</small>
 					</label>
 					<Dropdown
 						id="unit"
@@ -227,8 +207,9 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 							setUnit(e.value);
 							setFormErrors({ ...formErrors, unit: undefined });
 						}}
-						optionLabel="name"
-						placeholder="Sélectionnez une unité"
+						optionLabel="label"
+						dataKey="id"
+						placeholder="Proposée par défaut dans les recettes"
 						className={formErrors.unit ? 'p-invalid' : ''}
 						filter
 						emptyFilterMessage={
@@ -254,7 +235,7 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 			visible={showAddUnitDialog}
 			onHide={() => setShowAddUnitDialog(false)}
 			onUnitCreated={(newUnit) => {
-				setUnits((prev) => [...prev, newUnit]); // ajoute la nouvelle unité à la liste
+				reloadUnits(); // recharge le catalogue (la nouvelle unité y figure)
 				setUnit(newUnit); // la sélectionne automatiquement
 				setShowAddUnitDialog(false);
 			}}

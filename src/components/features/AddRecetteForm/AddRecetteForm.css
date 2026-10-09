@@ -681,3 +681,36 @@
   }
 
 }
+
+/* ---- Unité par ingrédient ---- */
+.ingredient-unit-select {
+  min-width: 11rem;
+}
+
+.add-unit-btn,
+.create-unit-option {
+  background: none;
+  border: 1px dashed var(--surface-border);
+  border-radius: var(--border-radius);
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.6rem;
+  white-space: nowrap;
+}
+
+.create-unit-option {
+  width: 100%;
+  border: none;
+}
+
+.ingredients-help {
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+  margin: -0.5rem 0 1rem;
+}
+
+.ingredient-item {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

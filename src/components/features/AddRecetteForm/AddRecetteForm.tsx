@@ -15,6 +15,9 @@ import { collection, addDoc, updateDoc, doc, query, getDocs } from 'firebase/fir
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { compressImage } from '@/lib/utils/image';
 import { DEPARTEMENTS } from '@/constants/departements';
+import { useUnits } from '@/hooks/useUnits';
+import { resolveUnit, selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
+import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { toast } from 'react-toastify';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
@@ -29,6 +32,8 @@ type RecipePartForm = {
   ingredients: Record<string, string>;
   /** ids des ingrédients sélectionnés */
   selectedIngredients: string[];
+  /** unité choisie (id du catalogue), indexée par id d'ingrédient */
+  units?: Record<string, string>;
 };
 
 
@@ -55,6 +60,10 @@ const AddRecetteForm: React.FC = () => {
   const [tiktokImportContext, setTiktokImportContext] = useState('');
   const [tiktokImporting, setTiktokImporting] = useState(false);
   const [isRecetteCreated, setIsRecetteCreated] = useState<boolean>(false);
+  const { units: allUnits, index: unitIndex, reload: reloadUnits } = useUnits();
+  const unitOptions = selectableUnits(allUnits).map((u) => ({ label: unitOptionLabel(u), value: u.id }));
+  // Ingrédient pour lequel on crée une unité (pour la sélectionner une fois créée)
+  const [unitTarget, setUnitTarget] = useState<{ partIndex: number; ingredientId: string } | null>(null);
   const [recipeParts, setRecipeParts] = useState<RecipePartForm[]>([{
 	title: 'Recette 1',
 	steps: [],
@@ -166,6 +175,9 @@ const AddRecetteForm: React.FC = () => {
 		const newParts = [...recipeParts];
 		newParts[partIndex].selectedIngredients.push(ingredient.id);
 		newParts[partIndex].ingredients[ingredient.id] = '0';
+		// Unité proposée : celle de la fiche ingrédient, modifiable pour cette recette
+		const defaultUnit = resolveUnit(unitIndex, ingredient.defaultUnitId, ingredient.unit);
+		newParts[partIndex].units = { ...(newParts[partIndex].units || {}), [ingredient.id]: defaultUnit?.id || '' };
 		setRecipeParts(newParts);
 
 		// On vide le champ uniquement ici
@@ -176,8 +188,21 @@ const AddRecetteForm: React.FC = () => {
 		const newParts = [...recipeParts];
 		newParts[partIndex].selectedIngredients = newParts[partIndex].selectedIngredients.filter(id => id !== ingredientId);
 		delete newParts[partIndex].ingredients[ingredientId];
+		if (newParts[partIndex].units) delete newParts[partIndex].units![ingredientId];
 		setRecipeParts(newParts);
 	};
+
+  const handleIngredientUnitChange = (partIndex: number, ingredientId: string, unitId: string) => {
+	const newParts = [...recipeParts];
+	newParts[partIndex].units = { ...(newParts[partIndex].units || {}), [ingredientId]: unitId || '' };
+	setRecipeParts(newParts);
+  };
+
+  const handleUnitCreated = (unit: UnitDef) => {
+	reloadUnits();
+	if (unitTarget) handleIngredientUnitChange(unitTarget.partIndex, unitTarget.ingredientId, unit.id);
+	setUnitTarget(null);
+  };
 
   const types = [
 	{ id: 1, name: 'Entrée' },
@@ -316,11 +341,13 @@ const AddRecetteForm: React.FC = () => {
 	  ...part,
 	  ingredients: part.selectedIngredients.map(id => {
 		const ingredient = ingredientsList.find(i => i.id === id.toString());
+		const unit = part.units?.[id] ? unitIndex.byId.get(part.units[id]) : null;
 		return ingredient ? {
 		  id: ingredient.id,
 		  name: ingredient.name,
 		  quantity: part.ingredients[id] || '0',
-		  unit: ingredient.unit || ''
+		  unit: unit ? unit.abbreviation || unit.name : '',
+		  ...(unit ? { unitId: unit.id } : {})
 		} : null;
 	  }).filter(Boolean)
 	}));
@@ -600,7 +627,13 @@ const AddRecetteForm: React.FC = () => {
 							setShowAddIngredientDialog(false);
 						}}
 					/>
+					<AddUnitForm
+						visible={unitTarget !== null}
+						onHide={() => setUnitTarget(null)}
+						onUnitCreated={handleUnitCreated}
+					/>
 					<h2>Ingrédients *</h2>
+					<p className="ingredients-help">Choisissez l&apos;unité de chaque ingrédient pour cette recette (g, c. à s., gousse…). Une unité manque ? Créez-la avec « + unité ».</p>
 					{recipeParts.map((part, partIndex) => {
 						return (
 							<div key={partIndex} className="part-ingredients">
@@ -657,7 +690,33 @@ const AddRecetteForm: React.FC = () => {
 											min={0}
 											mode="decimal"
 										/>
-										<span>{ingredient?.unit}</span>
+										<Dropdown
+											value={part.units?.[id] || null}
+											options={unitOptions}
+											onChange={(e: DropdownChangeEvent) => handleIngredientUnitChange(partIndex, id, e.value || '')}
+											placeholder="Unité"
+											filter
+											showClear
+											className="ingredient-unit-select"
+											aria-label={`Unité pour ${ingredient?.name ?? 'cet ingrédient'}`}
+											emptyFilterMessage={
+												<button
+													type="button"
+													className="create-unit-option"
+													onClick={() => setUnitTarget({ partIndex, ingredientId: id })}
+												>
+													➕ Créer une unité
+												</button>
+											}
+										/>
+										<button
+											type="button"
+											className="add-unit-btn"
+											onClick={() => setUnitTarget({ partIndex, ingredientId: id })}
+											title="Créer une unité manquante"
+										>
+											+ unité
+										</button>
 										<button
 											type="button"
 											className="remove-ingredient-btn"

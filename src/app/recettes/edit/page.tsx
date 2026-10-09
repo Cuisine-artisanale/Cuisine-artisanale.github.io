@@ -9,6 +9,9 @@ import { compressImage } from '@/lib/utils/image';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import type { Recipe, RecipePart } from '@/types/recipe.types';
 import './edit-recette.css';
+import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
+import { useUnits } from '@/hooks/useUnits';
+import { resolveUnit, selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
 
 function EditRecetteContent() {
   const router = useRouter();
@@ -163,6 +166,42 @@ function EditRecetteContent() {
     setRecipeParts(updatedParts);
   };
 
+  // ---- Ingrédients : quantité et unité propres à cette recette ----
+  const { units: allUnits, index: unitIndex, reload: reloadUnits } = useUnits();
+  const unitChoices = selectableUnits(allUnits);
+  const [unitTarget, setUnitTarget] = useState<{ partIndex: number; ingredientIndex: number } | null>(null);
+
+  const updateIngredient = (partIndex: number, ingredientIndex: number, changes: { quantity?: string; unitId?: string }) => {
+    const updatedParts = [...recipeParts];
+    const ingredients = [...(updatedParts[partIndex].ingredients || [])];
+    const current = { ...ingredients[ingredientIndex] };
+    if (changes.quantity !== undefined) current.quantity = changes.quantity;
+    if (changes.unitId !== undefined) {
+      const unit = changes.unitId ? unitIndex.byId.get(changes.unitId) : null;
+      current.unit = unit ? unit.abbreviation || unit.name : '';
+      if (unit) current.unitId = unit.id;
+      else delete current.unitId;
+    }
+    ingredients[ingredientIndex] = current;
+    updatedParts[partIndex] = { ...updatedParts[partIndex], ingredients };
+    setRecipeParts(updatedParts);
+  };
+
+  const removeIngredientFromPart = (partIndex: number, ingredientIndex: number) => {
+    const updatedParts = [...recipeParts];
+    updatedParts[partIndex] = {
+      ...updatedParts[partIndex],
+      ingredients: (updatedParts[partIndex].ingredients || []).filter((_, i) => i !== ingredientIndex)
+    };
+    setRecipeParts(updatedParts);
+  };
+
+  const handleUnitCreated = (unit: UnitDef) => {
+    reloadUnits();
+    if (unitTarget) updateIngredient(unitTarget.partIndex, unitTarget.ingredientIndex, { unitId: unit.id });
+    setUnitTarget(null);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Valider les fichiers avant de les ajouter
     const newImages: File[] = Array.from(e.target.files || []);
@@ -280,6 +319,11 @@ function EditRecetteContent() {
                   />
                 </div>
 
+                <AddUnitForm
+                  visible={unitTarget !== null}
+                  onHide={() => setUnitTarget(null)}
+                  onUnitCreated={handleUnitCreated}
+                />
                 <div className="recipe-parts-section">
                   <h3>*Parties de la recette:</h3>
                   {recipeParts.map((part, partIndex) => (
@@ -304,6 +348,54 @@ function EditRecetteContent() {
                           </button>
                         )}
                       </div>
+                      {(part.ingredients || []).length > 0 && (
+                        <div className="ingredients-edit-section">
+                          <h4>Ingrédients :</h4>
+                          {(part.ingredients || []).map((ingredient, ingredientIndex) => {
+                            const resolved = resolveUnit(unitIndex, ingredient.unitId, ingredient.unit);
+                            const unknownUnit = !resolved && ingredient.unit ? ingredient.unit : '';
+                            return (
+                              <div key={`${ingredient.id}-${ingredientIndex}`} className="ingredient-edit-row">
+                                <span className="ingredient-edit-name">{ingredient.name}</span>
+                                <input
+                                  type="text"
+                                  inputMode="decimal"
+                                  value={ingredient.quantity && ingredient.quantity !== '0' ? ingredient.quantity : ''}
+                                  onChange={(e) => updateIngredient(partIndex, ingredientIndex, { quantity: e.target.value })}
+                                  placeholder="Quantité"
+                                  aria-label={`Quantité de ${ingredient.name}`}
+                                />
+                                <select
+                                  value={resolved?.id || ''}
+                                  onChange={(e) => updateIngredient(partIndex, ingredientIndex, { unitId: e.target.value })}
+                                  aria-label={`Unité de ${ingredient.name}`}
+                                >
+                                  <option value="">{unknownUnit ? `« ${unknownUnit} » (non reconnue)` : 'Sans unité'}</option>
+                                  {unitChoices.map((u) => (
+                                    <option key={u.id} value={u.id}>{unitOptionLabel(u)}</option>
+                                  ))}
+                                </select>
+                                <button
+                                  type="button"
+                                  className="btn-add-unit"
+                                  onClick={() => setUnitTarget({ partIndex, ingredientIndex })}
+                                  title="Créer une unité manquante"
+                                >
+                                  + unité
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn-delete-step"
+                                  onClick={() => removeIngredientFromPart(partIndex, ingredientIndex)}
+                                  title="Retirer cet ingrédient"
+                                >
+                                  ❌
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                       <div className="steps-section">
                         <h4>Étapes de préparation:</h4>
                         {(part.steps || []).map((step, stepIndex) => (

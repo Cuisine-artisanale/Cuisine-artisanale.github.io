@@ -372,3 +372,42 @@
   }
 }
 
+
+/* ---- Ingrédients : quantité + unité par recette ---- */
+.ingredients-edit-section {
+  margin-bottom: 1.5rem;
+}
+
+.ingredient-edit-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.ingredient-edit-name {
+  flex: 1 1 10rem;
+  font-weight: 500;
+}
+
+.ingredient-edit-row input {
+  width: 6.5rem;
+  padding: 0.4rem;
+}
+
+.ingredient-edit-row select {
+  min-width: 10rem;
+  padding: 0.4rem;
+}
+
+.btn-add-unit {
+  background: none;
+  border: 1px dashed var(--surface-border);
+  border-radius: var(--border-radius);
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.6rem;
+}

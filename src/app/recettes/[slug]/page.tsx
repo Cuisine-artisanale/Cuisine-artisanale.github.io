@@ -11,6 +11,7 @@ import {
   getRecipeBySlug,
   serializeJsonLd,
 } from '@/lib/server/recipes';
+import { getUnits } from '@/lib/server/units';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -65,7 +66,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function RecipePage({ params }: PageProps) {
   const { slug } = await params;
-  const data = await getRecipeBySlug(slug);
+  const [data, units] = await Promise.all([getRecipeBySlug(slug), getUnits()]);
 
   if (!data) {
     notFound();
@@ -88,7 +89,7 @@ export default async function RecipePage({ params }: PageProps) {
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildRecipeJsonLd(data, canonicalUrl)) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildRecipeJsonLd(data, canonicalUrl, units)) }}
       />
       <script
         type="application/ld+json"
@@ -96,7 +97,7 @@ export default async function RecipePage({ params }: PageProps) {
       />
       <Breadcrumb customRoutes={{ [slug]: recipe.title }} />
       <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Chargement...</div>}>
-        <RecetteDesc recipeId={recipe.id} initialRecipe={recipe} />
+        <RecetteDesc recipeId={recipe.id} initialRecipe={recipe} initialUnits={units} />
       </Suspense>
     </div>
   );

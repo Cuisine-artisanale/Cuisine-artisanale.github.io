@@ -1,6 +1,8 @@
 import { cache } from 'react';
 import type { Recipe, RecipePart } from '@/types';
 import { getFirebaseAdminDb } from '@/lib/config/firebase-admin';
+import { mergeIngredientDetails } from '@/lib/utils/recipe-ingredients';
+import { buildUnitIndex, formatAmount, type UnitDef } from '@/lib/utils/units';
 
 export const SITE_URL = 'https://www.cuisine-artisanale.fr';
 
@@ -49,7 +51,7 @@ export const getRecipeBySlug = cache(async (slug: string): Promise<ServerRecipe 
   // Noms et unités des ingrédients depuis la collection de référence
   const parts: RecipePart[] = Array.isArray(data.recipeParts) ? data.recipeParts : [];
   const ingredientIds = Array.from(
-    new Set(parts.flatMap((part) => (part.ingredients || []).map((ing) => ing?.id).filter(Boolean)))
+    new Set(parts.flatMap((part) => (part.ingredients || []).map((ing) => ing?.id).filter((id) => typeof id === 'string' && id && !id.includes('/'))))
   ) as string[];
 
   const ingredientDocs = ingredientIds.length
@@ -63,16 +65,7 @@ export const getRecipeBySlug = cache(async (slug: string): Promise<ServerRecipe 
     title: part.title || '',
     steps: Array.isArray(part.steps) ? part.steps : [],
     ingredients: (part.ingredients || [])
-      .map((ing) => {
-        const ref = ingredientsById.get(ing.id);
-        if (!ref) return null;
-        return {
-          id: ing.id,
-          name: ref.name || ing.name || '',
-          quantity: ing.quantity,
-          unit: ref.unit,
-        };
-      })
+      .map((ing) => mergeIngredientDetails(ing, ingredientsById.get(ing.id)))
       .filter((ing): ing is NonNullable<typeof ing> => ing !== null),
   }));
 
@@ -134,13 +127,13 @@ function isoDuration(minutes: number): string | undefined {
   return `PT${h ? `${h}H` : ''}${m ? `${m}M` : ''}`;
 }
 
-function formatIngredient(ing: { name: string; quantity?: string; unit?: string }): string {
-  const qty = ing.quantity && ing.quantity !== '0' ? ing.quantity : '';
-  return [qty, qty ? ing.unit : '', ing.name].filter(Boolean).join(' ');
+function formatIngredient(ing: { name: string; quantity?: string; unit?: string; unitId?: string }, units: UnitDef[]): string {
+  const amount = formatAmount(ing.quantity, buildUnitIndex(units), { unit: ing.unit, unitId: ing.unitId });
+  return [amount.text, ing.name].filter(Boolean).join(' ');
 }
 
 /** Données structurées schema.org/Recipe (résultats enrichis Google). */
-export function buildRecipeJsonLd({ recipe, authorName, rating }: ServerRecipe, canonicalUrl: string) {
+export function buildRecipeJsonLd({ recipe, authorName, rating }: ServerRecipe, canonicalUrl: string, units: UnitDef[]) {
   const description = buildRecipeDescription(recipe);
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -159,7 +152,7 @@ export function buildRecipeJsonLd({ recipe, authorName, rating }: ServerRecipe, 
     cookTime: isoDuration(recipe.cookingTime),
     totalTime: isoDuration(recipe.preparationTime + recipe.cookingTime),
     recipeYield: recipe.servings ? `${recipe.servings} personnes` : undefined,
-    recipeIngredient: recipe.recipeParts.flatMap((p) => p.ingredients.map(formatIngredient)),
+    recipeIngredient: recipe.recipeParts.flatMap((p) => p.ingredients.map((ing) => formatIngredient(ing, units))),
     recipeInstructions: recipe.recipeParts.flatMap((p) =>
       p.steps.filter(Boolean).map((text) => ({ '@type': 'HowToStep', text }))
     ),

@@ -11,6 +11,8 @@ export interface ShoppingListItem {
   name: string;
   quantity?: string;
   unit?: string;
+  /** Unité reconnue dans le catalogue (permet d'additionner g et kg, etc.) */
+  unitId?: string;
   checked: boolean;
   recipeId?: string; // ID de la recette d'origine (optionnel)
   recipeTitle?: string; // Titre de la recette d'origine (optionnel)

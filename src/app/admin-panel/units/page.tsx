@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import './units-admin.css';
 import AddUnit from '@/components/features/AddUnit/AddUnit';
-import { collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, deleteField, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
+import { DEFAULT_UNITS, UNIT_TYPE_BASE, UNIT_TYPE_LABELS, type UnitType } from '@/lib/utils/units';
 import { db } from '@/lib/config/firebase';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
@@ -12,11 +13,20 @@ import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 interface Unit {
   id: string;
   name: string;
+  plural: string;
   abbreviation: string;
+  type: UnitType;
+  toBase?: number;
+  aliases: string;
+  replacedBy?: string;
+  createdBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
   isActive?: boolean;
 }
+
+const STANDARD_IDS = new Set(DEFAULT_UNITS.map((u) => u.id));
+type EditableField = 'name' | 'plural' | 'abbreviation' | 'toBase' | 'aliases';
 
 export default function UnitsAdminPage() {
   const [units, setUnits] = useState<Unit[]>([]);
@@ -40,8 +50,14 @@ export default function UnitsAdminPage() {
           const data = doc.data();
           return {
             id: doc.id,
-            name: data.name,
-            abbreviation: data.abbreviation,
+            name: data.name || '',
+            plural: data.plural || '',
+            abbreviation: data.abbreviation || '',
+            type: (data.type as UnitType) || 'other',
+            toBase: typeof data.toBase === 'number' ? data.toBase : undefined,
+            aliases: Array.isArray(data.aliases) ? data.aliases.join(', ') : '',
+            replacedBy: data.replacedBy,
+            createdBy: data.createdBy,
             createdAt: data.createdAt?.toDate(),
             updatedAt: data.updatedAt?.toDate(),
             isActive: data.isActive ?? true
@@ -116,8 +132,15 @@ export default function UnitsAdminPage() {
     if (!editingCell) return;
 
     try {
+      let value: unknown = editValue.trim();
+      if (editingCell.field === 'toBase') {
+        const n = Number(String(value).replace(',', '.'));
+        value = Number.isFinite(n) && n > 0 ? n : deleteField();
+      } else if (editingCell.field === 'aliases') {
+        value = String(value).split(',').map((a) => a.trim()).filter(Boolean);
+      }
       await updateDoc(doc(db, 'units', unit.id), {
-        [editingCell.field]: editValue,
+        [editingCell.field]: value,
         updatedAt: new Date()
       });
 
@@ -138,6 +161,48 @@ export default function UnitsAdminPage() {
       });
     }
   };
+
+  const changeType = async (unit: Unit, type: UnitType) => {
+    try {
+      await updateDoc(doc(db, 'units', unit.id), {
+        type,
+        ...(type === 'mass' || type === 'volume' ? {} : { toBase: deleteField() }),
+        updatedAt: new Date()
+      });
+    } catch (error) {
+      console.error('Erreur de mise à jour du type:', error);
+      showToast({ severity: 'error', summary: toastMessages.error.default, detail: toastMessages.error.update });
+    }
+  };
+
+  const renderEditable = (unit: Unit, field: EditableField, display: React.ReactNode) =>
+    editingCell?.id === unit.id && editingCell.field === field ? (
+      <div className="cell-edit">
+        <input
+          type="text"
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') saveEdit(unit);
+            if (e.key === 'Escape') cancelEdit();
+          }}
+          autoFocus
+          className="cell-input"
+        />
+        <div className="cell-actions">
+          <button onClick={() => saveEdit(unit)} className="btn-save" title="Enregistrer">
+            <i className="pi pi-check"></i>
+          </button>
+          <button onClick={cancelEdit} className="btn-cancel" title="Annuler">
+            <i className="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+    ) : (
+      <span className="editable-cell" onClick={() => startEdit(unit, field)} title="Cliquer pour éditer">
+        {display || <em style={{ opacity: 0.5 }}>—</em>}
+      </span>
+    );
 
   const toggleActive = async (unit: Unit) => {
     try {
@@ -160,20 +225,11 @@ export default function UnitsAdminPage() {
     }
   };
 
-  const formatDate = (date?: Date) => {
-    if (!date) return '-';
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   const filteredUnits = units.filter(unit =>
     unit.name.toLowerCase().includes(globalFilter.toLowerCase()) ||
-    unit.abbreviation.toLowerCase().includes(globalFilter.toLowerCase())
+    unit.abbreviation.toLowerCase().includes(globalFilter.toLowerCase()) ||
+    unit.aliases.toLowerCase().includes(globalFilter.toLowerCase())
   );
 
   if (loading) {
@@ -225,81 +281,48 @@ export default function UnitsAdminPage() {
             <thead>
               <tr>
                 <th>Nom</th>
+                <th>Pluriel</th>
                 <th>Abréviation</th>
+                <th>Type</th>
+                <th>Équivalence</th>
+                <th>Variantes reconnues</th>
+                <th>Origine</th>
                 <th>Statut</th>
-                <th>Créé le</th>
-                <th>Modifié le</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredUnits.map((unit) => (
-                <tr key={unit.id} className={unit.isActive ? '' : 'inactive'}>
+                <tr key={unit.id} className={unit.isActive && !unit.replacedBy ? '' : 'inactive'}>
+                  <td>{renderEditable(unit, 'name', unit.name)}</td>
+                  <td>{renderEditable(unit, 'plural', unit.plural)}</td>
+                  <td>{renderEditable(unit, 'abbreviation', unit.abbreviation)}</td>
                   <td>
-                    {editingCell?.id === unit.id && editingCell.field === 'name' ? (
-                      <div className="cell-edit">
-                        <input
-                          type="text"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') saveEdit(unit);
-                            if (e.key === 'Escape') cancelEdit();
-                          }}
-                          autoFocus
-                          className="cell-input"
-                        />
-                        <div className="cell-actions">
-                          <button onClick={() => saveEdit(unit)} className="btn-save" title="Enregistrer">
-                            <i className="pi pi-check"></i>
-                          </button>
-                          <button onClick={cancelEdit} className="btn-cancel" title="Annuler">
-                            <i className="pi pi-times"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <span
-                        className="editable-cell"
-                        onClick={() => startEdit(unit, 'name')}
-                        title="Cliquer pour éditer"
-                      >
-                        {unit.name}
-                      </span>
-                    )}
+                    <select
+                      value={unit.type}
+                      onChange={(e) => changeType(unit, e.target.value as UnitType)}
+                      className="cell-input"
+                      aria-label={`Type de l'unité ${unit.name}`}
+                    >
+                      {(Object.keys(UNIT_TYPE_LABELS) as UnitType[]).map((t) => (
+                        <option key={t} value={t}>{UNIT_TYPE_LABELS[t]}</option>
+                      ))}
+                    </select>
                   </td>
                   <td>
-                    {editingCell?.id === unit.id && editingCell.field === 'abbreviation' ? (
-                      <div className="cell-edit">
-                        <input
-                          type="text"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') saveEdit(unit);
-                            if (e.key === 'Escape') cancelEdit();
-                          }}
-                          autoFocus
-                          className="cell-input"
-                        />
-                        <div className="cell-actions">
-                          <button onClick={() => saveEdit(unit)} className="btn-save" title="Enregistrer">
-                            <i className="pi pi-check"></i>
-                          </button>
-                          <button onClick={cancelEdit} className="btn-cancel" title="Annuler">
-                            <i className="pi pi-times"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <span
-                        className="editable-cell"
-                        onClick={() => startEdit(unit, 'abbreviation')}
-                        title="Cliquer pour éditer"
-                      >
-                        {unit.abbreviation}
-                      </span>
-                    )}
+                    {unit.type === 'mass' || unit.type === 'volume'
+                      ? renderEditable(unit, 'toBase', unit.toBase ? `= ${unit.toBase.toLocaleString('fr-FR')} ${UNIT_TYPE_BASE[unit.type]}` : '')
+                      : <em style={{ opacity: 0.5 }}>—</em>}
+                  </td>
+                  <td>{renderEditable(unit, 'aliases', unit.aliases)}</td>
+                  <td>
+                    {unit.replacedBy
+                      ? `Doublon de « ${unit.replacedBy} »`
+                      : STANDARD_IDS.has(unit.id)
+                        ? 'Standard'
+                        : unit.createdBy
+                          ? 'Créée par un utilisateur'
+                          : 'Ancienne'}
                   </td>
                   <td>
                     <span
@@ -310,8 +333,6 @@ export default function UnitsAdminPage() {
                       {unit.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td>{formatDate(unit.createdAt)}</td>
-                  <td>{formatDate(unit.updatedAt)}</td>
                   <td>
                     <button
                       className="btn-action btn-danger"

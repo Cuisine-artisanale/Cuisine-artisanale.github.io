@@ -1,4 +1,6 @@
 import { db } from "@/lib/config/firebase";
+import { loadUnits } from "@/lib/services/units.service";
+import { addAmounts, buildUnitIndex } from "@/lib/utils/units";
 import {
   doc,
   getDoc,
@@ -172,6 +174,7 @@ export const addIngredientsToShoppingList = async (
       name: ingredient.name,
       quantity: ingredient.quantity,
       unit: ingredient.unit,
+      ...(ingredient.unitId ? { unitId: ingredient.unitId } : {}),
       checked: false,
       recipeId,
       recipeTitle,
@@ -181,6 +184,7 @@ export const addIngredientsToShoppingList = async (
     // Fusionner avec les items existants (éviter les doublons)
     const existingItems = shoppingList.items || [];
     const mergedItems = [...existingItems];
+    const unitIndex = buildUnitIndex(await loadUnits());
 
     newItems.forEach(newItem => {
       // Vérifier si un item similaire existe déjà
@@ -191,11 +195,12 @@ export const addIngredientsToShoppingList = async (
       if (existingItem) {
         // Fusionner les quantités si possible
         if (newItem.quantity && existingItem.quantity) {
-          // Logique simple : ajouter les quantités si les unités sont identiques
-          if (newItem.unit === existingItem.unit) {
-            const existingQty = parseFloat(existingItem.quantity) || 0;
-            const newQty = parseFloat(newItem.quantity) || 0;
-            existingItem.quantity = (existingQty + newQty).toString();
+          // Additionner si les unités sont compatibles (500 g + 1 kg = 1,5 kg ; 2 c. à s. + 1 c. à s.)
+          const sum = addAmounts(existingItem, newItem, unitIndex);
+          if (sum) {
+            existingItem.quantity = sum.quantity;
+            existingItem.unit = sum.unit;
+            if (sum.unitId) existingItem.unitId = sum.unitId;
           } else {
             // Unités différentes : ajouter comme nouvel item
             mergedItems.push(newItem);
