@@ -335,7 +335,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 						title={recette.title}
 						type={recette.type}
 						images={recette.images}
-						position={departements.get(recette.position) || "Inconnu"}
+						position={departements.get(recette.position) || ''}
 					/>
 				))}
 

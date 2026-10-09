@@ -8,6 +8,7 @@ import { isOptimizableImage } from '@/lib/utils/image';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { slugify } from '@/lib/utils/slug';
+import { getDepartementName } from '@/constants/departements';
 import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
@@ -135,6 +136,9 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 		}
 	};
 
+	// `position` est un code de département ("26"), un nom déjà résolu, ou "none" (non renseigné)
+	const location = getDepartementName(position) ?? (position === 'none' ? '' : position);
+
 	const renderImage = () => {
 		if (images.length === 0) {
 			return <div className="recipe-placeholder">Pas d'image</div>;
@@ -186,7 +190,7 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 
 				<div className="recipe-tags">
 					<span className="recipe-type">{type}</span>
-					{position && <span className="recipe-location">📍 {position}</span>}
+					{location && <span className="recipe-location">📍 {location}</span>}
 				</div>
 
 				{/* Rating Section */}

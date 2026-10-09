@@ -6,7 +6,10 @@
   list-style-type: none;
   padding: 0;
   display: flex;
+  /* Sur téléphone, les liens passent à la ligne au lieu de déborder de la page */
+  flex-wrap: wrap;
   justify-content: space-around;
+  margin: 0;
 }
 .lien-utiles a {
 	color: var(--link-color);

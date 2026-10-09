@@ -703,10 +703,11 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 					<p>
 					<strong>Type:</strong> {recette?.type}
 					</p>
-					{recette?.position && (
+					{/* Recette sans département (position « none ») : la ligne n'est pas affichée */}
+					{recette?.position && departements.get(recette.position) && (
 					<div className="recette-desc-position">
 						<p>
-						<strong>Departement:</strong> {departements.get(recette.position) || "Inconnu"}
+						<strong>Département :</strong> {departements.get(recette.position)}
 						</p>
 					</div>
 					)}

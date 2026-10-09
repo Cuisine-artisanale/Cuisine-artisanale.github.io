@@ -306,3 +306,49 @@
 	padding: 2rem 1rem;
   }
 }
+
+/* ---- Filtres repliables sur téléphone ----
+   Seul le champ de recherche reste visible : la liste des recettes apparaît dès le premier écran. */
+.filtre-toggle {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .Filtre > h2 {
+	display: none;
+  }
+
+  .filter_section {
+	margin-bottom: 1rem;
+  }
+
+  .filtre-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	margin-top: 0.75rem;
+	background: transparent;
+	border: 1px solid var(--surface-border);
+	color: var(--text-color);
+	font-weight: 600;
+  }
+
+  .filtre-toggle-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 999px;
+	background: var(--primary-color);
+	color: var(--text-color-inverted, #fff);
+	font-size: 0.8rem;
+  }
+
+  .Filtre:not(.is-open) .filtre_input > div:not(:first-child),
+  .Filtre:not(.is-open) .filtre_buttons {
+	display: none;
+  }
+}

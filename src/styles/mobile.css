@@ -414,3 +414,19 @@
 	overscroll-behavior-y: contain;
   }
 }
+
+/* ================================================
+   LIENS AU FIL DU TEXTE
+   ================================================ */
+
+@media (max-width: 768px) {
+  /* La règle « zones cliquables » ci-dessus transforme chaque lien en bloc de 44 px :
+     dans un paragraphe ou une page de texte, le lien doit rester dans la phrase. */
+  p a,
+  .LegalMentions-container li a,
+  .PolitiquesConfidentiel-container li a {
+	display: inline;
+	min-height: 0;
+	padding: 0;
+  }
+}

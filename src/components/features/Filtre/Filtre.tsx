@@ -14,6 +14,9 @@ const Filtre: React.FC = () => {
   const departements = DEPARTEMENTS;
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Téléphone : seuls le champ de recherche et ce bouton sont visibles tant que le panneau est replié
+  const [open, setOpen] = useState(false);
+  const activeFilters = (selectedType ? 1 : 0) + (position?.code ? 1 : 0);
 
   const router = useRouter();
 
@@ -57,7 +60,7 @@ const Filtre: React.FC = () => {
   };
 
   return (
-	<div className="Filtre">
+	<div className={`Filtre${open ? ' is-open' : ''}`}>
 	  	<h2>Filtrer les recettes</h2>
 
 		<section className='filtre_input'>
@@ -68,7 +71,19 @@ const Filtre: React.FC = () => {
 					value={name}
 					onChange={(e) => setName(e.target.value)}
 					onKeyDown={handleKeyPress}
+					enterKeyHint="search"
 				/>
+				<button
+					type="button"
+					className="filtre-toggle"
+					aria-expanded={open}
+					onClick={() => setOpen((value) => !value)}
+				>
+					<span className="pi pi-sliders-h" aria-hidden="true"></span>
+					{open ? 'Masquer les filtres' : 'Type et département'}
+					{activeFilters > 0 && <span className="filtre-toggle-count">{activeFilters}</span>}
+					<span className={`pi ${open ? 'pi-chevron-up' : 'pi-chevron-down'}`} aria-hidden="true"></span>
+				</button>
 			</div>
 
 			<div>
