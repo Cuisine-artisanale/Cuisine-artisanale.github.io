@@ -10,6 +10,7 @@ import { useConfirmDialog } from '@/hooks';
 import type { Post } from '@/types';
 
 interface PostAdmin extends Post {
+  author?: string;
   status?: 'pending' | 'approved' | 'rejected';
 }
 
@@ -59,14 +60,15 @@ export default function PostsAdminPage() {
             title: data.title,
             content: data.content,
             createdAt: data.createdAt?.toDate(),
+            userName: data.userName ?? data.author ?? '',
             author: data.author,
             status: data.status
           } as PostAdmin;
         });
 
         postsData.sort((a, b) => {
-          let aValue: any = sortField === 'createdAt' ? a.createdAt?.getTime() : a[sortField as keyof Post];
-          let bValue: any = sortField === 'createdAt' ? b.createdAt?.getTime() : b[sortField as keyof Post];
+          const aValue: any = sortField === 'createdAt' ? a.createdAt?.getTime() : a[sortField as keyof Post];
+          const bValue: any = sortField === 'createdAt' ? b.createdAt?.getTime() : b[sortField as keyof Post];
 
           if (sortOrder === 'asc') {
             return aValue > bValue ? 1 : -1;
@@ -102,8 +104,8 @@ export default function PostsAdminPage() {
 
   useEffect(() => {
     const sorted = [...posts].sort((a, b) => {
-      let aValue: any = sortField === 'createdAt' ? a.createdAt?.getTime() : a[sortField as keyof Post];
-      let bValue: any = sortField === 'createdAt' ? b.createdAt?.getTime() : b[sortField as keyof Post];
+      const aValue: any = sortField === 'createdAt' ? a.createdAt?.getTime() : a[sortField as keyof Post];
+      const bValue: any = sortField === 'createdAt' ? b.createdAt?.getTime() : b[sortField as keyof Post];
 
       if (sortOrder === 'asc') {
         return aValue > bValue ? 1 : -1;

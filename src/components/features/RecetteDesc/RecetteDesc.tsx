@@ -7,11 +7,11 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
-import { doc, getDoc, deleteDoc, onSnapshot, query, where, getDocs, collection, orderBy, serverTimestamp, addDoc, updateDoc } from '@firebase/firestore';
+import { doc, getDoc, deleteDoc, onSnapshot, query, where, collection, orderBy, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { Button } from 'primereact/button';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import { toggleLikeRecipes, unlikeRecipes, countRecipeLikes, hasUserLikedRecipe, getSimilarRecipes } from '@/lib/services/recipe.service';
+import { toggleLikeRecipes, unlikeRecipes, getSimilarRecipes } from '@/lib/services/recipe.service';
 import { confirmDialog, ConfirmDialog } from 'primereact/confirmdialog';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
@@ -19,7 +19,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { shareRecipe } from '@/lib/services/share.service';
 import { exportRecipePDF, printRecipe } from '@/lib/services/export.service';
 import RecipeMetadata from '@/app/recettes/recipe-metadata';
-import type { Recipe, RecipePart, Ingredient } from '@/types';
+import type { Recipe, Ingredient } from '@/types';
 import {
   addRecipeToDo,
   isRecipeInToDo,

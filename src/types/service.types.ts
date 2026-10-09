@@ -2,7 +2,6 @@
  * Types pour les services
  */
 
-import type { RecipePart } from './recipe.types';
 
 /**
  * Options pour le partage de recettes

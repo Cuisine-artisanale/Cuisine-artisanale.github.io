@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from 'next/navigation';
+import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import './RecetteMapClient.css';
 
 // Types pour les composants Leaflet
@@ -51,7 +52,6 @@ export default function RecetteMapClient() {
 	const [departementsCoordinates, setDepartementsCoordinates] = useState<any>(null);
 	const [dataLoaded, setDataLoaded] = useState(false);
 	const [leafletComponents, setLeafletComponents] = useState<LeafletComponents | null>(null);
-	const [getRecipeUrl, setGetRecipeUrl] = useState<((recipe: any) => string) | null>(null);
 	const [firestoreModule, setFirestoreModule] = useState<any>(null);
 
 	const router = useRouter();
@@ -73,12 +73,11 @@ export default function RecetteMapClient() {
 				// Charger le CSS de Leaflet dynamiquement
 				await import('leaflet/dist/leaflet.css');
 
-				const [reactLeaflet, leaflet, geojson, coords, recipeUrlModule, firestore] = await Promise.all([
+				const [reactLeaflet, leaflet, geojson, coords, firestore] = await Promise.all([
 					import('react-leaflet'),
 					import('leaflet'),
 					import('@/assets/departementsGeoJson.json'),
 					import('@/assets/departementsCoord.json'),
-					import('@/lib/utils/recipe-url'),
 					import('firebase/firestore')
 				]);
 
@@ -95,7 +94,6 @@ export default function RecetteMapClient() {
 
 				setGeojsonData(geojson.default);
 				setDepartementsCoordinates(coords.default);
-				setGetRecipeUrl(() => recipeUrlModule.getRecipeUrl);
 				setFirestoreModule(firestore);
 				setDataLoaded(true);
 			} catch (error) {
@@ -464,7 +462,7 @@ export default function RecetteMapClient() {
 		);
 	};
 
-	if (!dataLoaded || !geojsonData || !departementsCoordinates || !leafletComponents || !getRecipeUrl) {
+	if (!dataLoaded || !geojsonData || !departementsCoordinates || !leafletComponents) {
 		return (
 			<div className="recipe-map-container">
 				<div style={{ padding: '2rem', textAlign: 'center' }}>

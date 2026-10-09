@@ -16,7 +16,17 @@ import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { toast } from 'react-toastify';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { AddIngredientForm } from '@/components/features';
-import type { Ingredient, Department, RecipePart } from '@/types';
+import type { Ingredient, Department } from '@/types';
+
+/** Partie de recette telle que manipulée dans le formulaire (avant mise en forme pour Firestore) */
+type RecipePartForm = {
+  title: string;
+  steps: string[];
+  /** quantité saisie, indexée par id d'ingrédient */
+  ingredients: Record<string, string>;
+  /** ids des ingrédients sélectionnés */
+  selectedIngredients: string[];
+};
 
 
 const AddRecetteForm: React.FC = () => {
@@ -41,7 +51,7 @@ const AddRecetteForm: React.FC = () => {
   const [tiktokImportContext, setTiktokImportContext] = useState('');
   const [tiktokImporting, setTiktokImporting] = useState(false);
   const [isRecetteCreated, setIsRecetteCreated] = useState<boolean>(false);
-  const [recipeParts, setRecipeParts] = useState<RecipePart[]>([{
+  const [recipeParts, setRecipeParts] = useState<RecipePartForm[]>([{
 	title: 'Recette 1',
 	steps: [],
 	ingredients: {},
@@ -409,7 +419,7 @@ const AddRecetteForm: React.FC = () => {
   const fetchIngredients = async () => {
 	try {
 	  const recettesCollection = collection(db, "ingredients");
-	  let recettesQuery = query(recettesCollection);
+	  const recettesQuery = query(recettesCollection);
 	  const querySnapshot = await getDocs(recettesQuery);
 	  const recettesData: Ingredient[] = querySnapshot.docs.map((doc) => {
 		const data = doc.data();

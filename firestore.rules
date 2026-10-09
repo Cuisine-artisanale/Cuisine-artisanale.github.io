@@ -4,14 +4,38 @@ service cloud.firestore {
 
     // Fonction helper pour vérifier si un utilisateur est admin
     function isAdmin(uid) {
-      return exists(/databases/$(database)/documents/users/$(uid)) &&
+      return uid != null &&
+             exists(/databases/$(database)/documents/users/$(uid)) &&
              get(/databases/$(database)/documents/users/$(uid)).data.role == "admin";
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdminUser() {
+      return isSignedIn() && isAdmin(request.auth.uid);
+    }
+
+    // Vrai si la mise à jour ne touche que les champs listés
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
     }
 
     // === Utilisateurs ===
     match /users/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin(request.auth.uid));
+
+      // Création de son propre profil, sans pouvoir s'attribuer un rôle autre que "user"
+      allow create: if isSignedIn() && request.auth.uid == userId
+                    && request.resource.data.get('role', 'user') == 'user';
+
+      // Mise à jour de son propre profil sans toucher au rôle ; l'admin peut tout modifier
+      allow update: if isAdminUser()
+                    || (isSignedIn() && request.auth.uid == userId
+                        && request.resource.data.get('role', 'user') == resource.data.get('role', 'user'));
+
+      allow delete: if isSignedIn() && (request.auth.uid == userId || isAdminUser());
     }
 
     // === Likes (nouvelle collection) ===
@@ -42,15 +66,13 @@ service cloud.firestore {
       // Lecture publique
       allow read: if true;
 
-      // Création uniquement pour les utilisateurs authentifiés
-      allow create: if request.auth != null;
+      // Création réservée aux admins (validation d'une demande dans /recipesRequest).
+      // L'import TikTok passe par Firebase Admin côté serveur et n'est pas concerné.
+      allow create: if isAdminUser();
 
-      // Mise à jour uniquement par l'utilisateur authentifié
-      allow update: if request.auth != null;
-
-      // Suppression uniquement par le créateur ou admin
-      allow delete: if request.auth != null &&
-                    (request.auth.uid == resource.data.createdBy || isAdmin(request.auth.uid));
+      // Mise à jour / suppression par l'auteur ou un admin
+      allow update, delete: if isSignedIn() &&
+                    (request.auth.uid == resource.data.createdBy || isAdminUser());
     }
 
     // === Posts ===
@@ -58,15 +80,19 @@ service cloud.firestore {
       // Lecture publique
       allow read: if true;
 
-      // Création uniquement pour les utilisateurs authentifiés
-      allow create: if request.auth != null;
+      // Création par un utilisateur connecté, en son nom (ou par un admin)
+      allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isAdminUser());
 
-      // Mise à jour uniquement par les utilisateurs authentifiés
-      allow update: if request.auth != null;
+      // L'auteur ou un admin peut tout modifier ; les autres ne peuvent que liker / déliker
+      allow update: if isSignedIn() && (
+                      request.auth.uid == resource.data.userId
+                      || isAdminUser()
+                      || onlyChanges(['likes'])
+                    );
 
-      // Suppression uniquement par le créateur ou admin
-      allow delete: if request.auth != null &&
-                    (request.auth.uid == resource.data.createdBy || isAdmin(request.auth.uid));
+      // Suppression par l'auteur ou un admin
+      allow delete: if isSignedIn() &&
+                    (request.auth.uid == resource.data.userId || isAdminUser());
     }
 
     // === Reviews (commentaires/avis) ===
@@ -74,24 +100,30 @@ service cloud.firestore {
       // Lecture publique
       allow read: if true;
 
-      // Création uniquement pour les utilisateurs authentifiés
-      allow create: if request.auth != null;
+      // Création par un utilisateur connecté, en son nom, avec une note de 1 à 5
+      allow create: if isSignedIn()
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.rating is number
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5;
 
-      // Mise à jour uniquement par les utilisateurs authentifiés
-      allow update: if request.auth != null;
-
-      // Suppression uniquement par le créateur ou admin
-      allow delete: if request.auth != null &&
-                    (request.auth.uid == resource.data.createdBy || isAdmin(request.auth.uid));
+      // Modification / suppression par l'auteur ou un admin
+      allow update, delete: if isSignedIn() &&
+                    (request.auth.uid == resource.data.userId || isAdminUser());
     }
 
     // === Ingredients ===
     match /ingredients/{ingredientId} {
       // Lecture publique
       allow read: if true;
-	  allow create: if request.auth != null
-      // Écriture uniquement pour les admins
-      allow update, delete: if request.auth != null && isAdmin(request.auth.uid);
+
+      // Tout utilisateur connecté peut proposer un ingrédient depuis le formulaire de recette
+      allow create: if isSignedIn();
+
+      // Le créateur renseigne le champ ingredientId juste après la création ; le reste est réservé aux admins
+      allow update: if isAdminUser()
+                    || (isSignedIn() && onlyChanges(['ingredientId']) && request.resource.data.ingredientId == ingredientId);
+      allow delete: if isAdminUser();
     }
 
     // === Units (unités de mesure) ===
@@ -100,22 +132,14 @@ service cloud.firestore {
       allow read: if true;
 
       // Écriture uniquement pour les admins
-      allow create, update, delete: if isAdmin(request.auth.uid);
+      allow create, update, delete: if isAdminUser();
     }
 
     // === Abonnés newsletter ===
+    // Inscriptions et désinscriptions passent par le serveur (Firebase Admin) :
+    // aucun accès client hormis la consultation / suppression par un admin.
     match /abonnes/{docId} {
-      // Permet à n'importe qui de s'abonner (formulaire public)
-      allow create: if true;
-
-      // Permet la lecture pour vérifier si un email existe déjà (nécessaire pour l'API)
-      allow read: if true;
-
-      // Permet la mise à jour pour réactiver un abonné existant (nécessaire pour l'API)
-      allow update: if true;
-
-      // Suppression uniquement pour les admins
-      allow delete: if request.auth != null && isAdmin(request.auth.uid);
+      allow read, delete: if isAdminUser();
     }
 
     // === Consentement cookies ===
@@ -124,7 +148,7 @@ service cloud.firestore {
       allow create: if true;
 
       // Lecture uniquement pour les admins
-      allow read: if request.auth != null && isAdmin(request.auth.uid);
+      allow read: if isAdminUser();
     }
 
     // === Recette de la semaine ===
@@ -133,13 +157,13 @@ service cloud.firestore {
       allow read: if true;
 
       // Écriture uniquement pour les admins
-      allow write: if isAdmin(request.auth.uid);
+      allow write: if isAdminUser();
     }
 
     // === Demandes de recettes ===
     match /recipesRequest/{docId} {
       // Lecture et suppression uniquement pour les admins
-      allow read, delete: if isAdmin(request.auth.uid);
+      allow read, delete: if isAdminUser();
 
       // Création et mise à jour pour les utilisateurs authentifiés
       allow create, update: if request.auth != null;

@@ -85,7 +85,7 @@ export default function RecettesClient() {
 			const { keywords, type, position } = filters;
 
 			if (keywords || type || position) {
-				let allRecettesMap = new Map<string, RecetteData>();
+				const allRecettesMap = new Map<string, RecetteData>();
 
 				if (keywords) {
 					// Chercher par mots-clés - charger plus de données pour la similarité

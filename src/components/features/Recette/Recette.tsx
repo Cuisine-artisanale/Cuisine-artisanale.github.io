@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React from 'react';
 import './Recette.css';
 import { Button } from 'primereact/button';
 import Link from 'next/link';
@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { slugify } from '@/lib/utils/slug';
-import { addDoc, collection, deleteDoc, doc, getDoc } from '@firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';

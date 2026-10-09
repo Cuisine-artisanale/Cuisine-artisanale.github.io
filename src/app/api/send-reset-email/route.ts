@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { getFirebaseAdminAuth } from '@/lib/config/firebase-admin';
+import { sendEmail } from '@/lib/services/emailService';
 
-export async function POST(request: NextRequest) {
-  try {
-    const { email, resetUrl } = await request.json();
+const FRONTEND_URL =
+  process.env.NEXT_PUBLIC_FRONTEND_URL ||
+  process.env.FRONTEND_URL ||
+  'https://www.cuisine-artisanale.fr';
 
-    // Initialize Resend only when the route is called (not at module level)
-    const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'a.sabatier@cuisine-artisanale.fr',
-      to: [email],
-      subject: 'Réinitialisez votre mot de passe - Cuisine Artisanale',
-      html: `
+function getResetEmailHtml(resetUrl: string) {
+  return `
         <!DOCTYPE html>
         <html>
         <head>
@@ -107,20 +105,62 @@ export async function POST(request: NextRequest) {
           </div>
         </body>
         </html>
-      `,
+      `;
+}
+
+/**
+ * Envoie un email de réinitialisation de mot de passe.
+ *
+ * Le client n'envoie que l'adresse email : le lien est généré côté serveur
+ * par Firebase Admin (code à usage unique, expiration gérée par Firebase),
+ * puis pointé vers notre page /reset-password.
+ * La réponse est identique que le compte existe ou non (pas d'énumération).
+ */
+export async function POST(request: NextRequest) {
+  let email: unknown;
+  try {
+    ({ email } = await request.json());
+  } catch {
+    return NextResponse.json({ success: false, error: 'Requête invalide' }, { status: 400 });
+  }
+
+  if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
+    return NextResponse.json({ success: false, error: 'Email invalide' }, { status: 400 });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  try {
+    const firebaseLink = await getFirebaseAdminAuth().generatePasswordResetLink(normalizedEmail, {
+      url: `${FRONTEND_URL}/login`,
     });
 
-    if (error) {
-      console.error('Resend error:', error);
-      return NextResponse.json({ error: error.message }, { status: 400 });
+    const oobCode = new URL(firebaseLink).searchParams.get('oobCode');
+    if (!oobCode) {
+      throw new Error('oobCode absent du lien généré');
     }
 
-    return NextResponse.json({ success: true, data });
-  } catch (error) {
-    console.error('Error sending reset email:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de l\'envoi de l\'email' },
-      { status: 500 }
-    );
+    const resetUrl = `${FRONTEND_URL}/reset-password?mode=resetPassword&oobCode=${encodeURIComponent(oobCode)}`;
+
+    const result = await sendEmail({
+      to: normalizedEmail,
+      subject: 'Réinitialisez votre mot de passe - Cuisine Artisanale',
+      html: getResetEmailHtml(resetUrl),
+      from: process.env.RESEND_FROM_EMAIL || 'a.sabatier@cuisine-artisanale.fr',
+    });
+
+    if (!result.success) {
+      console.error('Erreur Resend (reset password):', result.error);
+      return NextResponse.json({ success: false, error: "Erreur lors de l'envoi de l'email" }, { status: 500 });
+    }
+  } catch (error: any) {
+    if (error?.code === 'auth/user-not-found' || error?.code === 'auth/email-not-found') {
+      // Ne pas révéler si le compte existe
+      return NextResponse.json({ success: true });
+    }
+    console.error('Erreur send-reset-email:', error);
+    return NextResponse.json({ success: false, error: "Erreur lors de l'envoi de l'email" }, { status: 500 });
   }
+
+  return NextResponse.json({ success: true });
 }

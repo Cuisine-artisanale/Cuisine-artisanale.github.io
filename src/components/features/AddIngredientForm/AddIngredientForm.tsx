@@ -7,7 +7,7 @@ import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
-import { addDoc, collection, getDocs, query, updateDoc } from '@firebase/firestore';
+import { addDoc, collection, getDocs, query, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';

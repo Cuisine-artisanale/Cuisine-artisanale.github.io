@@ -9,7 +9,6 @@ const BreadCrumbPrime = dynamic(
   { ssr: false }
 );
 
-import type { BreadcrumbItem } from '@/types';
 
 interface BreadcrumbProps {
   className?: string;

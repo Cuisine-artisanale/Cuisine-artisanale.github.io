@@ -1,5 +1,5 @@
 /**
- * Service d'email côté client Next.js
+ * Service d'email côté serveur (API routes Next.js)
  * Utilise Resend pour l'envoi d'emails depuis les API routes
  */
 

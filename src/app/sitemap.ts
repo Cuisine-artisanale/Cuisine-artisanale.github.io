@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/config/firebase';
-import { collection, getDocs } from '@firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const baseUrl = 'https://www.cuisine-artisanale.fr';

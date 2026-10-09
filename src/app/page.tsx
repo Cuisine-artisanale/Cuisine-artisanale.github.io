@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import PostsClient from './PostsClient';
 import { TrendingRecipes, WeeklyRecipe } from '@/components/features';
 

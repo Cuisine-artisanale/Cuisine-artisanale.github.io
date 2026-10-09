@@ -24,16 +24,9 @@ export function slugify(title: string): string {
 }
 
 /**
- * Génère une URL de recette à partir d'un slug
- */
-export function getRecipeUrl(slug: string): string {
-  return `/recettes/${slug}`;
-}
-
-/**
  * Génère une URL de recette à partir d'un titre
  */
 export function getRecipeUrlFromTitle(title: string): string {
-  return getRecipeUrl(slugify(title));
+  return `/recettes/${slugify(title)}`;
 }
 

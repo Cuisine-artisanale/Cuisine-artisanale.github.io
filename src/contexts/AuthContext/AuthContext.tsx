@@ -9,10 +9,9 @@ import {
   signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendEmailVerification,
   updateProfile
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, getDocs } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 // Flag pour désactiver temporairement la vérification email
 // Mettre à true pour réactiver la vérification email
@@ -212,15 +211,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  if (REQUIRE_EMAIL_VERIFICATION) {
 		console.log('Sending verification email via API route (Resend) to:', email);
 		try {
+		  const idToken = await result.user.getIdToken();
 		  const response = await fetch('/api/send-verification-email', {
 			method: 'POST',
 			headers: {
 			  'Content-Type': 'application/json',
+			  Authorization: `Bearer ${idToken}`,
 			},
 			body: JSON.stringify({
-			  email: email,
 			  displayName: displayName,
-			  uid: result.user.uid, // Passer l'UID pour vérifier l'existence de l'utilisateur
 			}),
 		  });
 
