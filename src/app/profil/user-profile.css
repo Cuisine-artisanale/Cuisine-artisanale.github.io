@@ -93,14 +93,6 @@
   overflow-wrap: break-word;
 }
 
-.profile-email {
-  margin: 8px 0 0 0;
-  color: var(--text-color-secondary);
-  font-size: 14px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
 /* Recipes Section */
 .recipes-card {
   padding: 30px;
@@ -313,10 +305,6 @@
 
   .profile-details h1 {
     font-size: 1.5rem;
-  }
-
-  .profile-email {
-    font-size: 16px; /* Minimum 16px pour éviter le zoom iOS */
   }
 
   .recipes-grid {

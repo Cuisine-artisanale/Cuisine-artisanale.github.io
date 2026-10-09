@@ -23,8 +23,10 @@ service cloud.firestore {
     }
 
     // === Utilisateurs ===
+    // Données privées (email, rôle, listes…) : propriétaire et admins uniquement.
+    // La partie publique (pseudo, avatar) est dans /publicProfiles.
     match /users/{userId} {
-      allow read: if true;
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdminUser());
 
       // Création de son propre profil, sans pouvoir s'attribuer un rôle autre que "user"
       allow create: if isSignedIn() && request.auth.uid == userId
@@ -36,6 +38,13 @@ service cloud.firestore {
                         && request.resource.data.get('role', 'user') == resource.data.get('role', 'user'));
 
       allow delete: if isSignedIn() && (request.auth.uid == userId || isAdminUser());
+    }
+
+    // === Profils publics ===
+    // Copie de la partie publique de /users, écrite uniquement par la Cloud Function syncPublicProfile.
+    match /publicProfiles/{userId} {
+      allow read: if true;
+      allow write: if false;
     }
 
     // === Likes (nouvelle collection) ===

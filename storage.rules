@@ -1,0 +1,42 @@
+rules_version = '2';
+
+// Règles Firebase Storage.
+// Note : les URL de téléchargement (getDownloadURL, avec ?token=...) déjà enregistrées
+// dans Firestore restent lisibles quelles que soient ces règles.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Image de moins de 15 Mo
+    function isValidImage() {
+      return request.resource.size < 15 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Photos des recettes : recipes/{titre}/{fichier} (le titre peut contenir des "/")
+    match /recipes/{path=**} {
+      allow read: if true;
+
+      // Tout utilisateur connecté peut ajouter une image, sans écraser un fichier existant
+      allow create: if isSignedIn() && isValidImage();
+
+      // Remplacement et suppression réservés aux admins (page d'édition)
+      allow update: if isAdmin() && isValidImage();
+      allow delete: if isAdmin();
+    }
+
+    // Tout le reste est fermé
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -8,7 +8,6 @@ import { Breadcrumb } from '@/components/layout';
 
 interface UserData {
   displayName: string;
-  email: string;
   photoURL?: string;
   uid: string;
 }
@@ -64,7 +63,8 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
       setLoading(true);
       setError(null);
 
-      const userRef = doc(db, 'users', userId);
+      // Profil public uniquement (pseudo, avatar) : l'email reste privé
+      const userRef = doc(db, 'publicProfiles', userId);
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
@@ -77,8 +77,7 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
       const userData = userSnap.data();
       setUser({
         displayName: userData.displayName || 'Utilisateur',
-        email: userData.email || '',
-        photoURL: userData.photoURL,
+        photoURL: userData.photoURL || undefined,
         uid: userId
       });
     } catch (err) {
@@ -189,7 +188,6 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
             )}
             <div className="profile-details">
               <h1>{user.displayName}</h1>
-              <p className="profile-email">{user.email}</p>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { onDocumentCreated, onDocumentWritten } from "firebase-functions/v2/firestore";
 import { GoogleAuth } from "google-auth-library";
 
 import cors from "cors";
@@ -333,5 +333,29 @@ export const unsubscribe = onRequest((req, res) => {
 				.status(500)
 				.json({ success: false, message: "Erreur interne du serveur" });
 		}
+	});
+});
+
+// ------------------- Profils publics -------------------
+// La collection "users" (email, rôle…) n'est lisible que par son propriétaire et les admins.
+// On en recopie ici la partie publique (pseudo, avatar) dans "publicProfiles/{uid}",
+// lisible par tous, pour l'affichage des auteurs et des pages profil.
+export const syncPublicProfile = onDocumentWritten("users/{uid}", async (event) => {
+	const uid = event.params.uid;
+	const after = event.data?.after;
+	const profileRef = db.collection("publicProfiles").doc(uid);
+
+	if (!after?.exists) {
+		await profileRef.delete();
+		return;
+	}
+
+	const data = after.data() || {};
+	await profileRef.set({
+		displayName: typeof data.displayName === "string" && data.displayName.trim() ?
+			data.displayName.trim() :
+			"Utilisateur",
+		photoURL: typeof data.photoURL === "string" ? data.photoURL : null,
+		updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 	});
 });

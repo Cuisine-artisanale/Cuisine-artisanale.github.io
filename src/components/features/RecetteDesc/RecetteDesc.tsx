@@ -139,7 +139,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId }) => 
 		const fetchCreatorInfo = async () => {
 			if (!recette?.createdBy) return;
 			try {
-				const creatorRef = doc(db, "users", recette.createdBy);
+				const creatorRef = doc(db, "publicProfiles", recette.createdBy);
 				const creatorSnap = await getDoc(creatorRef);
 				if (creatorSnap.exists()) {
 					setCreatorInfo(creatorSnap.data());

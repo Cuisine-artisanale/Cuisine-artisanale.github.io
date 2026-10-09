@@ -442,7 +442,8 @@ const AddRecetteForm: React.FC = () => {
 	const safeFolder = folderName.trim() || 'sans-titre';
 
 	for (const image of files) {
-	  const storageRef = ref(storage, `recipes/${safeFolder}/${image.name}`);
+	  // Préfixe horodaté : évite d'écraser l'image d'une autre recette portant le même nom
+	  const storageRef = ref(storage, `recipes/${safeFolder}/${Date.now()}_${image.name}`);
 	  const uploadTask = uploadBytesResumable(storageRef, image);
 
 	  await new Promise<void>((resolve, reject) => {

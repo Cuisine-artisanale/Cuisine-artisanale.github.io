@@ -22,7 +22,7 @@ export const toggleLikeRecipes = async (recetteId: string, userId: string) => {
 	}
 
 	const userData = userSnap.data();
-	const userName = userData.displayName || userData.email || "Anonyme";
+	const userName = userData.displayName || "Anonyme"; // jamais l'email : les likes sont publics
 
 	// Créer un ID unique pour le like basé sur userId et recetteId
 	const likeId = `${userId}_${recetteId}`;
