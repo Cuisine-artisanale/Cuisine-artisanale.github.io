@@ -1,0 +1,349 @@
+/* Mode cuisine : plein écran, une étape à la fois, lisible à distance */
+
+.cooking-mode {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-ground);
+  color: var(--text-color);
+  /* Encoches et barres système des téléphones */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  outline: none;
+  overscroll-behavior: contain;
+}
+
+.cooking-mode-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.cooking-mode-heading {
+  min-width: 0;
+}
+
+.cooking-mode-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cooking-mode-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+}
+
+.cooking-mode-awake .pi {
+  font-size: 0.8rem;
+}
+
+.cooking-mode-icon-button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-card);
+  box-shadow: inset 0 0 0 1px var(--surface-border);
+  color: var(--text-color);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.cooking-mode-progress {
+  height: 6px;
+  margin: 0 1rem;
+  border-radius: 3px;
+  background: var(--surface-border);
+  overflow: hidden;
+}
+
+.cooking-mode-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--primary-color);
+  transition: width 0.25s ease;
+}
+
+.cooking-mode-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem;
+  /* Le balayage horizontal change d'étape, le vertical fait défiler */
+  touch-action: pan-y;
+}
+
+.cooking-mode-counter {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-color-secondary);
+}
+
+.cooking-mode-part {
+  font-weight: 500;
+}
+
+.cooking-mode-step {
+  margin: 0;
+  font-size: clamp(1.5rem, 1rem + 2.6vw, 2.75rem);
+  line-height: 1.35;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.cooking-mode-done {
+  margin: 1.5rem 0 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.cooking-mode-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 1rem;
+  width: 100%;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+.cooking-mode-nav {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3.5rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: var(--border-radius, 8px);
+  background: var(--surface-card);
+  box-shadow: inset 0 0 0 1px var(--surface-border);
+  color: var(--text-color);
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cooking-mode-nav:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.cooking-mode-nav-primary {
+  flex: 1.4;
+  background: var(--primary-color);
+  box-shadow: none;
+  color: var(--text-color-inverted, #fff);
+}
+
+/* Le site applique des styles globaux aux boutons, icônes et champs (index.css, mobile.css),
+   parfois en !important : on les neutralise ici pour garder la mise en page du mode cuisine. */
+.cooking-mode button > i {
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.cooking-mode-nav:hover:not(:disabled),
+.cooking-mode-icon-button:hover {
+  background: var(--surface-hover) !important;
+  color: var(--text-color);
+}
+
+.cooking-mode-nav-primary:hover:not(:disabled) {
+  background: var(--primary-600, var(--primary-color)) !important;
+  color: var(--text-color-inverted, #fff);
+}
+
+.cooking-mode-nav:focus-visible,
+.cooking-mode-icon-button:focus-visible {
+  outline: 3px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+/* ---- Liste des ingrédients (panneau) ---- */
+
+.cooking-mode-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.cooking-mode-sheet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 40rem;
+  max-height: 85%;
+  border-radius: 16px 16px 0 0;
+  background: var(--surface-card);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.cooking-mode-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.cooking-mode-sheet-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.cooking-mode-sheet-content {
+  overflow-y: auto;
+  padding: 0.5rem 1rem 1rem;
+}
+
+.cooking-mode-sheet-part h3 {
+  margin: 1rem 0 0.25rem;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.cooking-mode-sheet-part ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cooking-mode-sheet-part label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--surface-border);
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+
+/* Case à cocher dessinée ici : les styles globaux des champs (mobile.css) déforment la case native */
+.cooking-mode-sheet-part input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  box-sizing: border-box;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0;
+  padding: 0 !important;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+  background: var(--surface-card) center / 70% no-repeat;
+  cursor: pointer;
+}
+
+.cooking-mode-sheet-part input[type="checkbox"]:checked {
+  background-color: var(--primary-color);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.cooking-mode-ingredient-name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.cooking-mode-ingredient-amount {
+  flex: none;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.cooking-mode-sheet-part label.is-checked .cooking-mode-ingredient-name,
+.cooking-mode-sheet-part label.is-checked .cooking-mode-ingredient-amount {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+/* Écrans larges : le panneau d'ingrédients est centré */
+@media (min-width: 768px) {
+  .cooking-mode-sheet-backdrop {
+    align-items: center;
+  }
+
+  .cooking-mode-sheet {
+    border-radius: 16px;
+  }
+}
+
+/* Téléphones étroits : libellés des boutons secondaires masqués */
+@media (max-width: 420px) {
+  .cooking-mode-nav-secondary span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .cooking-mode-nav-secondary {
+    flex: 0 0 3.5rem;
+  }
+}
+
+/* Téléphone à l'horizontale : moins de hauteur disponible */
+@media (max-height: 480px) {
+  .cooking-mode-header {
+    padding: 0.4rem 1rem;
+  }
+
+  .cooking-mode-body {
+    padding: 0.75rem 1.25rem;
+    justify-content: flex-start;
+  }
+
+  .cooking-mode-step {
+    font-size: clamp(1.25rem, 1rem + 1.6vw, 2rem);
+  }
+
+  .cooking-mode-nav {
+    min-height: 2.75rem;
+  }
+
+  .cooking-mode-footer {
+    padding: 0.4rem 1rem 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cooking-mode-progress-bar {
+    transition: none;
+  }
+}

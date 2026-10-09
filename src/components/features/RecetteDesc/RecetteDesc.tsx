@@ -9,6 +9,7 @@ import { isOptimizableImage } from '@/lib/utils/image';
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { formatAmount, type UnitDef } from '@/lib/utils/units';
 import { useUnits } from '@/hooks/useUnits';
@@ -33,6 +34,9 @@ function formatReviewDate(iso?: string): string {
 	if (Number.isNaN(date.getTime())) return '';
 	return date.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Paris' });
 }
+
+// Chargé uniquement à l'ouverture du mode cuisine
+const CookingMode = dynamic(() => import('@/components/features/CookingMode/CookingMode'), { ssr: false });
 
 interface RecetteDescProps {
 	/** Recette chargée côté serveur (premier rendu complet, SEO) */
@@ -111,6 +115,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 		? `${servings ?? baseServings} personne${(servings ?? baseServings) > 1 ? 's' : ''}`
 		: `×${multiplier.toLocaleString('fr-FR')}`;
 	const [checkingToDo, setCheckingToDo] = useState(false);
+	const [cookingMode, setCookingMode] = useState(false);
+	const hasSteps = Boolean(recette?.recipeParts.some((p) => p.steps.some((s) => s && s.trim())));
 
 
 	// Vérifier si la recette est dans "à faire"
@@ -794,6 +800,17 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 					)}
 				</div>
 				)}
+				{hasSteps && (
+				<div className="recette-desc-cooking">
+					<Button
+						label="Mode cuisine"
+						icon="pi pi-play"
+						className="recette-desc-cooking-button"
+						onClick={() => setCookingMode(true)}
+					/>
+					<span className="recette-desc-cooking-hint">Les étapes en grand, une par une, écran toujours allumé</span>
+				</div>
+				)}
 				{recette?.recipeParts.map((part, index) => (
 				<div key={index} className="recette-desc-part">
 					<h2>{part.title}</h2>
@@ -935,6 +952,19 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				)}
 			</div>
 		</div>
+
+		{cookingMode && recette && (
+			<CookingMode
+				title={recette.title}
+				servingsLabel={baseServings || factor !== 1 ? servingsLabel : undefined}
+				parts={recette.recipeParts.map((part) => ({
+					title: part.title,
+					steps: part.steps,
+					ingredients: part.ingredients.map((ing) => ({ name: ing.name, amount: amount(ing).text })),
+				}))}
+				onClose={() => setCookingMode(false)}
+			/>
+		)}
 
 		{/* Modal pour ajouter les ingrédients à la liste de course */}
 		<Dialog
