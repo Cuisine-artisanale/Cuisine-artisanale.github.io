@@ -5,7 +5,8 @@
  * les performances et permettre un fonctionnement offline basique
  */
 
-const CACHE_VERSION = 'v1';
+// Changer la version purge l'ancien cache à l'activation
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `cuisine-artisanale-${CACHE_VERSION}`;
 
 // Fichiers à mettre en cache au premier chargement
@@ -63,6 +64,12 @@ self.addEventListener('fetch', (event) => {
 	return;
   }
 
+  // Jamais de cache pour les API, les données de navigation (RSC) et les images redimensionnées :
+  // réponses personnelles ou très nombreuses, qui feraient grossir le cache sans limite
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/image') || url.searchParams.has('_rsc')) {
+	return;
+  }
+
   event.respondWith(
 	fetch(request)
 	  .then((response) => {
@@ -84,7 +91,7 @@ self.addEventListener('fetch', (event) => {
 		  }
 
 		  // Si pas de cache et requête HTML, retourner la page offline
-		  if (request.headers.get('accept').includes('text/html')) {
+		  if ((request.headers.get('accept') || '').includes('text/html')) {
 			return caches.match('/');
 		  }
 		});

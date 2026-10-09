@@ -237,8 +237,7 @@ export const getPersonalizedRecommendations = async (userId: string, limit_count
 	const allRecipesSnapshot = await getDocs(query(recipesRef));
 
 	// Scorer les recettes basé sur les types et départements aimés
-	const scoredRecipes = await Promise.all(
-	  allRecipesSnapshot.docs.map(async (recipeDoc) => {
+	const scoredRecipes = allRecipesSnapshot.docs.map((recipeDoc) => {
 		const recipeData = recipeDoc.data();
 		let score = 0;
 
@@ -248,17 +247,15 @@ export const getPersonalizedRecommendations = async (userId: string, limit_count
 		// +1 point si le département est aimé
 		if (likedDepartments.has(recipeData.position)) score += 1;
 
-		// +1 point par like
-		const likesCount = await countRecipeLikes(recipeDoc.id);
-		score += likesCount * 0.5;
+		// +0,5 point par like (compteur stocké sur la recette, pas de requête par recette)
+		score += (Number(recipeData.likesCount) || 0) * 0.5;
 
 		return {
 		  id: recipeDoc.id,
 		  ...recipeData,
 		  score
 		};
-	  })
-	);
+	});
 
 	// Filtrer les recettes déjà aimées, trier par score et limiter
 	return scoredRecipes

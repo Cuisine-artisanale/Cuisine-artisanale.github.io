@@ -7,17 +7,14 @@ import { SkeletonLoader } from '@/components/ui/SkeletonLoader/SkeletonLoader';
 import Image from 'next/image';
 import { isOptimizableImage } from '@/lib/utils/image';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { formatAmount, type UnitDef } from '@/lib/utils/units';
 import { useUnits } from '@/hooks/useUnits';
-import { mergeIngredientDetails } from '@/lib/utils/recipe-ingredients';
-import { doc, getDoc, deleteDoc, onSnapshot, query, where, collection, orderBy, serverTimestamp, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/config/firebase';
+import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { Button } from 'primereact/button';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import { toggleLikeRecipes, unlikeRecipes, getSimilarRecipes } from '@/lib/services/recipe.service';
 import { confirmDialog, ConfirmDialog } from 'primereact/confirmdialog';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
@@ -25,46 +22,57 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { shareRecipe } from '@/lib/services/share.service';
 import { exportRecipePDF, printRecipe } from '@/lib/services/export.service';
 import type { Recipe, Ingredient } from '@/types';
-import {
-  addRecipeToDo,
-  isRecipeInToDo,
-  removeRecipeToDo,
-  addIngredientsToShoppingList
-} from '@/lib/services/shopping.service';
+import type { RecipeReview, SimilarRecipe } from '@/lib/server/recipes';
 import { Dialog } from 'primereact/dialog';
 import { Checkbox } from 'primereact/checkbox';
 
+/** Date d'un avis, au même format sur le serveur et dans le navigateur (pas d'écart à l'hydratation). */
+function formatReviewDate(iso?: string): string {
+	if (!iso) return '';
+	const date = new Date(iso);
+	if (Number.isNaN(date.getTime())) return '';
+	return date.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Paris' });
+}
+
 interface RecetteDescProps {
-	recipeId?: string;
-	/** Recette chargée côté serveur : permet un premier rendu complet (SEO) */
+	/** Recette chargée côté serveur (premier rendu complet, SEO) */
 	initialRecipe?: Recipe;
 	/** Catalogue d'unités chargé côté serveur */
 	initialUnits?: UnitDef[];
+	/** Pseudo public de l'auteur */
+	authorName?: string | null;
+	/** Compteur de likes stocké sur la recette */
+	initialLikesCount?: number;
+	initialReviews?: RecipeReview[];
+	similarRecipes?: SimilarRecipe[];
 }
 
-const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initialRecipe, initialUnits }) => {
-	const [id, setId] = useState<string | null>(initialRecipe?.id ?? null);
-	const searchParams = useSearchParams();
-	const queryRecipeId = searchParams?.get('id');
-	const recipeId = propRecipeId || queryRecipeId;
+const RecetteDesc: React.FC<RecetteDescProps> = ({
+	initialRecipe,
+	initialUnits,
+	authorName = null,
+	initialLikesCount = 0,
+	initialReviews = [],
+	similarRecipes = [],
+}) => {
+	// Toutes les données d'affichage viennent du serveur : aucun appel Firestore au chargement
+	// pour un visiteur anonyme (le SDK n'est téléchargé qu'à la connexion ou à la première action).
+	const recette: Recipe | null = initialRecipe ?? null;
+	const id = recette?.id ?? null;
 	const router = useRouter();
 	const {role, user} = useAuth();
 	const { showToast } = useToast();
-	const [likesCount, setLikesCount] = useState<number>(0);
+	const [likesCount, setLikesCount] = useState<number>(initialLikesCount);
 	const [hasLiked, setHasLiked] = useState<boolean>(false);
 	const userId = user?.uid;
-	const [recette, setRecette] = React.useState<Recipe | null>(initialRecipe ?? null);
 	const departements = DEPARTEMENT_NAMES;
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-	const [reviews, setReviews] = useState<any[]>([]);
+	const [reviews, setReviews] = useState<RecipeReview[]>(initialReviews);
 	const [newReview, setNewReview] = useState('');
 	const [newRating, setNewRating] = useState<number | null>(null);
-	const [similarRecipes, setSimilarRecipes] = useState<any[]>([]);
-	const [loadingSimilar, setLoadingSimilar] = useState(false);
 	const [isExporting, setIsExporting] = useState(false);
-	const [creatorInfo, setCreatorInfo] = useState<any>(null);
 	const [isInToDo, setIsInToDo] = useState<boolean>(false);
 	const [showAddIngredientsDialog, setShowAddIngredientsDialog] = useState(false);
 	const [selectedIngredients, setSelectedIngredients] = useState<Set<string>>(new Set());
@@ -105,52 +113,6 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 	const [checkingToDo, setCheckingToDo] = useState(false);
 
 
-	const getRecetteById = async (docId: string) => {
-		try {
-			const recetteRef = doc(db, "recipes", docId);
-			const recetteSnap = await getDoc(recetteRef);
-
-			if (!recetteSnap.exists()) {
-				console.log("Pas de recette trouvée avec cet ID");
-				return;
-			}
-
-			const recetteData = recetteSnap.data() as Recipe;
-			setId(docId);
-
-			// Noms à jour depuis la fiche ingrédient ; unité choisie dans la recette ;
-			// les ingrédients sans fiche (imports TikTok) restent affichés
-			const updatedRecipeParts = await Promise.all(
-				recetteData.recipeParts.map(async (part) => {
-					const ingredientsDetails = await Promise.all(
-						part.ingredients.map(async (ingredient) => {
-							let reference: { name?: string; unit?: string } | null = null;
-							if (ingredient.id && !ingredient.id.includes('/')) {
-								const ingredientSnap = await getDoc(doc(db, 'ingredients', ingredient.id)).catch(() => null);
-								if (ingredientSnap?.exists()) reference = ingredientSnap.data() as { name?: string; unit?: string };
-							}
-							return mergeIngredientDetails(ingredient, reference);
-						})
-					);
-					return {
-						...part,
-						ingredients: ingredientsDetails.filter((ing): ing is Ingredient => ing !== null)
-					};
-				})
-			);
-
-			setRecette({ ...recetteData, recipeParts: updatedRecipeParts });
-		} catch (error) {
-			console.error("Erreur lors de la récupération de la recette :", error);
-		}
-	};
-
-	useEffect(() => {
-		if (recipeId){
-			getRecetteById(recipeId);
-		}
-	}, [recipeId]);
-
 	// Vérifier si la recette est dans "à faire"
 	useEffect(() => {
 		const checkRecipeInToDo = async () => {
@@ -159,6 +121,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 				return;
 			}
 			try {
+				const { isRecipeInToDo } = await import('@/lib/services/shopping.service');
 				const inToDo = await isRecipeInToDo(userId, id);
 				setIsInToDo(inToDo);
 			} catch (error) {
@@ -168,43 +131,25 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 		checkRecipeInToDo();
 	}, [userId, id]);
 
+
+	// Le nombre de likes vient du serveur (compteur de la recette). Firestore n'est chargé
+	// que pour un utilisateur connecté, afin de savoir s'il a déjà aimé la recette.
 	useEffect(() => {
-		const fetchCreatorInfo = async () => {
-			if (!recette?.createdBy) return;
+		if (!id || !userId) {
+			setHasLiked(false);
+			return;
+		}
+		let cancelled = false;
+		(async () => {
 			try {
-				const creatorRef = doc(db, "publicProfiles", recette.createdBy);
-				const creatorSnap = await getDoc(creatorRef);
-				if (creatorSnap.exists()) {
-					setCreatorInfo(creatorSnap.data());
-				}
+				const { db, doc, getDoc } = await loadFirestore();
+				const likeSnap = await getDoc(doc(db, 'likes', `${userId}_${id}`));
+				if (!cancelled) setHasLiked(likeSnap.exists());
 			} catch (error) {
-				console.error("Error fetching creator info:", error);
+				console.error('Erreur lors de la lecture du like :', error);
 			}
-		};
-		fetchCreatorInfo();
-	}, [recette?.createdBy]);
-
-
-	useEffect(() => {
-		if (!id) return;
-
-		// Écouter les changements dans la collection likes pour cette recette
-		const likesRef = collection(db, "likes");
-		const q = query(likesRef, where("recetteId", "==", id));
-
-		const unsubscribe = onSnapshot(q, (snapshot) => {
-			setLikesCount(snapshot.size);
-
-			// Vérifier si l'utilisateur actuel a liké
-			if (userId) {
-				const userLiked = snapshot.docs.some(doc => doc.data().userId === userId);
-				setHasLiked(userLiked);
-			} else {
-				setHasLiked(false);
-			}
-		});
-
-		return () => unsubscribe();
+		})();
+		return () => { cancelled = true; };
 	}, [id, userId]);
 
 	useEffect(() => {
@@ -224,41 +169,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 
 	// Les données structurées (JSON-LD) sont générées côté serveur dans app/recettes/[slug]/page.tsx
 
-	useEffect(() => {
-		if (!id) return;
 
-		const reviewsRef = collection(db, "reviews");
-		const q = query(reviewsRef, where("recipeId", "==", id), orderBy("createdAt", "desc"));
-
-		const unsubscribe = onSnapshot(q, (snapshot) => {
-			const fetchedReviews = snapshot.docs.map(doc => ({
-			id: doc.id,
-			...doc.data()
-			}));
-			setReviews(fetchedReviews);
-		});
-
-		return () => unsubscribe();
-	}, [id]);
-
-	// Charger les recettes similaires
-	useEffect(() => {
-		const loadSimilarRecipes = async () => {
-			if (!id) return;
-			setLoadingSimilar(true);
-			try {
-				const similar = await getSimilarRecipes(id, 3);
-				setSimilarRecipes(similar);
-			} catch (error) {
-				console.error("Erreur lors du chargement des recettes similaires:", error);
-				setSimilarRecipes([]);
-			} finally {
-				setLoadingSimilar(false);
-			}
-		};
-
-		loadSimilarRecipes();
-	}, [id]);
 
 
 	const handleImageClick = (index: number) => {
@@ -271,6 +182,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 	const handleDelete = async () => {
 		if (!id) return;
 		try {
+			const { db, doc, deleteDoc } = await loadFirestore();
 			await deleteDoc(doc(db, "recipes", id));
 			showToast({
 				severity: 'success',
@@ -316,10 +228,15 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 			return;
 		}
 		try {
+			const { toggleLikeRecipes, unlikeRecipes } = await import('@/lib/services/recipe.service');
 			if (hasLiked) {
 				await unlikeRecipes(id, userId);
+				setHasLiked(false);
+				setLikesCount((count) => Math.max(0, count - 1));
 			} else {
 				await toggleLikeRecipes(id, userId);
+				setHasLiked(true);
+				setLikesCount((count) => count + 1);
 			}
 		} catch (error) {
 			console.error("Erreur lors du like:", error);
@@ -469,6 +386,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 
 		setCheckingToDo(true);
 		try {
+			const { addRecipeToDo } = await import('@/lib/services/shopping.service');
 			await addRecipeToDo(user.uid, { ...recette, id });
 			setIsInToDo(true);
 
@@ -505,6 +423,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 		if (!user || !id) return;
 
 		try {
+			const { removeRecipeToDo } = await import('@/lib/services/shopping.service');
 			await removeRecipeToDo(user.uid, id);
 			setIsInToDo(false);
 			showToast({
@@ -557,6 +476,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 				return;
 			}
 
+			const { addIngredientsToShoppingList } = await import('@/lib/services/shopping.service');
 			await addIngredientsToShoppingList(
 				user.uid,
 				allIngredients,
@@ -602,14 +522,22 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 		try {
 			// Un avis par personne et par recette : l'id est imposé par les règles Firestore.
 			// Envoyer un nouvel avis remplace le précédent.
-			await setDoc(doc(db, "reviews", `${userId}_${id}`), {
+			const { db, doc, setDoc, serverTimestamp } = await loadFirestore();
+			const reviewId = `${userId}_${id}`;
+			const review = {
 				recipeId: id,
 				userId,
 				userName: user?.displayName || "Utilisateur",
 				message: newReview.trim(),
 				rating: newRating,
-				createdAt: serverTimestamp(),
-			});
+			};
+			await setDoc(doc(db, "reviews", reviewId), { ...review, createdAt: serverTimestamp() });
+
+			// Affichage immédiat : l'avis remplace l'éventuel avis précédent de l'utilisateur
+			setReviews((prev) => [
+				{ id: reviewId, ...review, createdAt: new Date().toISOString() },
+				...prev.filter((r) => r.id !== reviewId),
+			]);
 
 			setNewReview('');
 			setNewRating(null);
@@ -632,6 +560,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 
 	const deleteReview = async (id: string) => {
 		try {
+			const { db, doc, deleteDoc } = await loadFirestore();
 			await deleteDoc(doc(db, "reviews", id));
 			setReviews((prev) => prev.filter((review) => review.id !== id));
 
@@ -669,6 +598,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 					/>
 					<Button
 						icon={hasLiked ? 'pi pi-heart-fill' : 'pi pi-heart'}
+						label={likesCount > 0 ? String(likesCount) : undefined}
+						aria-label={hasLiked ? 'Ne plus aimer cette recette' : 'Aimer cette recette'}
 						onClick={handleLike}
 						className="p-button-text"
 						severity={hasLiked ? 'danger' : 'info'}
@@ -730,11 +661,11 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 					<h1 className="recette-desc-title">{recette.title}</h1>
 
 					{/* Creator Info */}
-					{recette.createdBy && creatorInfo && (
+					{recette.createdBy && authorName && (
 						<div className="recette-creator-info">
 							<p>
 								Créée par <a href={`/profil?id=${recette.createdBy}`} className="creator-link">
-									{creatorInfo.displayName || "Utilisateur"}
+									{authorName}
 								</a>
 							</p>
 						</div>
@@ -955,7 +886,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 											)}
 										</div>
 										<p className="review-message">{r.message}</p>
-										<small className="review-date">{r.createdAt?.toDate?.().toLocaleString?.() || ''}</small>
+										<small className="review-date">{formatReviewDate(r.createdAt)}</small>
 									</li>
 								))}
 							</ul>
@@ -967,9 +898,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 			{/* Section Recettes similaires */}
 			<div className="recette-similar-section">
 				<h2>Recettes similaires</h2>
-				{loadingSimilar ? (
-					<p className="loading">Chargement des recettes similaires...</p>
-				) : similarRecipes.length === 0 ? (
+				{similarRecipes.length === 0 ? (
 					<p className="no-similar">Pas d'autres recettes similaires disponibles</p>
 				) : (
 					<div className="similar-recipes-grid">
@@ -978,10 +907,6 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 								key={recipe.id}
 								href={getRecipeUrl(recipe)}
 								className="similar-recipe-card"
-								onClick={() => {
-									setId(recipe.id);
-									window.scrollTo(0, 0);
-								}}
 							>
 								{recipe.images && recipe.images.length > 0 && (
 									<Image

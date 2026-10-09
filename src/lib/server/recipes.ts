@@ -2,6 +2,7 @@ import { cache } from 'react';
 import type { Recipe, RecipePart } from '@/types';
 import { getFirebaseAdminDb } from '@/lib/config/firebase-admin';
 import { mergeIngredientDetails } from '@/lib/utils/recipe-ingredients';
+import { getRecipeStats } from '@/lib/utils/recipe-stats';
 import { buildUnitIndex, formatAmount, type UnitDef } from '@/lib/utils/units';
 
 export const SITE_URL = 'https://www.cuisine-artisanale.fr';
@@ -11,11 +12,41 @@ export interface RecipeRating {
   count: number;
 }
 
+/** Avis affiché sur la fiche recette (sérialisable). */
+export interface RecipeReview {
+  id: string;
+  userId: string;
+  userName: string;
+  message: string;
+  rating: number;
+  /** Date ISO */
+  createdAt?: string;
+}
+
+/** Carte « recette similaire » (sérialisable). */
+export interface SimilarRecipe {
+  id: string;
+  title: string;
+  type: string;
+  url?: string;
+  images: string[];
+  cookingTime?: number;
+}
+
 export interface ServerRecipe {
   recipe: Recipe;
   authorName: string | null;
   rating: RecipeRating | null;
+  /** Compteur stocké sur la recette (Cloud Function syncRecipeLikesCount) */
+  likesCount: number;
+  /** Avis les plus récents d'abord */
+  reviews: RecipeReview[];
+  similar: SimilarRecipe[];
 }
+
+/** Nombre maximum d'avis envoyés au navigateur */
+const MAX_REVIEWS = 100;
+const SIMILAR_COUNT = 3;
 
 /** Convertit un Timestamp Firestore (ou une date) en chaîne ISO sérialisable. */
 function toIsoDate(value: unknown): string | undefined {
@@ -86,18 +117,55 @@ export const getRecipeBySlug = cache(async (slug: string): Promise<ServerRecipe 
     difficulty: data.difficulty || undefined,
   };
 
-  const [authorSnap, reviewsSnap] = await Promise.all([
+  const [authorSnap, reviewsSnap, similarSnap] = await Promise.all([
     recipe.createdBy ? db.collection('publicProfiles').doc(recipe.createdBy).get() : Promise.resolve(null),
     db.collection('reviews').where('recipeId', '==', snap.id).get(),
+    // Même type et même département (une de plus, au cas où la recette courante en fait partie)
+    db.collection('recipes')
+      .where('type', '==', data.type || '')
+      .where('position', '==', data.position || '')
+      .select('title', 'type', 'url', 'images', 'cookingTime')
+      .limit(SIMILAR_COUNT + 1)
+      .get(),
   ]);
 
-  const ratings = reviewsSnap.docs
-    .map((d) => Number(d.data().rating))
-    .filter((r) => r >= 1 && r <= 5);
+  const reviews: RecipeReview[] = reviewsSnap.docs
+    .map((d) => {
+      const r = d.data();
+      return {
+        id: d.id,
+        userId: String(r.userId || ''),
+        userName: String(r.userName || 'Utilisateur'),
+        message: String(r.message || ''),
+        rating: Number(r.rating) || 0,
+        createdAt: toIsoDate(r.createdAt),
+      };
+    })
+    .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+  const ratings = reviews.map((r) => r.rating).filter((r) => r >= 1 && r <= 5);
+
+  const similar: SimilarRecipe[] = similarSnap.docs
+    .filter((d) => d.id !== snap.id)
+    .slice(0, SIMILAR_COUNT)
+    .map((d) => {
+      const s = d.data();
+      return {
+        id: d.id,
+        title: s.title || '',
+        type: s.type || '',
+        url: s.url || undefined,
+        images: Array.isArray(s.images) ? s.images.filter((i: unknown) => typeof i === 'string') : [],
+        cookingTime: Number(s.cookingTime) || undefined,
+      };
+    });
 
   return {
     recipe,
     authorName: authorSnap?.exists ? (authorSnap.data()?.displayName as string) || null : null,
+    likesCount: getRecipeStats(data).likesCount,
+    reviews: reviews.slice(0, MAX_REVIEWS),
+    similar,
     rating: ratings.length
       ? { average: Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10, count: ratings.length }
       : null,

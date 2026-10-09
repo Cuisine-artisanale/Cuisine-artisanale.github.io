@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import RecetteDesc from '@/components/features/RecetteDesc/RecetteDesc';
@@ -96,9 +95,15 @@ export default async function RecipePage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <Breadcrumb customRoutes={{ [slug]: recipe.title }} />
-      <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Chargement...</div>}>
-        <RecetteDesc recipeId={recipe.id} initialRecipe={recipe} initialUnits={units} />
-      </Suspense>
+      <RecetteDesc
+        key={recipe.id}
+        initialRecipe={recipe}
+        initialUnits={units}
+        authorName={data.authorName}
+        initialLikesCount={data.likesCount}
+        initialReviews={data.reviews}
+        similarRecipes={data.similar}
+      />
     </div>
   );
 }
