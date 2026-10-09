@@ -5,6 +5,17 @@ import { SITE_URL } from '@/lib/server/recipes';
 // Régénéré au plus toutes les heures : les nouvelles recettes y apparaissent sans redéploiement
 export const revalidate = 3600;
 
+// Next.js n'échappe pas les URL dans le XML du sitemap : les URL Firebase Storage
+// contiennent des "&" (…?alt=media&token=…) qui rendraient le fichier invalide.
+function xmlEscape(value: string): string {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;');
+}
+
 function toDate(value: unknown): Date | undefined {
 	if (!value) return undefined;
 	if (value instanceof Date) return value;
@@ -31,9 +42,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 		recipeRoutes = snapshot.docs.map((doc) => {
 			const recipe = doc.data();
-			const images: string[] = Array.isArray(recipe.images) ? recipe.images.slice(0, 3) : [];
+			const images: string[] = Array.isArray(recipe.images)
+				? recipe.images.filter((img: unknown) => typeof img === 'string' && img).slice(0, 3).map(xmlEscape)
+				: [];
 			return {
-				url: `${SITE_URL}/recettes/${recipe.url || doc.id}`,
+				url: xmlEscape(`${SITE_URL}/recettes/${encodeURIComponent(recipe.url || doc.id)}`),
 				lastModified: toDate(recipe.updatedAt) || toDate(recipe.createdAt),
 				changeFrequency: 'monthly' as const,
 				priority: 0.8,
