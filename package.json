@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "backfill:public-profiles": "node scripts/backfill-public-profiles.mjs"
+    "backfill:public-profiles": "node scripts/backfill-public-profiles.mjs",
+    "backfill:recipe-counters": "node scripts/backfill-recipe-counters.mjs"
   },
   "dependencies": {
     "firebase": "^11.3.0",

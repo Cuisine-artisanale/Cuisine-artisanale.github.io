@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { getRecipeStats, type RecipeStats } from '@/lib/utils/recipe-stats';
 import { DEPARTEMENT_NAMES } from '@/constants/departements';
 import './RecettesClient.css';
 import Filtre from '@/components/features/Filtre/Filtre';
@@ -19,6 +20,7 @@ interface RecetteData {
 	images?: string[];
 	position: string;
 	url?: string;
+	stats?: RecipeStats;
 	score?: number;
 }
 
@@ -136,6 +138,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 								recetteId: doc.id,
 								images: data.images ?? [],
 								url: data.url,
+								stats: getRecipeStats(data),
 							});
 						});
 					}
@@ -157,6 +160,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 								recetteId: doc.id,
 								images: data.images ?? [],
 								url: data.url,
+								stats: getRecipeStats(data),
 							});
 						});
 					}
@@ -179,6 +183,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 							recetteId: doc.id,
 							images: data.images ?? [],
 							url: data.url,
+								stats: getRecipeStats(data),
 						});
 					});
 				}
@@ -241,6 +246,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 						recetteId: doc.id,
 						images: data.images ?? [],
 						url: data.url,
+								stats: getRecipeStats(data),
 					});
 				});
 
@@ -324,6 +330,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 						key={recette.recetteId}
 						recetteId={recette.recetteId}
 						url={recette.url}
+						stats={recette.stats}
 						title={recette.title}
 						type={recette.type}
 						images={recette.images}

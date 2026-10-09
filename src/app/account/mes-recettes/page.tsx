@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
+import { getRecipeStats, type RecipeStats } from '@/lib/utils/recipe-stats';
 import './mes-recettes.css';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
@@ -10,6 +11,8 @@ import RequireEmailVerification from '@/components/ui/RequireEmailVerification/R
 
 interface RecetteInterface {
   recetteId: string;
+  url?: string;
+  stats?: RecipeStats;
   title: string;
   type: string;
   images?: string[];
@@ -66,6 +69,8 @@ export default function MesRecettesPage() {
           position: data.position,
           recetteId: doc.id,
           images: data.images,
+          url: data.url,
+          stats: getRecipeStats(data),
           createdAt: data.createdAt?.toDate(),
         } as RecetteInterface;
       });
@@ -151,6 +156,8 @@ export default function MesRecettesPage() {
                   type={recette.type}
                   images={recette.images}
                   position={recette.position}
+                  url={recette.url}
+                  stats={recette.stats}
                 />
               ))}
             </div>

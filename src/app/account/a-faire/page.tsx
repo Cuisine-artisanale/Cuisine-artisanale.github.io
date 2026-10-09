@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
+import { getRecipeStats, type RecipeStats } from '@/lib/utils/recipe-stats';
 import './a-faire.css';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
@@ -12,6 +13,7 @@ import type { Recipe } from '@/types';
 
 interface RecetteToDoInterface {
   recetteId: string;
+  stats?: RecipeStats;
   title: string;
   type: string;
   images?: string[];
@@ -65,6 +67,7 @@ export default function AFairePage() {
               title: recipeData.title,
               type: recipeData.type,
               images: recipeData.images,
+              stats: getRecipeStats(recipeData as unknown as Record<string, unknown>),
               position: recipeData.position,
               url: recipeData.url,
               addedAt: item.addedAt?.toDate ? item.addedAt.toDate() : item.addedAt
@@ -166,6 +169,8 @@ export default function AFairePage() {
                   type={recette.type}
                   images={recette.images}
                   position={recette.position}
+                  url={recette.url}
+                  stats={recette.stats}
                 />
                 {recette.addedAt && (
                   <div className="recipe-added-date">

@@ -1,5 +1,5 @@
 import { db } from "@/lib/config/firebase";
-import { doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp, orderBy, limit } from "firebase/firestore";
 
 export const toggleLikeRecipes = async (recetteId: string, userId: string) => {
   try {
@@ -168,7 +168,13 @@ export const getSimilarRecipes = async (recetteId: string, limit_count: number =
  */
 export const getTrendingRecipes = async (limit_count: number = 5) => {
   try {
-	// Une seule lecture des likes (au lieu d'une requête par recette), puis lecture des recettes gagnantes
+	// Compteur likesCount stocké sur les recettes (maintenu par une Cloud Function)
+	const byCounter = await getDocs(query(collection(db, "recipes"), orderBy("likesCount", "desc"), limit(limit_count)));
+	if (!byCounter.empty) {
+	  return byCounter.docs.map((snap) => ({ id: snap.id, ...snap.data(), likesCount: snap.data().likesCount || 0 }));
+	}
+
+	// Repli : une seule lecture des likes, puis lecture des recettes gagnantes
 	const likesSnapshot = await getDocs(collection(db, "likes"));
 	const counts = new Map<string, number>();
 	likesSnapshot.forEach((like) => {

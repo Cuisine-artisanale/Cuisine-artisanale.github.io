@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './Recette.css';
 import { Button } from 'primereact/button';
 import Link from 'next/link';
@@ -12,8 +12,8 @@ import { addDoc, collection, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
-import { useRecipeLikes } from '@/hooks/useRecipeLikes';
-import { useRecipeReviews } from '@/hooks/useRecipeReviews';
+import { toggleLikeRecipes, unlikeRecipes } from '@/lib/services/recipe.service';
+import type { RecipeStats } from '@/lib/utils/recipe-stats';
 
 interface RecetteProps {
 	recetteId: string;
@@ -24,29 +24,64 @@ interface RecetteProps {
 	position?: string;
 	/** Slug de la recette (champ url) : sans lui, le lien est déduit du titre */
 	url?: string;
+	/** Compteurs lus sur le document recette (aucune requête supplémentaire par carte) */
+	stats?: RecipeStats;
 }
 
-export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromRequest = false, images = [], position = '', url}) => {
+export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromRequest = false, images = [], position = '', url, stats}) => {
 	const { user, role } = useAuth();
 	const { showToast } = useToast();
 	const userId = user?.uid;
 
-	// Utiliser les hooks personnalisés
-	const { likesCount, hasLiked, toggleLike } = useRecipeLikes({
-		recipeId: recetteId,
-		userId: userId || null,
-		onError: (error) => {
+	const [likesCount, setLikesCount] = useState<number>(stats?.likesCount ?? 0);
+	const [hasLiked, setHasLiked] = useState<boolean>(false);
+	const [likePending, setLikePending] = useState(false);
+	const averageRating = stats?.ratingAverage ?? null;
+	const reviewsCount = stats?.ratingCount ?? 0;
+
+	useEffect(() => {
+		setLikesCount(stats?.likesCount ?? 0);
+	}, [stats?.likesCount]);
+
+	// Une seule lecture (document likes/{uid}_{recette}) et seulement si l'utilisateur est connecté
+	useEffect(() => {
+		let cancelled = false;
+		if (!userId || fromRequest) {
+			setHasLiked(false);
+			return;
+		}
+		getDoc(doc(db, 'likes', `${userId}_${recetteId}`))
+			.then((snap) => { if (!cancelled) setHasLiked(snap.exists()); })
+			.catch(() => {});
+		return () => { cancelled = true; };
+	}, [userId, recetteId, fromRequest]);
+
+	const toggleLike = async () => {
+		if (!userId || likePending) return;
+		const wasLiked = hasLiked;
+		// Mise à jour immédiate de l'affichage, annulée en cas d'erreur
+		setHasLiked(!wasLiked);
+		setLikesCount((c) => Math.max(0, c + (wasLiked ? -1 : 1)));
+		setLikePending(true);
+		try {
+			if (wasLiked) {
+				await unlikeRecipes(recetteId, userId);
+			} else {
+				await toggleLikeRecipes(recetteId, userId);
+			}
+		} catch (error) {
+			setHasLiked(wasLiked);
+			setLikesCount((c) => Math.max(0, c + (wasLiked ? 1 : -1)));
 			showToast({
 				severity: 'error',
 				summary: 'Erreur',
 				detail: 'Une erreur est survenue lors du like'
 			});
+			throw error;
+		} finally {
+			setLikePending(false);
 		}
-	});
-
-	const { averageRating, reviewsCount } = useRecipeReviews({
-		recipeId: recetteId
-	});
+	};
 
 	const handleLike = async () => {
 		if (!userId) {
@@ -59,8 +94,8 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 		}
 		try {
 			await toggleLike();
-		} catch (error) {
-			// L'erreur est déjà gérée par le hook via onError
+		} catch {
+			// Erreur déjà signalée par toggleLike
 		}
 	};
 

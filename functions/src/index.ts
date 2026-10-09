@@ -3,6 +3,7 @@ import { onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onDocumentCreated, onDocumentWritten } from "firebase-functions/v2/firestore";
 import { GoogleAuth } from "google-auth-library";
+import { AggregateField } from "firebase-admin/firestore";
 
 import cors from "cors";
 import * as dotenv from "dotenv";
@@ -358,4 +359,49 @@ export const syncPublicProfile = onDocumentWritten("users/{uid}", async (event) 
 		photoURL: typeof data.photoURL === "string" ? data.photoURL : null,
 		updatedAt: admin.firestore.FieldValue.serverTimestamp(),
 	});
+});
+
+// ------------------- Compteurs likes / avis -------------------
+// Chaque recette porte likesCount, ratingCount et ratingAverage, pour que les listes
+// n'aient pas à lire tous les likes et avis. Recalcul par agrégation (idempotent :
+// un événement reçu deux fois ne fausse pas le compteur).
+async function refreshLikesCount(recipeId: string) {
+	const agg = await db.collection("likes").where("recetteId", "==", recipeId).count().get();
+	await db.collection("recipes").doc(recipeId).update({ likesCount: agg.data().count })
+		.catch((error: { code?: number }) => {
+			// Recette supprimée entre-temps : rien à mettre à jour
+			if (error?.code !== 5) throw error;
+		});
+}
+
+async function refreshRatingStats(recipeId: string) {
+	const agg = await db.collection("reviews").where("recipeId", "==", recipeId).aggregate({
+		count: AggregateField.count(),
+		average: AggregateField.average("rating"),
+	}).get();
+	const { count, average } = agg.data();
+	await db.collection("recipes").doc(recipeId).update({
+		ratingCount: count,
+		ratingAverage: count > 0 && typeof average === "number" ? Math.round(average * 10) / 10 : null,
+	}).catch((error: { code?: number }) => {
+		if (error?.code !== 5) throw error;
+	});
+}
+
+export const syncRecipeLikesCount = onDocumentWritten("likes/{likeId}", async (event) => {
+	const ids = new Set<string>();
+	const before = event.data?.before?.data()?.recetteId;
+	const after = event.data?.after?.data()?.recetteId;
+	if (typeof before === "string" && before) ids.add(before);
+	if (typeof after === "string" && after) ids.add(after);
+	await Promise.all([...ids].map(refreshLikesCount));
+});
+
+export const syncRecipeRatingStats = onDocumentWritten("reviews/{reviewId}", async (event) => {
+	const ids = new Set<string>();
+	const before = event.data?.before?.data()?.recipeId;
+	const after = event.data?.after?.data()?.recipeId;
+	if (typeof before === "string" && before) ids.add(before);
+	if (typeof after === "string" && after) ids.add(after);
+	await Promise.all([...ids].map(refreshRatingStats));
 });

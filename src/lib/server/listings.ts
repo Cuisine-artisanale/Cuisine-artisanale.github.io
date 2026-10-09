@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import { FieldPath } from 'firebase-admin/firestore';
 import { getFirebaseAdminDb } from '@/lib/config/firebase-admin';
+import { getRecipeStats, type RecipeStats } from '@/lib/utils/recipe-stats';
 
 /** Données minimales d'une carte recette (sérialisables, passées aux composants client). */
 export interface RecipeCardData {
@@ -12,6 +13,7 @@ export interface RecipeCardData {
   url?: string;
   cookingTime?: number;
   likesCount?: number;
+  stats?: RecipeStats;
 }
 
 export interface RecipesPage {
@@ -32,6 +34,7 @@ function toCard(id: string, data: FirebaseFirestore.DocumentData): RecipeCardDat
     images: Array.isArray(data.images) ? data.images.filter((i: unknown) => typeof i === 'string') : [],
     url: data.url || undefined,
     cookingTime: typeof data.cookingTime === 'number' ? data.cookingTime : Number(data.cookingTime) || undefined,
+    stats: getRecipeStats(data),
   };
 }
 
@@ -55,13 +58,23 @@ async function fetchFirstRecipesPage(): Promise<RecipesPage> {
 }
 
 /**
- * Recettes les plus likées. Une seule lecture de la collection "likes"
- * (au lieu d'une requête par recette côté navigateur), puis lecture des recettes gagnantes.
+ * Recettes les plus likées, via le compteur likesCount stocké sur chaque recette.
+ * Repli (compteurs pas encore calculés) : une lecture de la collection "likes".
  */
 export async function getTrendingRecipes(count = 4): Promise<RecipeCardData[]> {
   const db = getFirebaseAdminDb();
-  const likes = await db.collection('likes').select('recetteId').get();
 
+  const byCounter = await db.collection('recipes').orderBy('likesCount', 'desc').limit(count).get();
+  if (!byCounter.empty) {
+    return byCounter.docs
+      .map((d) => {
+        const card = toCard(d.id, d.data());
+        return { ...card, likesCount: card.stats?.likesCount ?? 0 };
+      })
+      .filter((r) => (r.likesCount ?? 0) > 0);
+  }
+
+  const likes = await db.collection('likes').select('recetteId').get();
   const counts = new Map<string, number>();
   for (const like of likes.docs) {
     const id = like.get('recetteId');

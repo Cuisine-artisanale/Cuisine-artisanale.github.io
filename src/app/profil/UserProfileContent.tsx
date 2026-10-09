@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { getRecipeStats, type RecipeStats } from '@/lib/utils/recipe-stats';
 import './user-profile.css';
 import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
@@ -15,6 +16,8 @@ interface UserData {
 
 interface RecetteInterface {
   recetteId: string;
+  url?: string;
+  stats?: RecipeStats;
   title: string;
   type: string;
   images?: string[];
@@ -119,6 +122,8 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
           position: data.position,
           recetteId: doc.id,
           images: data.images,
+          url: data.url,
+          stats: getRecipeStats(data),
           createdAt: data.createdAt?.toDate(),
         } as RecetteInterface;
       });
@@ -217,6 +222,8 @@ export default function UserProfileContent({ userId }: UserProfileContentProps) 
                   type={recette.type}
                   images={recette.images}
                   position={recette.position}
+                  url={recette.url}
+                  stats={recette.stats}
                 />
               ))}
             </div>

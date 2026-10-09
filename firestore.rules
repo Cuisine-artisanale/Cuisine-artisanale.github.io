@@ -79,8 +79,14 @@ service cloud.firestore {
       // L'import TikTok passe par Firebase Admin côté serveur et n'est pas concerné.
       allow create: if isAdminUser();
 
-      // Mise à jour / suppression par l'auteur ou un admin
-      allow update, delete: if isSignedIn() &&
+      // Mise à jour par l'auteur ou un admin, sans toucher aux compteurs
+      // (likesCount, ratingCount, ratingAverage : maintenus par les Cloud Functions)
+      allow update: if isSignedIn()
+                    && (request.auth.uid == resource.data.createdBy || isAdminUser())
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny(['likesCount', 'ratingCount', 'ratingAverage']);
+
+      allow delete: if isSignedIn() &&
                     (request.auth.uid == resource.data.createdBy || isAdminUser());
     }
 
