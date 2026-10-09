@@ -48,6 +48,7 @@ const AddRecetteForm: React.FC = () => {
   const [type, setType] = useState<number | null>(null);
   const [preparationTime, setPreparationTime] = useState<number | null>(null);
   const [cookingTime, setCookingTime] = useState<number | null>(null);
+  const [servings, setServings] = useState<number | null>(4);
   const [video, setVideo] = useState('');
   const [videoError, setVideoError] = useState('');
   const [tiktokImportUrl, setTiktokImportUrl] = useState('');
@@ -374,6 +375,7 @@ const AddRecetteForm: React.FC = () => {
 		  type: selectedType,
 		  preparationTime,
 		  cookingTime,
+		  ...(servings && servings > 0 ? { servings } : {}),
 		  video,
 		  id: recetteId,
 		  createdAt: new Date(),
@@ -389,6 +391,7 @@ const AddRecetteForm: React.FC = () => {
 		setType(null);
 		setPreparationTime(0);
 		setCookingTime(0);
+		setServings(4);
 		setVideo('');
 		setRecipeParts([{ title: 'Recette 1', steps: [], ingredients: {}, selectedIngredients: [] }]);
 		setPosition(defaultDepartment);
@@ -573,6 +576,11 @@ const AddRecetteForm: React.FC = () => {
 							<div className="form-group">
 								<label htmlFor="cookingTime">Cuisson (min) *</label>
 								<InputNumber id="cookingTime" value={cookingTime} onChange={(e) => setCookingTime(e.value)} min={0} required mode="decimal" locale="fr-FR" />
+							</div>
+							<div className="form-group">
+								<label htmlFor="servings">Nombre de personnes</label>
+								<InputNumber id="servings" value={servings} onChange={(e) => setServings(e.value)} min={1} max={50} showButtons mode="decimal" locale="fr-FR" />
+								<small>Les quantités saisies correspondent à ce nombre de personnes.</small>
 							</div>
 						</div>
 					</section>

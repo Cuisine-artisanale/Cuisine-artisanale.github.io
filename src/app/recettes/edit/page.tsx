@@ -20,6 +20,7 @@ function EditRecetteContent() {
   const [type, setType] = useState<string>('');
   const [preparationTime, setPreparationTime] = useState<number>(0);
   const [cookingTime, setCookingTime] = useState<number>(0);
+  const [servings, setServings] = useState<number | null>(null);
   const [video, setVideo] = useState<string>('');
   const [images, setImages] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -47,6 +48,7 @@ function EditRecetteContent() {
       setType(recetteData.type);
       setPreparationTime(recetteData.preparationTime);
       setCookingTime(recetteData.cookingTime);
+      setServings(recetteData.servings ?? null);
       setVideo(recetteData.video || '');
       setImageURLs(recetteData.images || []);
 
@@ -86,6 +88,7 @@ function EditRecetteContent() {
       type,
       preparationTime,
       cookingTime,
+      ...(servings && servings > 0 ? { servings } : {}),
       recipeParts: recipeParts,
       video,
       images: imageURLs,
@@ -380,6 +383,19 @@ function EditRecetteContent() {
                     onChange={(e) => setCookingTime(parseInt(e.target.value) || 0)}
                     min="0"
                     required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="servings">Nombre de personnes :</label>
+                  <input
+                    type="number"
+                    id="servings"
+                    value={servings ?? ''}
+                    onChange={(e) => setServings(parseInt(e.target.value) || null)}
+                    min="1"
+                    max="50"
+                    placeholder="ex. 4"
                   />
                 </div>
               </section>

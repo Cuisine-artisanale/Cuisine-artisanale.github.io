@@ -10,6 +10,7 @@ import { isOptimizableImage } from '@/lib/utils/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
+import { scaleQuantity } from '@/lib/utils/quantity';
 import { doc, getDoc, deleteDoc, onSnapshot, query, where, collection, orderBy, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { Button } from 'primereact/button';
@@ -63,6 +64,38 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 	const [isInToDo, setIsInToDo] = useState<boolean>(false);
 	const [showAddIngredientsDialog, setShowAddIngredientsDialog] = useState(false);
 	const [selectedIngredients, setSelectedIngredients] = useState<Set<string>>(new Set());
+
+	// ---- Ajustement des portions ----
+	// Avec un nombre de personnes renseigné : on choisit le nombre de personnes.
+	// Sinon : on choisit un multiplicateur (×0,5, ×1, ×1,5…).
+	const baseServings = recette?.servings && recette.servings > 0 ? recette.servings : null;
+	const [servings, setServings] = useState<number | null>(baseServings);
+	const [multiplier, setMultiplier] = useState<number>(1);
+
+	useEffect(() => {
+		setServings(baseServings);
+		setMultiplier(1);
+	}, [baseServings, recette?.id]);
+
+	const factor = baseServings && servings ? servings / baseServings : multiplier;
+	const scaled = (quantity: string | undefined) => scaleQuantity(quantity, factor);
+
+	const changeServings = (delta: number) => {
+		if (baseServings) {
+			setServings((current) => Math.min(50, Math.max(1, (current ?? baseServings) + delta)));
+		} else {
+			setMultiplier((current) => Math.min(10, Math.max(0.5, Math.round((current + delta * 0.5) * 2) / 2)));
+		}
+	};
+
+	const resetServings = () => {
+		setServings(baseServings);
+		setMultiplier(1);
+	};
+
+	const servingsLabel = baseServings
+		? `${servings ?? baseServings} personne${(servings ?? baseServings) > 1 ? 's' : ''}`
+		: `×${multiplier.toLocaleString('fr-FR')}`;
 	const [checkingToDo, setCheckingToDo] = useState(false);
 
 
@@ -348,7 +381,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 		setIsExporting(true);
 		try {
 			await exportRecipePDF({
-				title: recette.title,
+				title: factor !== 1 ? `${recette.title} (${servingsLabel})` : recette.title,
 				type: recette.type,
 				preparationTime: recette.preparationTime,
 				cookingTime: recette.cookingTime,
@@ -358,7 +391,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 					title: part.title,
 					ingredients: part.ingredients.map(ing => ({
 						name: ing.name,
-						quantity: ing.quantity ?? '',
+						quantity: scaled(ing.quantity),
 						unit: ing.unit ?? ''
 					})),
 					steps: part.steps
@@ -395,7 +428,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 
 		try {
 			printRecipe({
-				title: recette.title,
+				title: factor !== 1 ? `${recette.title} (${servingsLabel})` : recette.title,
 				type: recette.type,
 				preparationTime: recette.preparationTime,
 				cookingTime: recette.cookingTime,
@@ -405,7 +438,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 					title: part.title,
 					ingredients: part.ingredients.map(ing => ({
 						name: ing.name,
-						quantity: ing.quantity ?? '',
+						quantity: scaled(ing.quantity),
 						unit: ing.unit ?? ''
 					})),
 					steps: part.steps
@@ -512,7 +545,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 			recette.recipeParts.forEach(part => {
 				part.ingredients.forEach(ing => {
 					if (selectedIngredients.has(ing.id)) {
-						allIngredients.push(ing);
+						// Quantités ajustées au nombre de personnes choisi
+						allIngredients.push({ ...ing, quantity: scaled(ing.quantity) });
 					}
 				});
 			});
@@ -796,6 +830,34 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 					)}
 				</div>
 				</div>
+				{recette && recette.recipeParts.some((p) => p.ingredients.length > 0) && (
+				<div className="recette-desc-servings" role="group" aria-label="Ajuster les quantités">
+					<span className="recette-desc-servings-label">
+						<i className="pi pi-users" aria-hidden="true"></i>
+						{baseServings ? 'Pour' : 'Quantités'}
+					</span>
+					<Button
+						icon="pi pi-minus"
+						rounded
+						text
+						aria-label={baseServings ? 'Une personne de moins' : 'Diminuer les quantités'}
+						onClick={() => changeServings(-1)}
+						disabled={baseServings ? (servings ?? baseServings) <= 1 : multiplier <= 0.5}
+					/>
+					<strong className="recette-desc-servings-value" aria-live="polite">{servingsLabel}</strong>
+					<Button
+						icon="pi pi-plus"
+						rounded
+						text
+						aria-label={baseServings ? 'Une personne de plus' : 'Augmenter les quantités'}
+						onClick={() => changeServings(1)}
+						disabled={baseServings ? (servings ?? baseServings) >= 50 : multiplier >= 10}
+					/>
+					{factor !== 1 && (
+						<Button label="Réinitialiser" text size="small" className="recette-desc-servings-reset" onClick={resetServings} />
+					)}
+				</div>
+				)}
 				{recette?.recipeParts.map((part, index) => (
 				<div key={index} className="recette-desc-part">
 					<h2>{part.title}</h2>
@@ -806,7 +868,10 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 						{part.ingredients.map((ingredient, idx) => (
 							<li key={idx}>
 							<p>
-								{ingredient.name} - {ingredient.quantity} {ingredient.unit}
+								{ingredient.name}
+								{scaled(ingredient.quantity) && (
+									<> - <span className={factor !== 1 ? 'recette-desc-quantity-scaled' : undefined}>{scaled(ingredient.quantity)} {ingredient.unit}</span></>
+								)}
 							</p>
 							</li>
 						))}
@@ -1013,9 +1078,9 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 												<div style={{ fontWeight: 500, color: 'var(--text-color)' }}>
 													{ingredient.name}
 												</div>
-												{(ingredient.quantity || ingredient.unit) && (
+												{scaled(ingredient.quantity) && (
 													<div style={{ fontSize: '0.9rem', color: 'var(--text-color-secondary)' }}>
-														{ingredient.quantity} {ingredient.unit}
+														{scaled(ingredient.quantity)} {ingredient.unit}
 													</div>
 												)}
 											</div>
