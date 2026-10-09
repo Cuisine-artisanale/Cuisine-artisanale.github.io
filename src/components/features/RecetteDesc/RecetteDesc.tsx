@@ -11,7 +11,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
-import { formatAmount, type UnitDef } from '@/lib/utils/units';
+import { formatAmount, isConvertibleToMetric, resolveUnit, type UnitDef } from '@/lib/utils/units';
+import { useUnitPreference } from '@/hooks/useUnitPreference';
 import { useUnits } from '@/hooks/useUnits';
 import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { Button } from 'primereact/button';
@@ -96,7 +97,16 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 	const factor = baseServings && servings ? servings / baseServings : multiplier;
 	const { index: unitIndex } = useUnits(initialUnits);
 	/** Quantité + unité ajustées au nombre de personnes, avec conversion (1 500 g → 1,5 kg) */
-	const amount = (ing: Ingredient) => formatAmount(ing.quantity, unitIndex, { unit: ing.unit, unitId: ing.unitId, factor });
+	// Préférence d'unités de l'appareil : unités de la recette, ou tout en g / ml
+	const { preference: unitPreference, setPreference: setUnitPreference } = useUnitPreference();
+	const metric = unitPreference === 'metric';
+	// Le choix n'est proposé que si la recette contient une unité convertible (cuillère, tasse, verre…)
+	const hasConvertibleUnits = Boolean(
+		recette?.recipeParts.some((part) =>
+			part.ingredients.some((ing) => isConvertibleToMetric(resolveUnit(unitIndex, ing.unitId, ing.unit)))
+		)
+	);
+	const amount = (ing: Ingredient) => formatAmount(ing.quantity, unitIndex, { unit: ing.unit, unitId: ing.unitId, factor, metric });
 
 	const changeServings = (delta: number) => {
 		if (baseServings) {
@@ -801,6 +811,30 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 					)}
 				</div>
 				)}
+				{hasConvertibleUnits && (
+				<div className="recette-desc-units" role="group" aria-label="Unités affichées">
+					<span className="recette-desc-units-label">
+						<i className="pi pi-calculator" aria-hidden="true"></i>
+						Unités
+					</span>
+					<button
+						type="button"
+						className={`recette-desc-units-option${!metric ? ' is-active' : ''}`}
+						aria-pressed={!metric}
+						onClick={() => setUnitPreference('recipe')}
+					>
+						De la recette
+					</button>
+					<button
+						type="button"
+						className={`recette-desc-units-option${metric ? ' is-active' : ''}`}
+						aria-pressed={metric}
+						onClick={() => setUnitPreference('metric')}
+					>
+						Métriques (g, ml)
+					</button>
+				</div>
+				)}
 				{hasSteps && (
 				<div className="recette-desc-cooking">
 					<Button
@@ -824,7 +858,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 							<p>
 								{ingredient.name}
 								{amount(ingredient).text && (
-									<> - <span className={factor !== 1 ? 'recette-desc-quantity-scaled' : undefined}>{amount(ingredient).text}</span></>
+									<> - <span className={factor !== 1 || (metric && amount(ingredient).unitId !== resolveUnit(unitIndex, ingredient.unitId, ingredient.unit)?.id) ? 'recette-desc-quantity-scaled' : undefined}>{amount(ingredient).text}</span></>
 								)}
 							</p>
 							</li>

@@ -162,6 +162,13 @@ function bestMetricUnit(unit: UnitDef, baseValue: number, index: UnitIndex): Uni
   return index.byId.get(targetId) || unit;
 }
 
+/** Vrai si l'unité peut être convertie en g / ml sans en être déjà une (cuillère, tasse, verre…). */
+export function isConvertibleToMetric(unit: UnitDef | null | undefined): boolean {
+  if (!unit || !unit.toBase) return false;
+  const ladder = METRIC_LADDERS[unit.type];
+  return Boolean(ladder) && !ladder.includes(unit.id);
+}
+
 export interface FormattedAmount {
   /** "375", "1,5", "2-3", "une pincée" ; vide si pas de quantité */
   quantity: string;
@@ -176,11 +183,12 @@ export interface FormattedAmount {
 /**
  * Quantité + unité d'un ingrédient, multipliées par `factor` et prêtes à afficher.
  * Les unités métriques sont converties si besoin (1 500 g → 1,5 kg).
+ * Avec `metric`, les unités à équivalence connue (cuillères, tasses…) sont affichées en g / ml.
  */
 export function formatAmount(
   quantity: string | number | null | undefined,
   index: UnitIndex,
-  opts: { unitId?: string | null; unit?: string | null; factor?: number } = {}
+  opts: { unitId?: string | null; unit?: string | null; factor?: number; metric?: boolean } = {}
 ): FormattedAmount {
   const factor = opts.factor ?? 1;
   const unit = resolveUnit(index, opts.unitId, opts.unit);
@@ -211,7 +219,11 @@ export function formatAmount(
   }
 
   let displayUnit = unit;
-  if (unit.toBase && factor !== 1) {
+  const baseUnit = opts.metric && isConvertibleToMetric(unit) ? index.byId.get(UNIT_TYPE_BASE[unit.type] || '') : undefined;
+  if (baseUnit && unit.toBase) {
+    // 2 c. à s. → 30 ml ; 6 tasses → 1,5 l
+    displayUnit = bestMetricUnit(baseUnit, max * unit.toBase, index);
+  } else if (unit.toBase && factor !== 1) {
     displayUnit = bestMetricUnit(unit, max * unit.toBase, index);
   }
   const ratio = unit.toBase && displayUnit.toBase ? unit.toBase / displayUnit.toBase : 1;

@@ -1350,6 +1350,50 @@
   color: var(--text-color);
 }
 
+/* Choix des unités affichées (unités de la recette / métriques) */
+.recette-desc-units {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.recette-desc-units-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 0.25rem;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+}
+
+/* !important : les styles globaux des boutons (index.css, mobile.css) forcent fond et survol */
+.recette-desc-units-option {
+  background: var(--surface-card) !important;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.recette-desc-units-option.is-active {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color);
+  color: var(--text-color-inverted, #fff);
+}
+
+@media (max-width: 600px) {
+  .recette-desc-units-label {
+    flex: 1 1 100%;
+  }
+
+  .recette-desc-units-option {
+    flex: 1;
+  }
+}
+
 /* Bouton d'ouverture du mode cuisine */
 .recette-desc-cooking {
   display: flex;
