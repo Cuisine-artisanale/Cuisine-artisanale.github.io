@@ -4,7 +4,6 @@ import './CookiesConsent.css';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 
-import { v4 as uuidv4 } from 'uuid';
 
 
 interface CookieChoice {
@@ -35,7 +34,7 @@ const CookieConsent: React.FC = () => {
 
 	const storedAnonId = localStorage.getItem('anonId');
 	if (!storedAnonId) {
-		annonId = uuidv4();
+		annonId = crypto.randomUUID();
 		localStorage.setItem('anonId', annonId);
 	} else {
 		annonId = storedAnonId;

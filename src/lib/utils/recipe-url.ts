@@ -1,4 +1,4 @@
-import { slugify, getRecipeUrlFromTitle } from './slug';
+import { getRecipeUrlFromTitle } from './slug';
 
 /**
  * Génère l'URL d'une recette à partir de son ID ou de son titre

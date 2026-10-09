@@ -36,7 +36,7 @@ const Filtre: React.FC = () => {
 	fetchDepartements();
   }, []);
 
-  const useFilter = () => {
+  const applyFilter = () => {
 	setIsLoading(true);
 	const queryParams = new URLSearchParams();
 
@@ -64,7 +64,7 @@ const Filtre: React.FC = () => {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
 	if (e.key === 'Enter') {
-	  useFilter();
+	  applyFilter();
 	}
   };
 
@@ -123,7 +123,7 @@ const Filtre: React.FC = () => {
 					label='Filtrer'
 					icon="pi pi-filter"
 					loading={isLoading}
-					onClick={useFilter}
+					onClick={applyFilter}
 				/>
 				<Button
 					label='Réinitialiser'

@@ -189,7 +189,7 @@ function EditRecetteContent() {
     let completedUploads = 0;
 
     // Télécharger les nouvelles images
-    for (let image of images) {
+    for (const image of images) {
       // Créer un nom unique pour éviter les conflits
       const timestamp = Date.now();
       const fileName = `${timestamp}_${image.name}`;

@@ -2,7 +2,6 @@
  * Types liés à la liste de course et aux recettes à faire
  */
 
-import { Ingredient } from './recipe.types';
 
 /**
  * Élément de la liste de course

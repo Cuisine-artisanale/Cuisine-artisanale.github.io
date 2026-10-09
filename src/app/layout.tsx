@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import dynamic from 'next/dynamic';
-import Script from 'next/script';
 import Providers from './providers';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -8,7 +7,7 @@ import '@/styles/theme.css';
 import '@/styles/mobile.css';
 import '@/styles/accessibility.css';
 import '@/index.css';
-import { Navbar, LegalMention } from '@/components/layout';
+import { Navbar, LegalMention, SkipToMain } from '@/components/layout';
 import { PWAProvider } from '@/components/ui';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -192,8 +191,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 			<body>
 				<Providers>
 					<PWAProvider />
+					<SkipToMain />
 					<Navbar />
-					<div className="wrapper">
+					<div className="wrapper" id="main-content" tabIndex={-1}>
 						{children}
 					</div>
 					<LegalMention />
@@ -201,13 +201,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 					<CookieConsentLazy />
 					<ToastContainer />
 				</Providers>
-				{/* Pour les scripts, utilisez next/script (recommandé) */}
-				{/* Exemple :
-				<Script
-					src="https://vitals.vercel-insights.com/v1/vitals.js"
-					strategy="afterInteractive"
-				/>
-				*/}
 			</body>
 		</html>
 	);

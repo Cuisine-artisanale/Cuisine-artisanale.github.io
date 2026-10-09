@@ -4,7 +4,7 @@ import { RecetteDesc } from '@/components/features';
 import { Breadcrumb } from '@/components/layout';
 import '@/components/layout/Breadcrumb/Breadcrumb.css';
 import { db } from '@/lib/config/firebase';
-import { collection, query, where, getDocs, limit } from '@firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import type { Metadata } from 'next';
 
 interface PageProps {

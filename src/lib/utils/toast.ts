@@ -1,5 +1,5 @@
 import { Toast } from 'primereact/toast';
-import type { ToastSeverity, ToastOptions } from '@/types';
+import type { ToastOptions } from '@/types';
 
 export const showToast = (toastRef: React.RefObject<Toast | null>, options: ToastOptions) => {
   if (toastRef.current) {

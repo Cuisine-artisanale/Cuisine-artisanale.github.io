@@ -2,7 +2,6 @@
 export { default as Recette } from './Recette/Recette';
 export { default as RecetteDesc } from './RecetteDesc/RecetteDesc';
 export { default as Post } from './Post/Post';
-export { default as Actualite } from './Actualite/Actualite';
 export { default as AddRecette } from './AddRecette/AddRecette';
 export { default as AddRecetteForm } from './AddRecetteForm/AddRecetteForm';
 export { default as AddPost } from './AddPost/AddPost';

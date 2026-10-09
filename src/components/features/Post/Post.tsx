@@ -4,13 +4,12 @@ import './Post.css';
 import { Button } from 'primereact/button';
 import { toggleLikePost, unlikePost } from '@/lib/services/post.service';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
-import { deleteDoc, doc, onSnapshot, updateDoc } from '@firebase/firestore';
+import { deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { ConfirmDialog } from '@/components/ui';
 import { useConfirmDialog } from '@/hooks';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
-import type { Post as PostType } from '@/types';
 
 interface PostProps {
   postId: string;

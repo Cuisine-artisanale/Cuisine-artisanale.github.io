@@ -59,7 +59,7 @@ Une application web moderne pour partager et découvrir des recettes artisanales
 - **PrimeReact** : Composants UI
 - **Framer Motion** : Animations
 - **React Leaflet** : Cartes interactives
-- **CSS Modules** : Styles modulaires
+- **CSS par composant** : une feuille de style à côté de chaque composant
 - **React Toastify** : Notifications
 
 ### Backend & Services
@@ -69,13 +69,12 @@ Une application web moderne pour partager et découvrir des recettes artisanales
   - Storage (stockage de fichiers)
   - Functions (Cloud Functions pour emails et logique serveur)
 - **Resend** : Service d'envoi d'emails
-- **Nodemailer** : Alternative pour l'envoi d'emails
+- **Vercel** : Hébergement du site Next.js (pages + routes API)
 
 ### Outils & Bibliothèques
 - **jsPDF** : Génération de PDF
 - **html2canvas** : Capture d'écran pour PDF
-- **Satori** : Génération d'images OG
-- **Sharp** : Traitement d'images
+- **next/og** : Génération d'images Open Graph
 
 
 ## 🌐 Site en Ligne
@@ -110,9 +109,7 @@ src/
 │   ├── useRecipeLikes.ts
 │   ├── useRecipeReviews.ts
 │   ├── useScroll.ts
-│   ├── useFirestoreDocument.ts
-│   ├── useLocalStorage.ts
-│   └── useDebounce.ts
+│   └── useConfirmDialog.ts
 │
 ├── contexts/              # Contextes React
 │   ├── AuthContext/      # Contexte d'authentification
@@ -176,20 +173,40 @@ functions/                 # Firebase Cloud Functions
 
 ## 🧪 Tests & Qualité
 
-Le projet utilise TypeScript pour le typage statique et ESLint pour la qualité du code. Les builds sont vérifiés avant chaque déploiement.
+```bash
+npm run dev        # serveur de développement
+npm run typecheck  # vérification TypeScript
+npm run lint       # ESLint (config Next.js)
+npm run build      # build de production (échoue en cas d'erreur TS ou ESLint)
+```
 
 ## 🚢 Déploiement
 
-L'application est déployée sur Firebase Hosting et peut également être déployée sur d'autres plateformes comme Vercel.
+- **Site (Next.js)** : déployé sur **Vercel**, à chaque push sur la branche de production.
+- **Firebase** : Firestore, Auth, Storage et Cloud Functions restent sur Firebase.
+  - Règles Firestore : `firebase deploy --only firestore:rules`
+  - Cloud Functions : `cd functions && npm run deploy`
+
+### Variables d'environnement (Vercel)
+
+| Variable | Rôle |
+|---|---|
+| `FIREBASE_SERVICE_ACCOUNT_KEY` | JSON du compte de service Firebase Admin (routes API) |
+| `RESEND_API_KEY`, `RESEND_FROM_EMAIL` | Envoi des emails |
+| `NEXT_PUBLIC_FRONTEND_URL` | URL publique du site (liens dans les emails) |
+| `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`, `TIKTOK_REDIRECT_URI` | Connexion TikTok (OAuth) |
+| `TIKTOK_OAUTH_STATE_SECRET`, `TIKTOK_TOKEN_ENCRYPTION_KEY` | Signature de l'état OAuth et chiffrement des jetons |
+| `AI_ENABLED`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `OPENAI_API_KEY`, `OPENAI_MODEL` | Enrichissement IA de l'import TikTok |
+
+En local, ces variables vont dans `.env.local` (non versionné). La clé Admin peut aussi être placée dans `src/firebase/serviceAccountKey.json` (ignoré par git).
 
 
 ## 🔒 Sécurité
 
-- Authentification sécurisée avec Firebase
-- Vérification d'email obligatoire
-- Règles de sécurité Firestore configurées
-- Protection CSRF
-- Validation des données côté client et serveur
+- Authentification Firebase, vérification d'email et réinitialisation de mot de passe via des liens Firebase générés côté serveur
+- Règles Firestore : écriture limitée à l'auteur ou à un admin, rôle utilisateur non modifiable par l'utilisateur lui-même
+- Routes API sensibles authentifiées par ID token Firebase
+- Newsletter gérée uniquement côté serveur (Firebase Admin)
 
 ## 🌐 Accessibilité
 

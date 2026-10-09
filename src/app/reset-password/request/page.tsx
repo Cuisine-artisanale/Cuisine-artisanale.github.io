@@ -34,19 +34,26 @@ export default function ResetPasswordRequest() {
 
     try {
       setIsLoading(true);
-      // Utiliser EmailJS au lieu de Firebase
-      const { sendPasswordResetEmailCustom } = await import('@/lib/services/email.service');
-      await sendPasswordResetEmailCustom(email);
+      // Le lien est généré côté serveur (Firebase Admin) puis envoyé via Resend
+      const response = await fetch('/api/send-reset-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'envoi de l\'email');
+      }
       setEmailSent(true);
       showToast({
         severity: 'success',
         summary: 'Email envoyé',
-        detail: 'Un email de réinitialisation a été envoyé instantanément à votre adresse.',
+        detail: 'Si un compte existe pour cette adresse, un email de réinitialisation vient d\'être envoyé.',
         life: 5000
       });
     } catch (error: any) {
       console.error('Reset password error:', error);
-      let errorMessage = 'Une erreur est survenue lors de l\'envoi de l\'email';
+      const errorMessage = 'Une erreur est survenue lors de l\'envoi de l\'email';
 
       setError(errorMessage);
       showToast({

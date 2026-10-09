@@ -1,12 +1,13 @@
 "use client";
-import React, { useState } from 'react';
+import React from 'react';
 import './Recette.css';
 import { Button } from 'primereact/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
-import { addDoc, collection, deleteDoc, doc, getDoc } from '@firebase/firestore';
+import { slugify } from '@/lib/utils/slug';
+import { addDoc, collection, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
@@ -66,8 +67,10 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 			if (!recetteSnap.exists()) return;
 
 			const recetteData = recetteSnap.data();
+			const safeUrl = recetteData.url || slugify(recetteData.title || '') || `recette-${Date.now()}`;
 			const docRef = await addDoc(collection(db, 'recipes'), {
 				...recetteData,
+				url: safeUrl,
 				createdAt: new Date()
 			});
 

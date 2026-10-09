@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { Password } from '@/components/ui';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
-import { verifyPasswordResetToken } from '@/lib/services/email.service';
+import { auth } from '@/lib/config/firebase';
 import './reset-password.css';
 
 function ResetPasswordContent() {
@@ -11,7 +12,7 @@ function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const { showToast } = useToast();
 
-  const [token, setToken] = useState<string | null>(null);
+  const [oobCode, setOobCode] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,32 +23,27 @@ function ResetPasswordContent() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const tokenParam = searchParams.get('token');
+    // Lien Firebase : /reset-password?mode=resetPassword&oobCode=...
+    const code = searchParams.get('oobCode');
 
-    if (!tokenParam) {
-      setError('Token manquant. Veuillez utiliser le lien de réinitialisation envoyé par email.');
+    if (!code) {
+      setError('Lien incomplet. Veuillez utiliser le lien de réinitialisation envoyé par email.');
       setIsVerifying(false);
       return;
     }
 
-    setToken(tokenParam);
-    verifyToken(tokenParam);
+    setOobCode(code);
+    verifyCode(code);
   }, [searchParams]);
 
-  const verifyToken = async (tokenValue: string) => {
+  const verifyCode = async (code: string) => {
     try {
-      const userEmail = await verifyPasswordResetToken(tokenValue);
-
-      if (!userEmail) {
-        setError('Le lien de réinitialisation est invalide ou a expiré. Veuillez demander un nouveau lien.');
-        setIsValid(false);
-      } else {
-        setEmail(userEmail);
-        setIsValid(true);
-      }
+      const userEmail = await verifyPasswordResetCode(auth, code);
+      setEmail(userEmail);
+      setIsValid(true);
     } catch (error) {
-      console.error('Error verifying token:', error);
-      setError('Une erreur est survenue lors de la vérification du lien.');
+      console.error('Error verifying reset code:', error);
+      setError('Le lien de réinitialisation est invalide ou a expiré. Veuillez demander un nouveau lien.');
       setIsValid(false);
     } finally {
       setIsVerifying(false);
@@ -80,21 +76,11 @@ function ResetPasswordContent() {
     try {
       setIsLoading(true);
 
-      // Appeler l'API pour réinitialiser le mot de passe
-      const response = await fetch('/api/update-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          newPassword,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de la réinitialisation');
+      if (!oobCode) {
+        throw new Error('Code de réinitialisation manquant');
       }
+
+      await confirmPasswordReset(auth, oobCode, newPassword);
 
       setSuccess(true);
       showToast({
@@ -109,7 +95,13 @@ function ResetPasswordContent() {
       }, 3000);
     } catch (error: any) {
       console.error('Reset password error:', error);
-      setError('Une erreur est survenue lors de la réinitialisation');
+      setError(
+        error?.code === 'auth/weak-password'
+          ? 'Le mot de passe est trop faible'
+          : error?.code === 'auth/expired-action-code' || error?.code === 'auth/invalid-action-code'
+            ? 'Le lien a expiré. Veuillez demander un nouveau lien.'
+            : 'Une erreur est survenue lors de la réinitialisation'
+      );
       showToast({
         severity: 'error',
         summary: 'Erreur',

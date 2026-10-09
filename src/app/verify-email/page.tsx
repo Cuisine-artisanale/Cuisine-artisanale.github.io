@@ -41,6 +41,12 @@ const { logout } = useAuth();
     const oobCode = searchParams.get('oobCode');
     const mode = searchParams.get('mode');
 
+    // Si l'URL d'action Firebase pointe ici, rediriger les liens de réinitialisation
+    if (oobCode && mode === 'resetPassword') {
+      router.replace(`/reset-password?${searchParams.toString()}`);
+      return;
+    }
+
     // Si un code Firebase est présent, vérifier automatiquement
     if (oobCode && mode === 'verifyEmail') {
       handleFirebaseVerification(oobCode);
@@ -150,15 +156,15 @@ const { logout } = useAuth();
     try {
       setIsLoading(true);
       // Utiliser l'API route Next.js avec Resend (même système que la newsletter)
+      const idToken = await currentUser.getIdToken();
       const response = await fetch('/api/send-verification-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({
-          email: currentUser.email || '',
           displayName: currentUser.displayName || 'Utilisateur',
-          uid: currentUser.uid, // Passer l'UID pour vérifier l'existence de l'utilisateur
         }),
       });
 

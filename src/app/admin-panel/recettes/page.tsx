@@ -65,8 +65,8 @@ export default function RecettesAdminPage() {
         });
 
         recettesData.sort((a, b) => {
-          let aValue: any = sortField === 'createdAt' ? a.createdAt?.getTime() : a[sortField as keyof RecetteInterface];
-          let bValue: any = sortField === 'createdAt' ? b.createdAt?.getTime() : b[sortField as keyof RecetteInterface];
+          const aValue: any = sortField === 'createdAt' ? a.createdAt?.getTime() : a[sortField as keyof RecetteInterface];
+          const bValue: any = sortField === 'createdAt' ? b.createdAt?.getTime() : b[sortField as keyof RecetteInterface];
 
           if (sortOrder === 'asc') {
             return aValue > bValue ? 1 : -1;
@@ -103,8 +103,8 @@ export default function RecettesAdminPage() {
 
   useEffect(() => {
     const sorted = [...recettes].sort((a, b) => {
-      let aValue: any = sortField === 'createdAt' ? a.createdAt?.getTime() : a[sortField as keyof RecetteInterface];
-      let bValue: any = sortField === 'createdAt' ? b.createdAt?.getTime() : b[sortField as keyof RecetteInterface];
+      const aValue: any = sortField === 'createdAt' ? a.createdAt?.getTime() : a[sortField as keyof RecetteInterface];
+      const bValue: any = sortField === 'createdAt' ? b.createdAt?.getTime() : b[sortField as keyof RecetteInterface];
 
       if (sortOrder === 'asc') {
         return aValue > bValue ? 1 : -1;

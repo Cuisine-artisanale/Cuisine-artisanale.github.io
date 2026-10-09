@@ -7,7 +7,7 @@ import { RecetteDesc } from '@/components/features';
 import { Breadcrumb } from '@/components/layout';
 import '@/components/layout/Breadcrumb/Breadcrumb.css';
 import { db } from '@/lib/config/firebase';
-import { doc, getDoc } from '@firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function RecettesWrapper() {
 	const searchParams = useSearchParams();

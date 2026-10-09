@@ -164,3 +164,8 @@ img {
    - src/components/RecetteDesc/RecetteDesc.tsx
    - src/components/Post/Post.tsx
 */
+
+/* Cible du lien "Aller au contenu principal" : pas de contour au focus programmatique */
+#main-content:focus {
+	outline: none;
+}

@@ -3,18 +3,14 @@ import {
   doc,
   getDoc,
   setDoc,
-  deleteDoc,
   collection,
   query,
   where,
   getDocs,
   serverTimestamp,
-  updateDoc,
-  writeBatch,
-  arrayUnion,
-  arrayRemove
+  updateDoc
 } from "firebase/firestore";
-import type { RecipeToDo, ShoppingList, ShoppingListItem } from "@/types/shopping.types";
+import type { ShoppingList, ShoppingListItem } from "@/types/shopping.types";
 import type { Ingredient, Recipe } from "@/types/recipe.types";
 
 /**

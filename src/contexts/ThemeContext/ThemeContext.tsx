@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useEffect, useState } from "react";
+import "./ThemeContext.css";
 
 // Création du contexte du thème
 export const ThemeContext = createContext({

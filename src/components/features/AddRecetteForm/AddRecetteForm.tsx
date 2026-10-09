@@ -16,7 +16,17 @@ import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { toast } from 'react-toastify';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { AddIngredientForm } from '@/components/features';
-import type { Ingredient, Department, RecipePart } from '@/types';
+import type { Ingredient, Department } from '@/types';
+
+/** Partie de recette telle que manipulée dans le formulaire (avant mise en forme pour Firestore) */
+type RecipePartForm = {
+  title: string;
+  steps: string[];
+  /** quantité saisie, indexée par id d'ingrédient */
+  ingredients: Record<string, string>;
+  /** ids des ingrédients sélectionnés */
+  selectedIngredients: string[];
+};
 
 
 const AddRecetteForm: React.FC = () => {
@@ -37,8 +47,11 @@ const AddRecetteForm: React.FC = () => {
   const [cookingTime, setCookingTime] = useState<number | null>(null);
   const [video, setVideo] = useState('');
   const [videoError, setVideoError] = useState('');
+  const [tiktokImportUrl, setTiktokImportUrl] = useState('');
+  const [tiktokImportContext, setTiktokImportContext] = useState('');
+  const [tiktokImporting, setTiktokImporting] = useState(false);
   const [isRecetteCreated, setIsRecetteCreated] = useState<boolean>(false);
-  const [recipeParts, setRecipeParts] = useState<RecipePart[]>([{
+  const [recipeParts, setRecipeParts] = useState<RecipePartForm[]>([{
 	title: 'Recette 1',
 	steps: [],
 	ingredients: {},
@@ -219,6 +232,59 @@ const AddRecetteForm: React.FC = () => {
 	return regex.test(url);
   }
 
+  function isValidTikTokUrl(url: string) {
+	return /^(https?:\/\/)?(www\.)?(tiktok\.com|vm\.tiktok\.com|vt\.tiktok\.com)\/.+$/i.test(url);
+  }
+
+  const handleImportTikTokByUrl = async () => {
+	if (!user) {
+	  toast.error("Vous devez être connecté pour importer une vidéo TikTok.");
+	  return;
+	}
+
+	const trimmedUrl = tiktokImportUrl.trim();
+	if (!trimmedUrl || !isValidTikTokUrl(trimmedUrl)) {
+	  toast.error("Veuillez saisir une URL TikTok valide.");
+	  return;
+	}
+
+	try {
+	  setTiktokImporting(true);
+	  const idToken = await user.getIdToken();
+	  const response = await fetch('/api/tiktok/import-url', {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json',
+		  Authorization: `Bearer ${idToken}`,
+		},
+		body: JSON.stringify({
+		  videoUrl: trimmedUrl,
+		  supplementalText: tiktokImportContext.trim(),
+		}),
+	  });
+
+	  const data = await response.json();
+	  if (!response.ok || !data?.success) {
+		throw new Error(data?.error || "Erreur lors de l'import TikTok.");
+	  }
+
+	  if (data.duplicate) {
+		toast.info('Cette vidéo TikTok est déjà importée.');
+	  } else {
+		const aiNote = data.aiUsed
+		  ? `IA active (${data.aiProvider || 'provider inconnu'})`
+		  : `fallback ${data.aiError ? `(${data.aiError})` : '(sans IA)'}`;
+		toast.success(`Vidéo TikTok importée dans la modération - ${aiNote}.`);
+	  }
+	  setTiktokImportUrl('');
+	  setTiktokImportContext('');
+	} catch (error: any) {
+	  toast.error(error?.message || "Erreur lors de l'import de la vidéo TikTok.");
+	} finally {
+	  setTiktokImporting(false);
+	}
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
 	console.log('Submitting form...');
 	event.preventDefault();
@@ -353,7 +419,7 @@ const AddRecetteForm: React.FC = () => {
   const fetchIngredients = async () => {
 	try {
 	  const recettesCollection = collection(db, "ingredients");
-	  let recettesQuery = query(recettesCollection);
+	  const recettesQuery = query(recettesCollection);
 	  const querySnapshot = await getDocs(recettesQuery);
 	  const recettesData: Ingredient[] = querySnapshot.docs.map((doc) => {
 		const data = doc.data();
@@ -428,6 +494,43 @@ const AddRecetteForm: React.FC = () => {
 			<h1>Composer votre propre recette</h1>
 			<p className="subtitle">Les champs marqués d'un * sont obligatoires</p>
 		</header>
+
+		<section className="tiktok-import-panel">
+			<h2>Importer depuis TikTok</h2>
+			<p>Collez une URL TikTok, puis ajoutez du contexte pour aider l'IA a extraire les ingredients.</p>
+			<div className="tiktok-import-controls">
+				<InputText
+					value={tiktokImportUrl}
+					onChange={(e) => setTiktokImportUrl(e.target.value)}
+					placeholder="https://www.tiktok.com/@user/video/..."
+					disabled={tiktokImporting || !user}
+				/>
+				<Button
+					type="button"
+					label={tiktokImporting ? 'Import...' : 'Importer URL TikTok'}
+					onClick={handleImportTikTokByUrl}
+					disabled={tiktokImporting || !user}
+				/>
+			</div>
+			<div className="tiktok-import-context">
+				<label htmlFor="tiktok-import-context">
+					Texte complementaire (ingredients / etapes)
+				</label>
+				<textarea
+					id="tiktok-import-context"
+					value={tiktokImportContext}
+					onChange={(e) => setTiktokImportContext(e.target.value)}
+					placeholder="Ex: Ingredients: 2 oeufs, 150g farine, 1 boite de thon..."
+					rows={4}
+					disabled={tiktokImporting || !user}
+					maxLength={3000}
+				/>
+				<p className="tiktok-import-hint">
+					Optionnel. Plus vous donnez de details ici, meilleure sera l'extraction des ingredients.
+				</p>
+			</div>
+			{!user && <p className="tiktok-import-hint">Connectez-vous pour importer une vidéo TikTok.</p>}
+		</section>
 
 		{/* Barre de progression */}
 		<div className="step-progress">
