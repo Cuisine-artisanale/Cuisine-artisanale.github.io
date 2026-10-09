@@ -111,7 +111,11 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 			const docRef = await addDoc(collection(db, 'recipes'), {
 				...recetteData,
 				url: safeUrl,
-				createdAt: new Date()
+				createdAt: new Date(),
+				// Compteurs maintenus par les Cloud Functions : jamais repris d'une demande
+				likesCount: 0,
+				ratingCount: 0,
+				ratingAverage: null
 			});
 
 			if (docRef.id) {

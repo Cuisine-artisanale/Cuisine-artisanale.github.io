@@ -137,7 +137,11 @@ export default function RecettesAdminPage() {
       const recipeRef = await addDoc(collection(db, 'recipes'), {
         ...recetteData,
         createdAt: new Date(),
-        likes: []
+        likes: [],
+        // Compteurs maintenus par les Cloud Functions : jamais repris d'une demande
+        likesCount: 0,
+        ratingCount: 0,
+        ratingAverage: null
       });
 
       const id = recipeRef.id;

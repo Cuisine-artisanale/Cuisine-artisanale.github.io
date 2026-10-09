@@ -121,7 +121,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 								'@type': 'SearchAction',
 								target: {
 									'@type': 'EntryPoint',
-									urlTemplate: 'https://www.cuisine-artisanale.fr/recettes?search={search_term_string}',
+									urlTemplate: 'https://www.cuisine-artisanale.fr/recettes?keywords={search_term_string}',
 								},
 								'query-input': 'required name=search_term_string',
 							},

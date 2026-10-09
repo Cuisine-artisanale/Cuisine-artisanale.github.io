@@ -31,6 +31,17 @@ const db = admin.firestore();
 // Note: Le service d'email est initialisé dans chaque fonction qui en a besoin
 // car les variables d'environnement peuvent ne pas être disponibles au niveau du module
 
+const SITE_URL = "https://www.cuisine-artisanale.fr";
+
+/** Échappe un texte saisi par un utilisateur avant de l'insérer dans un email HTML. */
+function escapeHtml(value: string): string {
+	return value
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;");
+}
+
 const INDEXING_API_URL =
 	"https://indexing.googleapis.com/v3/urlNotifications:publish";
 
@@ -140,7 +151,7 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 
 			const emailHtml = getCustomEmailTemplate(
 				"📝 Nouvelle demande de recette",
-				`<p>Une nouvelle demande de recette a été ajoutée :</p><p style="font-size: 18px; font-weight: bold; color: #8B4513;">${name}</p>`
+				`<p>Une nouvelle demande de recette a été ajoutée :</p><p style="font-size: 18px; font-weight: bold; color: #8B4513;">${escapeHtml(name)}</p>`
 			);
 
 			// Utiliser la même adresse que la newsletter qui fonctionne
@@ -168,7 +179,11 @@ export const sendEmailOnNewRecipeRequest = onDocumentUpdated(
 	}
 );
 
-export const sendWeeklyRecipeEmail = async (email: string) => {
+/**
+ * Envoie la recette de la semaine à un abonné.
+ * subscriberId : id du document "abonnes", utilisé comme jeton de désabonnement.
+ */
+export const sendWeeklyRecipeEmail = async (email: string, subscriberId: string) => {
 	try {
 		const weeklyRef = db.collection("weeklyRecipe").doc("current");
 		const weeklySnap = await weeklyRef.get();
@@ -179,21 +194,15 @@ export const sendWeeklyRecipeEmail = async (email: string) => {
 
 		const recipe = weeklySnap.data();
 
-		// Crée le slug pour l'URL de la recette
-		const slug = recipe.title
-			.normalize("NFD")
-			.replace(/[\u0300-\u036f]/g, "")
-			.replace(/[^\w\s-]/g, "")
-			.trim()
-			.replace(/\s+/g, "_")
-			.toLowerCase();
+		// Slug enregistré sur la recette (champ "url"), à défaut son id : les deux sont servis par le site
+		const recipeSlug = recipe.url || recipe.id;
+		if (!recipeSlug) {
+			throw new Error("La recette de la semaine n'a ni slug ni id.");
+		}
+		const recipeUrl = `${SITE_URL}/recettes/${encodeURIComponent(recipeSlug)}`;
 
-		const recipeUrl = `https://www.Cuisine-artisanale.fr/recettes/${slug}`;
-
-		// Lien de désabonnement
-		const unsubscribeUrl = `https://www.Cuisine-artisanale.fr/unsubscribe?email=${encodeURIComponent(
-			email
-		)}`;
+		// Lien de désabonnement : l'id du document abonné sert de jeton (non devinable)
+		const unsubscribeUrl = `${SITE_URL}/unsubscribe?id=${encodeURIComponent(subscriberId)}`;
 
 		// Initialiser le service d'email dans la fonction
 		let emailServiceInstance: ReturnType<typeof createEmailServiceFromEnv>;
@@ -242,6 +251,7 @@ export const sendWeeklyRecipe = onSchedule(
 	{
 		schedule: "0 9 * * 0", // chaque dimanche à 09:00
 		timeZone: "Europe/Paris", // fuseau horaire
+		timeoutSeconds: 540,
 		secrets: ["RESEND_API_KEY", "RESEND_FROM_EMAIL"],
 	},
 	async (event) => {
@@ -282,18 +292,24 @@ export const sendWeeklyRecipe = onSchedule(
 				return;
 			}
 
-			const subscribers = subscribersSnap.docs.map(
-				(doc: { data: () => { (): any; new(): any; email: any } }) =>
-					doc.data().email
-			) as string[];
+			const subscribers: { id: string; email: string }[] = subscribersSnap.docs
+				.map((doc: FirebaseFirestore.QueryDocumentSnapshot) => ({ id: doc.id, email: doc.data().email }))
+				.filter((s: { email: unknown }) => typeof s.email === "string" && s.email);
 
-			// Envoyer l'email à chaque abonné
-			for (const email of subscribers) {
-				await sendWeeklyRecipeEmail(email);
+			// Envoi par petits lots : un échec n'empêche pas les autres envois
+			const BATCH_SIZE = 5;
+			let failed = 0;
+			for (let i = 0; i < subscribers.length; i += BATCH_SIZE) {
+				const results = await Promise.allSettled(
+					subscribers.slice(i, i + BATCH_SIZE).map((s) => sendWeeklyRecipeEmail(s.email, s.id))
+				);
+				failed += results.filter((r) => r.status === "rejected").length;
+				// Reste sous la limite de débit de Resend
+				await new Promise((resolve) => setTimeout(resolve, 1100));
 			}
 
 			console.log(
-				"Emails de la recette de la semaine envoyés à tous les abonnés !"
+				`Recette de la semaine : ${subscribers.length - failed} email(s) envoyé(s), ${failed} échec(s).`
 			);
 		} catch (err) {
 			console.error("Erreur dans le cron de la recette de la semaine :", err);
@@ -303,29 +319,25 @@ export const sendWeeklyRecipe = onSchedule(
 
 export const unsubscribe = onRequest((req, res) => {
 	corsHandler(req, res, async () => {
-		const email = req.query.email as string;
+		// Le lien contient l'id du document abonné (jeton non devinable).
+		// Les anciens liens "?email=…" ne sont plus acceptés : ils permettaient de désabonner n'importe qui.
+		const id = typeof req.query.id === "string" ? req.query.id.trim() : "";
 
-		if (!email) {
-			res.status(400).json({ success: false, message: "Email manquant" });
+		if (!id || id.includes("/")) {
+			res.status(400).json({ success: false, message: "Lien de désabonnement invalide" });
 			return;
 		}
 
 		try {
-			const abonnésRef = db.collection("abonnes");
-			const snapshot = await abonnésRef.where("email", "==", email).get();
+			const subscriberRef = db.collection("abonnes").doc(id);
+			const snapshot = await subscriberRef.get();
 
-			if (snapshot.empty) {
-				res
-					.status(404)
-					.json({ success: false, message: "Aucun abonné trouvé" });
+			if (!snapshot.exists) {
+				res.status(404).json({ success: false, message: "Lien de désabonnement invalide" });
 				return;
 			}
 
-			await Promise.all(
-				snapshot.docs.map((doc: FirebaseFirestore.QueryDocumentSnapshot) =>
-					doc.ref.update({ subscribed: false })
-				)
-			);
+			await subscriberRef.update({ subscribed: false });
 
 			res.status(200).json({ success: true, message: "Désabonnement réussi" });
 		} catch (error) {

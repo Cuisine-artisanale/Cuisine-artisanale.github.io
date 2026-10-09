@@ -71,14 +71,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const createUserInFirestore = async (userId: string, email: string, displayName: string, emailVerified: boolean = false) => {
 	const { db, doc, setDoc } = await loadFirestore();
 	const userRef = doc(db, "users", userId);
+	// À l'inscription, ce profil est écrit deux fois en parallèle (onAuthStateChanged, puis signUpWithEmail
+	// ou signInWithGoogle). Fusion + champs vides omis : l'écriture arrivée en dernier ne peut pas
+	// effacer le pseudo ou l'état de vérification posés par l'autre.
 	await setDoc(userRef, {
 	  email: email,
 	  role: "user",
 	  createdAt: new Date(),
-	  displayName: displayName,
-	  emailVerified: emailVerified,
-	  ...(emailVerified && { emailVerifiedAt: new Date() })
-	});
+	  ...(displayName.trim() && { displayName: displayName.trim() }),
+	  ...(emailVerified && { emailVerified: true, emailVerifiedAt: new Date() })
+	}, { merge: true });
   };
 
   const refreshUserData = async () => {

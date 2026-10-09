@@ -1,9 +1,8 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/config/firebase';
-import { deleteUser } from 'firebase/auth';
-import { getFirestore, doc, deleteDoc } from 'firebase/firestore';
+import { auth } from '@/lib/config/firebase-app';
+import { signOut } from 'firebase/auth';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { InputText } from 'primereact/inputtext';
@@ -45,15 +44,20 @@ export default function DeleteAccount() {
     try {
       setIsLoading(true);
 
-      // Delete Firestore document
-      const db = getFirestore();
-      const userRef = doc(db, 'users', currentUser.uid);
-      await deleteDoc(userRef);
-      console.log('User document deleted from Firestore');
+      // Suppression côté serveur : données personnelles puis compte (voir /api/account/delete)
+      const idToken = await currentUser.getIdToken();
+      const response = await fetch('/api/account/delete', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const result = await response.json().catch(() => ({}));
 
-      // Delete Firebase Auth user
-      await deleteUser(currentUser);
-      console.log('User deleted from Firebase Auth');
+      if (!response.ok || !result.success) {
+        throw Object.assign(new Error(result.error || 'Suppression impossible'), { code: result.code });
+      }
+
+      // Le compte n'existe plus : on ferme la session locale
+      await signOut(auth).catch(() => undefined);
 
       toastRef.current?.show({
         severity: 'success',
@@ -69,7 +73,7 @@ export default function DeleteAccount() {
       console.error('Delete account error:', error);
       let errorMessage = 'Une erreur est survenue';
 
-      if (error.code === 'auth/requires-recent-login') {
+      if (error.code === 'requires-recent-login') {
         errorMessage = 'Pour supprimer votre compte, vous devez vous reconnecter récemment. Déconnectez-vous et reconnectez-vous avant de réessayer.';
       }
 
@@ -104,10 +108,13 @@ export default function DeleteAccount() {
               Cette action supprimera :
             </p>
             <ul>
-              <li>Votre compte Firebase Authentication</li>
-              <li>Vos données dans la base de données</li>
-              <li>Toutes vos informations personnelles</li>
+              <li>Votre compte et vos informations personnelles</li>
+              <li>Vos favoris, avis et liste de courses</li>
+              <li>Vos demandes de recettes en attente et votre connexion TikTok</li>
             </ul>
+            <p className="info-text">
+              Vos recettes et posts déjà publiés restent en ligne, sans votre nom.
+            </p>
           </div>
 
           <div className="delete-account-form">

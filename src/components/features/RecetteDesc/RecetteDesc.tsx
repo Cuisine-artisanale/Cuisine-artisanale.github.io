@@ -13,7 +13,7 @@ import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { formatAmount, type UnitDef } from '@/lib/utils/units';
 import { useUnits } from '@/hooks/useUnits';
 import { mergeIngredientDetails } from '@/lib/utils/recipe-ingredients';
-import { doc, getDoc, deleteDoc, onSnapshot, query, where, collection, orderBy, serverTimestamp, addDoc } from 'firebase/firestore';
+import { doc, getDoc, deleteDoc, onSnapshot, query, where, collection, orderBy, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { Button } from 'primereact/button';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
@@ -600,8 +600,9 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 		}
 
 		try {
-			const reviewsRef = collection(db, "reviews");
-			await addDoc(reviewsRef, {
+			// Un avis par personne et par recette : l'id est imposé par les règles Firestore.
+			// Envoyer un nouvel avis remplace le précédent.
+			await setDoc(doc(db, "reviews", `${userId}_${id}`), {
 				recipeId: id,
 				userId,
 				userName: user?.displayName || "Utilisateur",
@@ -615,7 +616,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 			showToast({
 				severity: 'success',
 				summary: 'Merci !',
-				detail: 'Votre avis a été ajouté'
+				detail: 'Votre avis a été enregistré'
 			});
 		} catch (error) {
 			console.error("Erreur lors de l'ajout de l'avis :", error);
@@ -636,14 +637,14 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 
 			showToast({
 				severity: 'success',
-				summary: 'Suppr',
-				detail: 'Avis supprimer'
+				summary: 'Avis supprimé',
+				detail: "L'avis a été supprimé"
 			})
 		} catch (error) {
 			showToast({
 				severity: 'error',
 				summary: 'Erreur',
-				detail: 'Avis pas supprimer'
+				detail: "Impossible de supprimer l'avis"
 			})
 		}
 	};
@@ -943,7 +944,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({ recipeId: propRecipeId, initi
 												<strong ><a href={`/profil?id=${r.userId}`}>{r.userName}</a></strong>
 												<Rating value={r.rating} readOnly cancel={false} />
 											</div>
-											{user && role == "admin" && (
+											{user && (role == "admin" || r.userId === userId) && (
 												<Button
 													icon="pi pi-trash"
 													onClick={() => deleteReview(r.id!)}

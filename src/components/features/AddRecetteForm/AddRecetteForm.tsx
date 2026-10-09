@@ -369,7 +369,10 @@ const AddRecetteForm: React.FC = () => {
 	}
 
 	if (!isRecetteCreated) {
-		console.log('Creating new recette...');
+	  if (!user) {
+		toast.error('Connectez-vous pour proposer une recette.');
+		return;
+	  }
 	  try {
 		const docRef = await addDoc(collection(db, 'recipesRequest'), {
 		  title: '',
@@ -380,18 +383,19 @@ const AddRecetteForm: React.FC = () => {
 		  images: [],
 		  recipeParts: [],
 		  position: '',
-		  createdBy: '',
+		  // Les règles Firestore exigent que la demande soit créée au nom de son auteur
+		  createdBy: user.uid,
 		  titleKeywords: [],
 		  url: '',
 		});
-
 
 		recetteId = docRef.id;
 		setIsRecetteCreated(true);
 	  } catch (error) {
 		console.error('Error creating recette:', error);
+		toast.error("Impossible d'enregistrer la recette. Réessayez.");
+		return;
 	  }
-	  console.log('Recette ID after creation:', recetteId);
 	  try {
 		const recetteRef = doc(db, 'recipesRequest', recetteId);
 		if (formattedRecipeParts.length == 1) {

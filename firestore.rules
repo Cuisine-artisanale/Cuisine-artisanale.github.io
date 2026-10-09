@@ -22,6 +22,17 @@ service cloud.firestore {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
     }
 
+    // Avis valide : note de 1 à 5, message de taille raisonnable
+    function isValidReview(data) {
+      return data.rating is number && data.rating >= 1 && data.rating <= 5
+             && data.get('message', '') is string && data.get('message', '').size() <= 2000;
+    }
+
+    // Les compteurs d'une recette ne sont écrits que par les Cloud Functions
+    function hasNoCounters(data) {
+      return !data.keys().hasAny(['likesCount', 'ratingCount', 'ratingAverage']);
+    }
+
     // === Utilisateurs ===
     // Données privées (email, rôle, listes…) : propriétaire et admins uniquement.
     // La partie publique (pseudo, avatar) est dans /publicProfiles.
@@ -115,15 +126,24 @@ service cloud.firestore {
       // Lecture publique
       allow read: if true;
 
-      // Création par un utilisateur connecté, en son nom, avec une note de 1 à 5
+      // Création par un utilisateur connecté, en son nom. L'id du document est
+      // {userId}_{recipeId} : un seul avis par personne et par recette.
       allow create: if isSignedIn()
                     && request.resource.data.userId == request.auth.uid
-                    && request.resource.data.rating is number
-                    && request.resource.data.rating >= 1
-                    && request.resource.data.rating <= 5;
+                    && request.resource.data.recipeId is string
+                    && reviewId == request.auth.uid + '_' + request.resource.data.recipeId
+                    && isValidReview(request.resource.data);
 
-      // Modification / suppression par l'auteur ou un admin
-      allow update, delete: if isSignedIn() &&
+      // Modification par l'auteur (même contrôle qu'à la création, sans changer d'auteur
+      // ni de recette) ou par un admin
+      allow update: if isAdminUser()
+                    || (isSignedIn() && request.auth.uid == resource.data.userId
+                        && request.resource.data.userId == resource.data.userId
+                        && request.resource.data.recipeId == resource.data.recipeId
+                        && isValidReview(request.resource.data));
+
+      // Suppression par l'auteur ou un admin
+      allow delete: if isSignedIn() &&
                     (request.auth.uid == resource.data.userId || isAdminUser());
     }
 
@@ -191,11 +211,20 @@ service cloud.firestore {
 
     // === Demandes de recettes ===
     match /recipesRequest/{docId} {
-      // Lecture et suppression uniquement pour les admins
-      allow read, delete: if isAdminUser();
+      // Lecture par l'auteur de la demande ou un admin ; suppression par un admin
+      allow read: if isSignedIn() && (resource.data.createdBy == request.auth.uid || isAdminUser());
+      allow delete: if isAdminUser();
 
-      // Création et mise à jour pour les utilisateurs authentifiés
-      allow create, update: if request.auth != null;
+      // Création en son propre nom, sans compteurs
+      allow create: if isSignedIn()
+                    && request.resource.data.createdBy == request.auth.uid
+                    && hasNoCounters(request.resource.data);
+
+      // Mise à jour par l'auteur (sans changer d'auteur ni ajouter de compteurs) ou par un admin
+      allow update: if isAdminUser()
+                    || (isSignedIn() && resource.data.createdBy == request.auth.uid
+                        && request.resource.data.createdBy == request.auth.uid
+                        && hasNoCounters(request.resource.data));
     }
 
     // === Listes de course ===
