@@ -257,7 +257,7 @@ export default function UnitsAdminPage() {
       )}
 
       <div className="table-header">
-        <h2>Gestion des Unités</h2>
+        <h1>Unités</h1>
         <div className="table-header-actions">
           <div className="input-icon-left">
             <i className="pi pi-search" />

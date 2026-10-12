@@ -3,19 +3,14 @@ import React, { useState, useEffect } from 'react';
 import './account-detail.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import PersonalizedRecommendations from '@/components/features/PersonalizedRecommendations/PersonalizedRecommendations';
+import RecentActivity from '@/components/features/RecentActivity/RecentActivity';
 import UserStats from '@/components/features/UserStats/UserStats';
-import { doc, collection, getDocs, query, where, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/config/firebase';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import RequireEmailVerification from '@/components/ui/RequireEmailVerification/RequireEmailVerification';
 
-interface RecentActivity {
-  id: string;
-  type: 'recipe' | 'post' | 'like' | 'review';
-  title: string;
-  date: Date;
-  description: string;
-}
+
 
 interface TikTokUiState {
   connected: boolean;
@@ -32,7 +27,6 @@ interface TikTokCollectionOption {
 
 export default function AccountDetailPage() {
   const { user, displayName, refreshUserData } = useAuth();
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [editDialogVisible, setEditDialogVisible] = useState(false);
   const [displayNameInput, setDisplayNameInput] = useState(displayName || '');
   const [tiktokState, setTiktokState] = useState<TikTokUiState | null>(null);
@@ -64,12 +58,6 @@ export default function AccountDetailPage() {
   }, [tiktokCollections]);
 
   useEffect(() => {
-    if (user) {
-      fetchRecentActivity();
-    }
-  }, [user]);
-
-  useEffect(() => {
     if (displayName) {
       setDisplayNameInput(displayName);
     }
@@ -92,54 +80,6 @@ export default function AccountDetailPage() {
       setTiktokMessage(message || 'La connexion TikTok a échoué.');
     }
   }, []);
-
-  const fetchRecentActivity = async () => {
-    if (!user) return;
-
-    try {
-      const recipesCollection = collection(db, 'recipes');
-      const postsCollection = collection(db, 'posts');
-
-      const activities: RecentActivity[] = [];
-
-      const recipesQuery = query(
-        recipesCollection,
-        where('createdBy', '==', user.uid)
-      );
-      const recipesSnapshot = await getDocs(recipesQuery);
-      recipesSnapshot.docs.slice(0, 3).forEach(doc => {
-        const data = doc.data();
-        activities.push({
-          id: doc.id,
-          type: 'recipe',
-          title: data.title,
-          date: data.createdAt?.toDate() || new Date(),
-          description: `Recette créée - ${data.type}`
-        });
-      });
-
-      const postsQuery = query(
-        postsCollection,
-        where('userId', '==', user.uid)
-      );
-      const postsSnapshot = await getDocs(postsQuery);
-      postsSnapshot.docs.slice(0, 2).forEach(doc => {
-        const data = doc.data();
-        activities.push({
-          id: doc.id,
-          type: 'post',
-          title: data.title,
-          date: data.createdAt?.toDate() || new Date(),
-          description: 'Publication créée'
-        });
-      });
-
-      activities.sort((a, b) => b.date.getTime() - a.date.getTime());
-      setRecentActivity(activities.slice(0, 5));
-    } catch (error) {
-      console.error('Error fetching activity:', error);
-    }
-  };
 
   const handleSaveProfile = async () => {
     if (user) {
@@ -350,7 +290,7 @@ export default function AccountDetailPage() {
       <div className="AccountDetail">
         <div className="dashboard-header">
           <div className="welcome-section">
-            <h2>Bienvenue, {displayName || user?.email}! 👋</h2>
+            <h2>Bonjour {displayName || user?.email}</h2>
             <p>Voici un aperçu de votre profil et de votre activité</p>
           </div>
           <button
@@ -458,27 +398,7 @@ export default function AccountDetailPage() {
           {tiktokMessage && <p className="tiktok-message">{tiktokMessage}</p>}
         </div>
 
-        {recentActivity.length > 0 && (
-          <div className="activity-card">
-            <h3 className="activity-title">Activité Récente</h3>
-            <div className="activity-timeline">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="activity-item">
-                  <div className="activity-date">
-                    <small>{activity.date.toLocaleDateString('fr-FR')}</small>
-                  </div>
-                  <div className="activity-content-wrapper">
-                    <i className={activity.type === 'recipe' ? 'pi pi-book' : 'pi pi-comment'}></i>
-                    <div className="activity-content">
-                      <strong>{activity.title}</strong>
-                      <p>{activity.description}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <RecentActivity userId={user.uid} />
 
         <div className="recommendations-card">
           <PersonalizedRecommendations />

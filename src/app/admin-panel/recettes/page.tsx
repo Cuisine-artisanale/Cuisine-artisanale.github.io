@@ -301,7 +301,7 @@ export default function RecettesAdminPage() {
       )}
 
       <div className="recipes-header">
-        <h2>Gestion des Recettes</h2>
+        <h1>Recettes à valider</h1>
         <div className="recipes-header-actions">
           <div className="input-icon-left">
             <i className="pi pi-search" />

@@ -1,60 +1,98 @@
-.sidebar {
-  height: 100%;
-  padding: 20px;
-  background-color: var(--background-color-super-light);
+/* Menu de l'administration.
+   mobile.css transforme tous les liens en blocs de 44 px avec retrait : on fixe ici leur mise en forme. */
+
+.admin-sidebar {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 15rem;
+  padding: 1.25rem 0.75rem;
+  border-right: 1px solid var(--surface-border);
+  background: var(--surface-card);
 }
 
-.sidebar h2 {
-  text-align: center;
-  margin-bottom: 20px;
+.admin-sidebar-title {
+  margin: 0 0 0.5rem;
+  padding: 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-color-secondary);
 }
 
-.sidebar ul {
+.admin-sidebar ul {
   list-style: none;
+  margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
-.sidebar li {
-  margin: 15px 0;
-}
-
-.sidebar a {
+.admin-sidebar .admin-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--border-radius);
   color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 500;
   text-decoration: none;
-  font-size: 18px;
-  display: block;
-  padding: 10px;
-  border-radius: 5px;
-  transition: 0.3s;
+  white-space: nowrap;
 }
 
-.sidebar a:hover,
-.sidebar a.active {
-  background: #444;
-  color: var(--text-color-inverted);
+.admin-sidebar .admin-sidebar-link:hover {
+  background: var(--surface-hover);
+  color: var(--text-color);
 }
 
-.sidebar-admin-panel .active {
-  background: var(--primary-dark);
-  color: var(--text-color-inverted);
+.admin-sidebar .admin-sidebar-link.is-active {
+  background: var(--surface-section);
+  color: var(--primary-color);
+  font-weight: 700;
 }
 
-@media screen and (max-width: 768px) {
-  .sidebar {
-	width: 100%;
-	height: auto;
-	display: flex;
-	overflow: auto;
+.admin-sidebar-link > .pi {
+  width: 1.2rem;
+  text-align: center;
+  color: var(--text-color-secondary);
+}
+
+.admin-sidebar-link.is-active > .pi {
+  color: var(--primary-color);
+}
+
+.admin-sidebar .admin-sidebar-back {
+  margin-top: auto;
+  color: var(--text-color-secondary);
+}
+
+@media (max-width: 900px) {
+  /* Bandeau horizontal défilant */
+  .admin-sidebar {
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+    padding: 0.5rem;
+    border-right: none;
+    border-bottom: 1px solid var(--surface-border);
+    overflow-x: auto;
   }
 
-  .sidebar ul {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
+  .admin-sidebar-title {
+    display: none;
   }
 
-  .sidebar li {
-	margin: 10px;
+  .admin-sidebar ul {
+    flex-direction: row;
   }
 
+  .admin-sidebar .admin-sidebar-back {
+    margin-top: 0;
+    margin-left: auto;
+  }
 }

@@ -1,29 +1,41 @@
 "use client";
 import type { ReactNode } from "react";
-import React, { useEffect } from "react";
+import React from "react";
+import Link from "next/link";
 import "./admin-panel.css";
+import "./admin-common.css";
 import { useAuth } from "@/contexts/AuthContext/AuthContext";
 import Sidebar from '@/components/layout/SideBarAdminPanel/SideBarAdminPanel';
-import { useRouter } from "next/navigation";
-import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 
 export default function AdminPanelRootLayout({ children }: { children: ReactNode }) {
-	const { user, role } = useAuth();
-	const router = useRouter();
+	const { user, role, loading } = useAuth();
 
-	useEffect(() => {
-		if (role && role !== "admin") {
-			router.replace("/");
-		}
-	}, [role, router]);
-
-	if (role && role !== "admin") {
+	// Session en cours de lecture : ni contenu ni refus tant qu'on ne sait pas qui est là
+	if (loading) {
 		return (
-			<div className="access-denied">
-				<div className="error-message">
-					<i className="pi pi-exclamation-triangle"></i>
-					<span>Accès refusé. Cette page est réservée aux administrateurs.</span>
-				</div>
+			<div className="admin-gate" role="status">
+				<span className="pi pi-spin pi-spinner" aria-hidden="true"></span>
+				Chargement…
+			</div>
+		);
+	}
+
+	if (!user) {
+		return (
+			<div className="admin-gate">
+				<span className="pi pi-lock" aria-hidden="true"></span>
+				<p>Connectez-vous avec un compte administrateur pour accéder à cette page.</p>
+				<Link href="/login" className="admin-gate-link">Se connecter</Link>
+			</div>
+		);
+	}
+
+	if (role !== "admin") {
+		return (
+			<div className="admin-gate">
+				<span className="pi pi-exclamation-triangle" aria-hidden="true"></span>
+				<p>Cette page est réservée aux administrateurs.</p>
+				<Link href="/" className="admin-gate-link">Retour au site</Link>
 			</div>
 		);
 	}
@@ -31,18 +43,7 @@ export default function AdminPanelRootLayout({ children }: { children: ReactNode
 	return (
 		<div className="admin-panel">
 			<Sidebar />
-
 			<div className="admin-main">
-				<div className="admin-header">
-					<Breadcrumb className="admin-breadcrumb" />
-
-					<div className="admin-user-info">
-						<span className="welcome-text">
-							Bienvenue, {user?.displayName || "Administrateur"}
-						</span>
-					</div>
-				</div>
-
 				<div className="admin-content">{children}</div>
 			</div>
 		</div>

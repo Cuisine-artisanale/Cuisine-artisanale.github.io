@@ -264,7 +264,7 @@ export default function PostsAdminPage() {
       )}
 
       <div className="posts-header">
-        <h2>Gestion des Posts</h2>
+        <h1>Posts</h1>
         <div className="posts-header-actions">
           <div className="input-icon-left">
             <i className="pi pi-search" />

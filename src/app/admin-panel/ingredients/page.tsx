@@ -217,7 +217,7 @@ export default function IngredientsAdminPage() {
       )}
 
       <div className="table-header">
-        <h2>Gestion des Ingrédients</h2>
+        <h1>Ingrédients</h1>
         <div className="table-header-actions">
           <div className="input-icon-left">
             <i className="pi pi-search" />

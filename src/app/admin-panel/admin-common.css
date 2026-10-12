@@ -1,0 +1,182 @@
+/* Styles communs aux pages de l'administration.
+   Chaque page a sa propre feuille (users-admin.css, recettes-admin.css…), écrite séparément :
+   ces règles, plus spécifiques (préfixe .admin-content), leur donnent le même aspect —
+   même en-tête, mêmes tableaux, mêmes champs et boutons. */
+
+/* ---- Conteneur de page : la marge est déjà donnée par .admin-content ---- */
+.admin-content .users-container,
+.admin-content .recipes-admin,
+.admin-content .ingredients-admin,
+.admin-content .units-admin,
+.admin-content .posts-admin {
+  padding: 0;
+}
+
+/* ---- En-tête de page : titre à gauche, recherche et actions à droite ---- */
+.admin-content .admin-page-header,
+.admin-content .table-header,
+.admin-content .recipes-header,
+.admin-content .posts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0 0 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.admin-content .admin-page-header h1,
+.admin-content .table-header h1,
+.admin-content .recipes-header h1,
+.admin-content .posts-header h1,
+.admin-content .table-header h2,
+.admin-content .recipes-header h2,
+.admin-content .posts-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.admin-content .admin-page-header p {
+  margin: 0.2rem 0 0;
+  color: var(--text-color-secondary);
+}
+
+/* ---- Recherche et listes de tri ---- */
+.admin-content .search-input,
+.admin-content .sort-dropdown,
+.admin-content .cell-input {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-card);
+  color: var(--text-color);
+  font: inherit;
+}
+
+.admin-content .search-input:focus,
+.admin-content .sort-dropdown:focus,
+.admin-content .cell-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: var(--focus-ring);
+}
+
+/* ---- Tableaux : un seul cadre, en-tête clair, lignes séparées par un filet ---- */
+.admin-content .table-container {
+  margin-top: 0;
+  padding: 0;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface-card);
+  box-shadow: none;
+  overflow-x: auto;
+}
+
+.admin-content table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.admin-content table thead {
+  background: var(--surface-section);
+}
+
+.admin-content table th {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-bottom: 1px solid var(--surface-border);
+  color: var(--text-color-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.admin-content table td {
+  padding: 0.7rem 1rem;
+  border: none;
+  border-bottom: 1px solid var(--surface-border);
+  color: var(--text-color);
+  vertical-align: middle;
+}
+
+.admin-content table tbody tr,
+.admin-content table tbody tr:nth-child(even) {
+  background: transparent;
+}
+
+.admin-content table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-content table tbody tr:hover {
+  background: var(--surface-hover);
+}
+
+/* Cellule modifiable au clic : soulignée en pointillés pour le signaler */
+.admin-content .editable-cell:not(.role-badge) {
+  border-bottom: 1px dashed var(--surface-300);
+  border-radius: 0;
+}
+
+.admin-content .editable-cell:not(.role-badge):hover {
+  border-bottom-color: var(--primary-color);
+  background: transparent;
+  color: var(--primary-color);
+}
+
+/* ---- Cartes (recettes à valider, posts) ---- */
+.admin-content .recipe-card-admin,
+.admin-content .post-card {
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface-card);
+  box-shadow: none;
+}
+
+.admin-content .recipe-card-admin:hover,
+.admin-content .post-card:hover {
+  border-color: var(--primary-light);
+  box-shadow: 0 6px 18px rgba(44, 24, 16, 0.08);
+}
+
+/* ---- États vides et chargement ---- */
+.admin-content .empty-message {
+  padding: 2.5rem 1rem;
+  color: var(--text-color-secondary);
+  text-align: center;
+}
+
+/* ---- Pagination ---- */
+.admin-content .pagination-wrapper {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+@media (max-width: 600px) {
+  .admin-content .admin-page-header h1,
+  .admin-content .table-header h1,
+.admin-content .recipes-header h1,
+.admin-content .posts-header h1,
+.admin-content .table-header h2,
+  .admin-content .recipes-header h2,
+  .admin-content .posts-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .admin-content .input-icon-left {
+    max-width: none;
+  }
+}
+
+/* Champ de recherche : place pour la loupe (mobile.css impose un retrait uniforme aux champs) */
+.admin-content .input-icon-left .search-input {
+  padding-left: 2.5rem !important;
+}

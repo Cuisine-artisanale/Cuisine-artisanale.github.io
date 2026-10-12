@@ -175,7 +175,7 @@ export default function UsersAdminPage() {
       )}
 
       <div className="table-header">
-        <h2>Gestion des Utilisateurs</h2>
+        <h1>Utilisateurs</h1>
         <div className="input-icon-left">
           <i className="pi pi-search" />
           <input

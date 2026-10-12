@@ -1,12 +1,168 @@
-.Dashboard {
-  padding: 16px;
-  border: 1px solid var(--surface-border);
-  margin: 10px;
-  border-radius: var(--border-radius);
+/* Vue d'ensemble de l'administration.
+   mobile.css transforme tous les liens en blocs de 44 px avec retrait : on fixe ici leur mise en forme. */
+
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.Dashboard h1 {
-  margin: 0;
+.admin-dashboard h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--text-color);
 }
 
+/* ---- À traiter ---- */
+.dashboard-todo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-dashboard .dashboard-todo-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface-card);
+  color: var(--text-color-secondary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.admin-dashboard .dashboard-todo-card.has-items {
+  border-color: var(--primary-color);
+  background: var(--surface-section);
+  color: var(--text-color);
+}
+
+.admin-dashboard .dashboard-todo-card:hover {
+  border-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.dashboard-todo-card > .pi:first-child {
+  font-size: 1.3rem;
+  color: var(--primary-color);
+}
+
+.dashboard-todo-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-color);
+}
+
+.dashboard-todo-label {
+  flex: 1;
+}
+
+.dashboard-todo-arrow {
+  color: var(--text-color-secondary);
+}
+
+.dashboard-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface-card);
+  color: var(--text-color-secondary);
+}
+
+.dashboard-empty .pi {
+  color: var(--success-600);
+}
+
+/* ---- Dernières recettes proposées ---- */
+.dashboard-pending {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface-card);
+}
+
+.dashboard-pending li {
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.dashboard-pending li:last-child {
+  border-bottom: none;
+}
+
+.dashboard-pending strong {
+  display: block;
+  color: var(--text-color);
+}
+
+.dashboard-pending small {
+  color: var(--text-color-secondary);
+}
+
+.admin-dashboard .dashboard-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 0;
+  padding: 0;
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-dashboard .dashboard-link:hover {
+  text-decoration: underline;
+}
+
+/* ---- Chiffres ---- */
+.dashboard-figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-dashboard .dashboard-figure {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.15rem 0.75rem;
+  min-height: 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface-card);
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.admin-dashboard .dashboard-figure:hover {
+  border-color: var(--primary-light);
+}
+
+.dashboard-figure > .pi {
+  grid-row: 1 / 3;
+  font-size: 1.4rem;
+  color: var(--primary-color);
+}
+
+.dashboard-figure-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.dashboard-figure-label {
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+}
