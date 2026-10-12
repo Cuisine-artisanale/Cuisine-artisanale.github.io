@@ -720,6 +720,17 @@
   object-fit: cover;
 }
 
+.recipe-hero-credit {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+}
+
+.recipe-hero-credit a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 .recipe-hero-thumbnails {
   display: flex;
   flex-wrap: wrap;

@@ -20,6 +20,15 @@ export interface RecipePart {
   ingredients: Ingredient[];
 }
 
+/** Crédit de la photo d'une recette (image sous licence libre : auteur et licence à afficher) */
+export interface ImageCredit {
+  author: string;
+  license: string;
+  /** Page d'origine de la photo */
+  sourceUrl: string;
+  licenseUrl?: string;
+}
+
 export interface Recipe {
   id: string;
   title: string;
@@ -30,6 +39,7 @@ export interface Recipe {
   video?: string;
   position: string;
   images?: string[];
+  imageCredit?: ImageCredit;
   createdBy?: string;
   createdAt?: Date | any;
   url?: string;

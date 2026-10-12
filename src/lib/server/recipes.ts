@@ -109,6 +109,15 @@ export const getRecipeBySlug = cache(async (slug: string): Promise<ServerRecipe 
     video: data.video || undefined,
     position: data.position || '',
     images: Array.isArray(data.images) ? data.images : [],
+    imageCredit:
+      data.imageCredit?.author && data.imageCredit?.sourceUrl
+        ? {
+            author: String(data.imageCredit.author),
+            license: String(data.imageCredit.license || ''),
+            sourceUrl: String(data.imageCredit.sourceUrl),
+            ...(data.imageCredit.licenseUrl ? { licenseUrl: String(data.imageCredit.licenseUrl) } : {}),
+          }
+        : undefined,
     createdBy: data.createdBy || undefined,
     createdAt: toIsoDate(data.createdAt),
     url: data.url || undefined,

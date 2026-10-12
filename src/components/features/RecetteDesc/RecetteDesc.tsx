@@ -646,6 +646,26 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 									unoptimized={!isOptimizableImage(recette.images[currentImageIndex])}
 								/>
 							</div>
+							{recette.imageCredit && (
+								<p className="recipe-hero-credit">
+									Photo :{' '}
+									<a href={recette.imageCredit.sourceUrl} target="_blank" rel="noopener noreferrer nofollow">
+										{recette.imageCredit.author}
+									</a>
+									{recette.imageCredit.license && (
+										<>
+											{' · '}
+											{recette.imageCredit.licenseUrl ? (
+												<a href={recette.imageCredit.licenseUrl} target="_blank" rel="noopener noreferrer nofollow">
+													{recette.imageCredit.license}
+												</a>
+											) : (
+												recette.imageCredit.license
+											)}
+										</>
+									)}
+								</p>
+							)}
 							{recette.images.length > 1 && (
 								<div className="recipe-hero-thumbnails">
 									{recette.images.map((image, index) => (

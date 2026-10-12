@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { collection, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
+import { collection, deleteField, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { storage } from '@/lib/config/firebase-storage';
 import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
@@ -241,6 +241,8 @@ function EditRecetteContent() {
 				position: position || 'none',
 				video: video.trim(),
 				images: imageURLs,
+				// Photo retirée : son crédit (image sous licence libre) ne vaut plus
+				...(removedImages.length > 0 ? { imageCredit: deleteField() } : {}),
 				recipeParts,
 				titleKeywords: recipeTitle.toLowerCase().split(' '),
 				updatedAt: new Date(),

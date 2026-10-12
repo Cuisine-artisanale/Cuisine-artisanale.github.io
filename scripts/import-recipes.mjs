@@ -10,6 +10,7 @@
  *   le script peut être relancé sans créer de doublon.
  * - Les ingrédients sont rattachés aux fiches du catalogue quand le nom correspond ; les autres
  *   reçoivent un id libre et entrent au catalogue à la validation, comme avec le formulaire.
+ * - La photo et son crédit viennent de scripts/data/photos-recettes.json (voir scripts/import-photos.mjs).
  * - Les demandes sont créées en une seule écriture, titre compris : aucun email d'alerte n'est envoyé.
  *
  * Identifiants : variable FIREBASE_SERVICE_ACCOUNT_KEY (JSON) ou src/firebase/serviceAccountKey.json.
@@ -65,6 +66,14 @@ const units = new Map(
 );
 const departements = new Set(
   [...fs.readFileSync(path.join(process.cwd(), 'src', 'constants', 'departements.ts'), 'utf8').matchAll(/code:\s*"([^"]+)"/g)].map((m) => m[1])
+);
+
+// Photos sous licence libre déjà envoyées dans le stockage, par titre de recette
+const photosFile = path.join(process.cwd(), 'scripts', 'data', 'photos-recettes.json');
+const photos = new Map(
+  (fs.existsSync(photosFile) ? JSON.parse(fs.readFileSync(photosFile, 'utf8')) : [])
+    .filter((photo) => photo.imageUrl)
+    .map((photo) => [photo.title, photo])
 );
 
 // ---- Contrôle du fichier ----
@@ -143,6 +152,7 @@ for (const recipe of recipes) {
     }),
   }));
 
+  const photo = photos.get(recipe.title);
   requests.push({
     title: recipe.title,
     type: recipe.type,
@@ -152,7 +162,17 @@ for (const recipe of recipes) {
     difficulty: recipe.difficulty,
     position: recipe.position,
     recipeParts,
-    images: [],
+    images: photo ? [photo.imageUrl] : [],
+    ...(photo
+      ? {
+          imageCredit: {
+            author: photo.author,
+            license: photo.license,
+            sourceUrl: photo.sourceUrl,
+            ...(photo.licenseUrl ? { licenseUrl: photo.licenseUrl } : {}),
+          },
+        }
+      : {}),
     video: '',
     titleKeywords: toKeywords(recipe),
     url,
@@ -163,7 +183,7 @@ for (const recipe of recipes) {
 console.log(`\n${requests.length} recette(s) à déposer sur ${recipes.length} :`);
 for (const request of requests) {
   const count = request.recipeParts.reduce((n, part) => n + part.ingredients.length, 0);
-  console.log(` - ${request.title} (${request.type}, ${request.position === 'none' ? 'sans département' : request.position}) → /recettes/${request.url}, ${count} ingrédients`);
+  console.log(` - ${request.title} (${request.type}, ${request.position === 'none' ? 'sans département' : request.position}) → /recettes/${request.url}, ${count} ingrédients${request.images.length ? '' : ', SANS PHOTO'}`);
 }
 if (newIngredients.size > 0) {
   console.log(`\n${newIngredients.size} ingrédient(s) absents du catalogue, créés à la validation :\n ${[...newIngredients].sort((a, b) => a.localeCompare(b, 'fr')).join(', ')}`);
@@ -180,4 +200,4 @@ for (const request of requests) {
   batch.set(ref, { ...request, id: ref.id, createdBy: uid, createdAt: FieldValue.serverTimestamp() });
 }
 await batch.commit();
-console.log(`\n✅ ${requests.length} recette(s) déposée(s) en modération. Ajouter une photo à chacune avant de la valider.`);
+console.log(`\n✅ ${requests.length} recette(s) déposée(s) en modération. Ajouter une photo à celles qui n'en ont pas avant de les valider.`);
