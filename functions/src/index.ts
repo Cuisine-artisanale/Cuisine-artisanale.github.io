@@ -1,8 +1,7 @@
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
-import { onDocumentCreated, onDocumentWritten } from "firebase-functions/v2/firestore";
-import { GoogleAuth } from "google-auth-library";
+import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { AggregateField } from "firebase-admin/firestore";
 
 import cors from "cors";
@@ -41,57 +40,6 @@ function escapeHtml(value: string): string {
 		.replace(/>/g, "&gt;")
 		.replace(/"/g, "&quot;");
 }
-
-const INDEXING_API_URL =
-	"https://indexing.googleapis.com/v3/urlNotifications:publish";
-
-// Fonction pour notifier Google à la création d'une recette
-export const notifyGoogleIndexingOnNewRecipe = onDocumentCreated(
-	"recipes/{recipeId}",
-	async (event) => {
-		const recipe = event.data?.data();
-
-		if (!recipe) {
-			console.error("Snapshot vide ou recette introuvable");
-			return;
-		}
-
-		// Crée le slug de l'URL de la recette
-		const slug = recipe.title
-			.normalize("NFD")
-			.replace(/[\u0300-\u036f]/g, "")
-			.replace(/[^\w\s-]/g, "")
-			.trim()
-			.replace(/\s+/g, "-")
-			.toLowerCase();
-
-		const recipeUrl = `https://www.Cuisine-artisanale.fr/recettes/${slug}`;
-
-		const serviceAccount = JSON.parse(process.env.GOOGLE_INDEXING_KEY || "{}");
-
-		try {
-			const auth = new GoogleAuth({
-				keyFile: serviceAccount, // chemin vers ta clé JSON
-				scopes: "https://www.googleapis.com/auth/indexing",
-			});
-
-			const client = await auth.getClient();
-
-			const res = await client.request({
-				url: INDEXING_API_URL,
-				method: "POST",
-				data: {
-					url: recipeUrl,
-					type: "URL_UPDATED", // URL nouvelle ou mise à jour
-				},
-			});
-
-			console.log(`Indexing request envoyée pour ${recipeUrl}:`, res.data);
-		} catch (error) {
-			console.error("Erreur lors de la notification Google Indexing:", error);
-		}
-	}
-);
 
 // Définir les types des données Firestore
 interface RecipeRequest {

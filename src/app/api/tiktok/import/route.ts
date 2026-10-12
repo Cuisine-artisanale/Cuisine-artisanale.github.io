@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
   try {
     const uid = await getAuthenticatedUid(request);
     const body = await request.json().catch(() => ({}));
-    const maxCount = Number.isFinite(body?.maxCount) ? Number(body.maxCount) : 20;
+    // Entre 1 et 50 vidéos par appel
+    const maxCount = Number.isFinite(body?.maxCount) ? Math.min(50, Math.max(1, Math.floor(Number(body.maxCount)))) : 20;
     const selectedCollectionId =
       typeof body?.collectionId === 'string' && body.collectionId.trim()
         ? body.collectionId.trim()

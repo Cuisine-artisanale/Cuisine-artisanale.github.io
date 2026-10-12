@@ -3,13 +3,25 @@ import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
+/** Photos de recettes : Firebase Storage uniquement (comme images.remotePatterns dans next.config.ts). */
+function isAllowedImage(src: string): boolean {
+  try {
+    const { protocol, hostname } = new URL(src);
+    return protocol === 'https:' && hostname === 'firebasestorage.googleapis.com';
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const recipeId = searchParams.get('id');
-    const title = searchParams.get('title') || 'Recette';
-    const type = searchParams.get('type') || 'Recette';
-    const imageUrl = searchParams.get('image') || '';
+    // Textes bornés, et image de fond uniquement depuis le stockage du site :
+    // la route ne doit pas servir à charger ou habiller une image quelconque.
+    const title = (searchParams.get('title') || 'Recette').slice(0, 120);
+    const type = (searchParams.get('type') || 'Recette').slice(0, 40);
+    const requestedImage = searchParams.get('image') || '';
+    const imageUrl = isAllowedImage(requestedImage) ? requestedImage : '';
 
     return new ImageResponse(
       (

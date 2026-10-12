@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getFirebaseAdminAuth, getFirebaseAdminDb } from '@/lib/config/firebase-admin';
 import { slugify } from '@/lib/utils/slug';
+import { checkRateLimit } from '@/lib/server/rate-limit';
 
 type TikTokOEmbedResponse = {
   title?: string;
@@ -631,6 +632,21 @@ async function getAuthenticatedUid(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const uid = await getAuthenticatedUid(request);
+
+    // 20 imports par heure et par utilisateur : chaque import appelle un service d'IA payant
+    const rateLimit = await checkRateLimit({
+      action: 'tiktok-import-url',
+      identifier: uid,
+      limit: 20,
+      windowSeconds: 3600,
+    });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: "Trop d'imports. Veuillez réessayer plus tard." },
+        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfter) } },
+      );
+    }
+
     const body = await request.json().catch(() => ({}));
     const rawVideoUrl = typeof body?.videoUrl === 'string' ? body.videoUrl : '';
     const rawSupplementalText =

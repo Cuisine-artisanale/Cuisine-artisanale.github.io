@@ -3,6 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdminDb } from "@/lib/config/firebase-admin";
 import { sendEmail } from "@/lib/services/emailService";
 import { getWelcomeEmailTemplate } from "@/lib/services/emailTemplates";
+import { checkRateLimit, getClientIp } from "@/lib/server/rate-limit";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,6 +20,20 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json(
 				{ success: false, error: "Email invalide" },
 				{ status: 400 }
+			);
+		}
+
+		// 5 inscriptions par heure et par adresse IP : chaque inscription envoie un email de bienvenue
+		const rateLimit = await checkRateLimit({
+			action: "newsletter",
+			identifier: getClientIp(request),
+			limit: 5,
+			windowSeconds: 3600,
+		});
+		if (!rateLimit.allowed) {
+			return NextResponse.json(
+				{ success: false, error: "Trop de demandes. Veuillez réessayer plus tard." },
+				{ status: 429, headers: { "Retry-After": String(rateLimit.retryAfter) } }
 			);
 		}
 

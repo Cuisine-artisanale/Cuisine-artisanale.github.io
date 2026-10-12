@@ -11,6 +11,7 @@ import {
   serializeJsonLd,
 } from '@/lib/server/recipes';
 import { getUnits } from '@/lib/server/units';
+import { isOptimizableImage } from '@/lib/utils/image';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -38,9 +39,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { recipe } = data;
   const description = buildRecipeDescription(recipe);
   const path = canonicalPath(slug, recipe.url);
-  const ogImage = recipe.images?.[0]
-    ? `/api/og-image?title=${encodeURIComponent(recipe.title)}&type=${encodeURIComponent(recipe.type || 'Recette')}&image=${encodeURIComponent(recipe.images[0])}`
-    : undefined;
+  // Image de partage : photo de la recette en fond si elle vient du stockage du site, sinon fond uni
+  const photo = (recipe.images || []).find((image) => isOptimizableImage(image));
+  const ogImage = `/api/og-image?title=${encodeURIComponent(recipe.title)}&type=${encodeURIComponent(recipe.type || 'Recette')}${photo ? `&image=${encodeURIComponent(photo)}` : ''}`;
 
   return {
     // Le layout ajoute " | Cuisine Artisanale"

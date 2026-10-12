@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdminAuth } from '@/lib/config/firebase-admin';
 import { sendEmail } from '@/lib/services/emailService';
+import { checkRateLimit, getClientIp } from '@/lib/server/rate-limit';
 
 const FRONTEND_URL =
   process.env.NEXT_PUBLIC_FRONTEND_URL ||
@@ -129,6 +130,20 @@ export async function POST(request: NextRequest) {
   }
 
   const normalizedEmail = email.trim().toLowerCase();
+
+  // 5 demandes par heure et par adresse IP
+  const rateLimit = await checkRateLimit({
+    action: 'reset-email',
+    identifier: getClientIp(request),
+    limit: 5,
+    windowSeconds: 3600,
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { success: false, error: 'Trop de demandes. Veuillez réessayer plus tard.' },
+      { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfter) } },
+    );
+  }
 
   try {
     const firebaseLink = await getFirebaseAdminAuth().generatePasswordResetLink(normalizedEmail, {
