@@ -20,7 +20,7 @@ const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-int
 
 export const metadata = {
 	title: {
-		default: 'Cuisine Artisanale - Recettes Traditionnelles Françaises',
+		default: 'Cuisine Artisanale - Recettes Traditionnelles',
 		template: '%s | Cuisine Artisanale',
 	},
 	description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales. Partagez vos recettes traditionnelles et explorez la gastronomie française.',
@@ -74,8 +74,8 @@ export const metadata = {
 		locale: 'fr_FR',
 		url: 'https://www.cuisine-artisanale.fr/',
 		siteName: 'Cuisine Artisanale',
-		title: 'Cuisine Artisanale - Recettes Traditionnelles Françaises',
-		description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales.',
+		title: 'Cuisine Artisanale - Recettes Traditionnelles',
+		description: 'Découvrez des recettes artisanales authentiques, des actualités culinaires et une carte interactive des spécialités régionales.',
 		images: [
 			{
 				url: 'https://www.cuisine-artisanale.fr/screenshot-wide.png',
@@ -87,7 +87,7 @@ export const metadata = {
 	},
 	twitter: {
 		card: 'summary_large_image',
-		title: 'Cuisine Artisanale - Recettes Traditionnelles Françaises',
+		title: 'Cuisine Artisanale - Recettes Traditionnelles',
 		description: 'Découvrez des recettes artisanales françaises authentiques, des actualités culinaires et une carte interactive des spécialités régionales.',
 		images: ['https://www.cuisine-artisanale.fr/screenshot-wide.png'],
 	},

@@ -16,7 +16,7 @@ const LegalMention: React.FC = () => {
 			<div className="site-footer-columns">
 				<div className="site-footer-brand">
 					<p className="site-footer-name">Cuisine Artisanale</p>
-					<p>Les recettes traditionnelles françaises, partagées par des passionnés.</p>
+					<p>Les recettes traditionnelles, partagées par des passionnés.</p>
 				</div>
 
 				<nav aria-label="Navigation du pied de page">

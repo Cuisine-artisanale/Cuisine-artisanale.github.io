@@ -10,12 +10,12 @@ export const revalidate = 600;
 
 export const metadata: Metadata = {
 	// Titre complet (sans le suffixe du layout)
-	title: { absolute: 'Cuisine Artisanale - Recettes traditionnelles françaises' },
+	title: { absolute: 'Cuisine Artisanale - Recettes traditionnelles' },
 	description: 'Recettes artisanales françaises authentiques : recette de la semaine, recettes populaires, actualités culinaires et carte des spécialités régionales.',
 	alternates: { canonical: '/' },
 	openGraph: {
 		url: '/',
-		title: 'Cuisine Artisanale - Recettes traditionnelles françaises',
+		title: 'Cuisine Artisanale - Recettes traditionnelles',
 		description: 'Recette de la semaine, recettes populaires et spécialités régionales françaises.',
 	},
 };

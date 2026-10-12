@@ -15,7 +15,7 @@ const RECIPE_TYPES = [
 export default function HomeHero() {
 	return (
 		<section className="home-hero">
-			<h1>Les recettes traditionnelles françaises, faites maison</h1>
+			<h1>Les recettes traditionnelles, faites maison</h1>
 			<p className="home-hero-tagline">
 				Des recettes de nos régions partagées par des passionnés, à cuisiner pas à pas.
 			</p>
