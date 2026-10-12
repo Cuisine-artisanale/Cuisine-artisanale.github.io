@@ -481,7 +481,7 @@ const AddRecetteForm: React.FC = () => {
 	  const querySnapshot = await getDocs(recettesQuery);
 	  const recettesData: Ingredient[] = querySnapshot.docs.map((doc) => {
 		const data = doc.data();
-		return { name: data.name, id: doc.id, unit: data.unit || '' };
+		return { name: data.name, id: doc.id, unit: data.unit || '', ...(data.defaultUnitId ? { defaultUnitId: data.defaultUnitId } : {}) };
 	  });
 	  setIngredientsList(recettesData);
 	} catch (error) {
@@ -598,6 +598,7 @@ const AddRecetteForm: React.FC = () => {
 			<TikTokImportReview
 				key={tiktokDraft.sourceVideoId}
 				draft={tiktokDraft}
+				catalog={ingredientsList}
 				units={allUnits}
 				submitting={tiktokSaving}
 				onCancel={() => setTiktokDraft(null)}

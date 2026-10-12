@@ -928,7 +928,8 @@ const getIngredientCatalog = unstable_cache(
 
 /** Clé de comparaison d'un nom d'ingrédient : sans accents ni espaces, pluriel simple ignoré. */
 function ingredientKey(name: string) {
-  return normalizeUnitKey(name).replace(/s$/, '');
+  // Même règle que l'écran de relecture (TikTokImportReview) : « Œufs » = « oeuf »
+  return normalizeUnitKey(name.replace(/œ/gi, 'oe').replace(/æ/gi, 'ae')).replace(/s$/, '');
 }
 
 const MAX_THUMBNAIL_BYTES = 5 * 1024 * 1024;

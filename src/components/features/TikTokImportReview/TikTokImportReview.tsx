@@ -1,15 +1,33 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
+import { buildUnitIndex, normalizeUnitKey, resolveUnit, selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
 import type { ImportDraft, ImportDraftIngredient } from '@/types/import.types';
 import './TikTokImportReview.css';
 
 const RECIPE_TYPES = ['Entrée', 'Plat', 'Dessert', 'Boisson'];
 
+/** Fiche du catalogue d'ingrédients, proposée pendant la saisie du nom */
+export interface CatalogIngredient {
+	id: string;
+	name: string;
+	/** Unité proposée par défaut sur la fiche */
+	unit?: string;
+	defaultUnitId?: string;
+}
+
+const MAX_SUGGESTIONS = 6;
+
+/** Clé de comparaison d'un nom : sans accents, espaces ni ligatures (« Œufs » = « oeuf »), pluriel simple ignoré. */
+function nameKey(name: string) {
+	return normalizeUnitKey(name.replace(/œ/gi, 'oe').replace(/æ/gi, 'ae')).replace(/s$/, '');
+}
+
 interface TikTokImportReviewProps {
 	draft: ImportDraft;
+	/** Ingrédients déjà connus du site, proposés pendant la saisie */
+	catalog: CatalogIngredient[];
 	/** Catalogue d'unités (liste de choix) */
 	units: UnitDef[];
 	submitting: boolean;
@@ -21,9 +39,28 @@ interface TikTokImportReviewProps {
  * Relecture d'une recette extraite d'une vidéo TikTok : l'utilisateur corrige le titre,
  * les ingrédients et les étapes avant l'envoi en modération.
  */
-const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialDraft, units, submitting, onCancel, onSubmit }) => {
+const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialDraft, catalog, units, submitting, onCancel, onSubmit }) => {
 	const [draft, setDraft] = useState<ImportDraft>(initialDraft);
 	const unitOptions = selectableUnits(units);
+	// Ligne d'ingrédient dont les suggestions sont affichées, et suggestion surlignée au clavier
+	const [suggestFor, setSuggestFor] = useState<number | null>(null);
+	const [highlighted, setHighlighted] = useState(0);
+
+	const catalogKeys = useMemo(() => catalog.map((item) => ({ item, key: nameKey(item.name) })), [catalog]);
+	const knownKeys = useMemo(() => new Set(catalogKeys.map((entry) => entry.key)), [catalogKeys]);
+	const unitIndex = useMemo(() => buildUnitIndex(units), [units]);
+
+	/** Ingrédients du catalogue correspondant à la saisie : ceux qui commencent par le texte d'abord. */
+	const suggestionsFor = (text: string): CatalogIngredient[] => {
+		const key = nameKey(text);
+		if (key.length < 2) return [];
+		const starts = catalogKeys.filter((entry) => entry.key.startsWith(key));
+		const contains = catalogKeys.filter((entry) => !entry.key.startsWith(key) && entry.key.includes(key));
+		return [...starts, ...contains]
+			.filter((entry) => entry.item.name !== text.trim())
+			.slice(0, MAX_SUGGESTIONS)
+			.map((entry) => entry.item);
+	};
 
 	const update = (changes: Partial<ImportDraft>) => setDraft((current) => ({ ...current, ...changes }));
 
@@ -39,6 +76,34 @@ const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialD
 				i === index ? { ...ingredient, unit: unit ? unit.abbreviation || unit.name : '', ...(unit ? { unitId: unit.id } : {}) } : current
 			),
 		});
+	};
+
+	/** Reprend le nom exact de la fiche, et son unité par défaut si la ligne n'en a pas encore. */
+	const chooseSuggestion = (index: number, suggestion: CatalogIngredient) => {
+		const current = draft.ingredients[index];
+		const defaultUnit = !current.unit && !current.unitId ? resolveUnit(unitIndex, suggestion.defaultUnitId, suggestion.unit) : null;
+		updateIngredient(index, {
+			name: suggestion.name,
+			...(defaultUnit ? { unit: defaultUnit.abbreviation || defaultUnit.name, unitId: defaultUnit.id } : {}),
+		});
+		setSuggestFor(null);
+	};
+
+	const onNameKeyDown = (event: React.KeyboardEvent<HTMLInputElement>, index: number, suggestions: CatalogIngredient[]) => {
+		if (suggestFor !== index || suggestions.length === 0) return;
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+			setHighlighted((value) => (value + 1) % suggestions.length);
+		} else if (event.key === 'ArrowUp') {
+			event.preventDefault();
+			setHighlighted((value) => (value - 1 + suggestions.length) % suggestions.length);
+		} else if (event.key === 'Enter') {
+			event.preventDefault();
+			chooseSuggestion(index, suggestions[Math.min(highlighted, suggestions.length - 1)]);
+		} else if (event.key === 'Escape') {
+			event.stopPropagation();
+			setSuggestFor(null);
+		}
 	};
 
 	const updateStep = (index: number, value: string) =>
@@ -163,7 +228,10 @@ const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialD
 						<p className="tiktok-review-empty">Aucun ingrédient trouvé dans la vidéo : ajoutez-les ci-dessous.</p>
 					)}
 					<ul className="tiktok-review-ingredients">
-						{draft.ingredients.map((ingredient, index) => (
+						{draft.ingredients.map((ingredient, index) => {
+							const suggestions = suggestFor === index ? suggestionsFor(ingredient.name) : [];
+							const isKnown = knownKeys.has(nameKey(ingredient.name));
+							return (
 							<li key={index}>
 								<input
 									type="text"
@@ -185,15 +253,54 @@ const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialD
 									{!ingredient.unitId && ingredient.unit && <option value="__custom">{ingredient.unit}</option>}
 									{unitOptions.map((unit) => <option key={unit.id} value={unit.id}>{unitOptionLabel(unit)}</option>)}
 								</select>
-								<input
-									type="text"
-									className="tiktok-review-name"
-									value={ingredient.name}
-									maxLength={80}
-									placeholder="Ingrédient"
-									aria-label={`Nom de l'ingrédient ${index + 1}`}
-									onChange={(e) => updateIngredient(index, { name: e.target.value })}
-								/>
+								<div className="tiktok-review-name">
+									<input
+										type="text"
+										value={ingredient.name}
+										maxLength={80}
+										placeholder="Ingrédient"
+										aria-label={`Nom de l'ingrédient ${index + 1}`}
+										role="combobox"
+										aria-expanded={suggestions.length > 0}
+										aria-controls={`tiktok-review-suggestions-${index}`}
+										aria-autocomplete="list"
+										autoComplete="off"
+										onChange={(e) => {
+											updateIngredient(index, { name: e.target.value });
+											setSuggestFor(index);
+											setHighlighted(0);
+										}}
+										onFocus={() => { setSuggestFor(index); setHighlighted(0); }}
+										// Délai : laisse le clic sur une suggestion s'enregistrer avant de fermer la liste
+										onBlur={() => setTimeout(() => setSuggestFor((current) => (current === index ? null : current)), 150)}
+										onKeyDown={(e) => onNameKeyDown(e, index, suggestions)}
+									/>
+									{ingredient.name.trim().length >= 2 && (
+										<span
+											className={`tiktok-review-known${isKnown ? ' is-known' : ''}`}
+											title={isKnown ? 'Ingrédient déjà connu du site' : 'Nouvel ingrédient'}
+										>
+											<span className={`pi ${isKnown ? 'pi-check-circle' : 'pi-plus-circle'}`} aria-hidden="true"></span>
+											<span className="sr-only">{isKnown ? 'Ingrédient déjà connu du site' : 'Nouvel ingrédient'}</span>
+										</span>
+									)}
+									{suggestions.length > 0 && (
+										<ul className="tiktok-review-suggestions" id={`tiktok-review-suggestions-${index}`} role="listbox">
+											{suggestions.map((suggestion, position) => (
+												<li
+													key={suggestion.id}
+													role="option"
+													aria-selected={position === highlighted}
+													className={position === highlighted ? 'is-highlighted' : undefined}
+													// mousedown : avant la perte de focus du champ
+													onMouseDown={(e) => { e.preventDefault(); chooseSuggestion(index, suggestion); }}
+												>
+													{suggestion.name}
+												</li>
+											))}
+										</ul>
+									)}
+								</div>
 								<button
 									type="button"
 									className="tiktok-review-icon"
@@ -203,8 +310,13 @@ const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialD
 									<span className="pi pi-trash" aria-hidden="true"></span>
 								</button>
 							</li>
-						))}
+							);
+						})}
 					</ul>
+					<p className="tiktok-review-legend">
+						<span className="pi pi-check-circle" aria-hidden="true"></span> ingrédient déjà connu du site
+						<span className="pi pi-plus-circle" aria-hidden="true"></span> nouvel ingrédient
+					</p>
 					<button
 						type="button"
 						className="tiktok-review-add"
