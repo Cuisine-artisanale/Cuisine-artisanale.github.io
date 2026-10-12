@@ -1,0 +1,1161 @@
+[
+  {
+    "title": "Quiche lorraine",
+    "type": "Entrée",
+    "position": "54",
+    "preparationTime": 20,
+    "cookingTime": 40,
+    "servings": 6,
+    "difficulty": "easy",
+    "keywords": ["quiche", "lorraine", "lardons", "tarte salée", "entrée"],
+    "parts": [
+      {
+        "title": "Pâte brisée",
+        "ingredients": [
+          ["Farine", "250", "g"],
+          ["Beurre froid", "125", "g"],
+          ["Eau", "5", "cl"],
+          ["Sel", "1", "pincee"]
+        ],
+        "steps": [
+          "Mélanger la farine et le sel, puis ajouter le beurre froid coupé en dés. Sabler du bout des doigts jusqu'à obtenir une texture de chapelure.",
+          "Verser l'eau froide et rassembler rapidement en boule, sans trop travailler la pâte.",
+          "Filmer et laisser reposer 30 minutes au réfrigérateur.",
+          "Préchauffer le four à 180 °C. Étaler la pâte et foncer un moule à tarte de 26 à 28 cm. Piquer le fond à la fourchette.",
+          "Couvrir de papier cuisson et de billes de cuisson (ou de légumes secs), puis cuire à blanc 10 minutes."
+        ]
+      },
+      {
+        "title": "Garniture",
+        "ingredients": [
+          ["Lardons", "200", "g"],
+          ["Œufs", "3", "piece"],
+          ["Crème fraîche", "20", "cl"],
+          ["Lait entier", "20", "cl"],
+          ["Noix de muscade", "1", "pincee"],
+          ["Poivre", "1", "pincee"]
+        ],
+        "steps": [
+          "Faire revenir les lardons 3 à 4 minutes à la poêle sans matière grasse, puis les égoutter sur du papier absorbant.",
+          "Battre les œufs avec la crème et le lait. Poivrer, ajouter la muscade. Saler très peu : les lardons le sont déjà.",
+          "Répartir les lardons sur le fond de tarte précuit et verser l'appareil par-dessus.",
+          "Enfourner 30 minutes à 180 °C, jusqu'à ce que la quiche soit dorée et encore légèrement tremblotante au centre.",
+          "Laisser tiédir 10 minutes avant de démouler. Servir avec une salade verte."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Flammekueche",
+    "type": "Entrée",
+    "position": "67",
+    "preparationTime": 20,
+    "cookingTime": 10,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["flammekueche", "tarte flambée", "alsace", "lardons", "oignons", "entrée"],
+    "parts": [
+      {
+        "title": "Pâte",
+        "ingredients": [
+          ["Farine", "250", "g"],
+          ["Eau", "15", "cl"],
+          ["Huile", "2", "cas"],
+          ["Sel", "0,5", "cac"]
+        ],
+        "steps": [
+          "Préchauffer le four au maximum (250 à 270 °C) en laissant une plaque à l'intérieur pour qu'elle soit brûlante.",
+          "Mélanger la farine, le sel, l'huile et l'eau, puis pétrir 5 minutes jusqu'à obtenir une pâte lisse et souple.",
+          "Diviser la pâte en deux et étaler chaque moitié très finement (2 mm) sur une feuille de papier cuisson, en rectangle ou en ovale."
+        ]
+      },
+      {
+        "title": "Garniture",
+        "ingredients": [
+          ["Fromage blanc", "200", "g"],
+          ["Crème fraîche", "20", "cl"],
+          ["Oignons", "2", "piece"],
+          ["Lardons", "200", "g"],
+          ["Noix de muscade", "1", "pincee"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Mélanger le fromage blanc et la crème. Saler légèrement, poivrer et ajouter la muscade.",
+          "Éplucher les oignons et les émincer le plus finement possible.",
+          "Étaler la crème sur les deux fonds de pâte jusqu'à 1 cm du bord. Répartir les oignons puis les lardons crus.",
+          "Glisser une tarte avec son papier sur la plaque brûlante et cuire 8 à 10 minutes, jusqu'à ce que les bords soient bien dorés, presque noircis par endroits.",
+          "Cuire la seconde de la même façon. Servir aussitôt, coupée en parts à la main."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Salade niçoise",
+    "type": "Entrée",
+    "position": "06",
+    "preparationTime": 20,
+    "cookingTime": 10,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["salade", "niçoise", "nice", "thon", "anchois", "été", "entrée"],
+    "parts": [
+      {
+        "title": "Salade niçoise",
+        "ingredients": [
+          ["Tomates", "4", "piece"],
+          ["Œufs", "3", "piece"],
+          ["Thon à l'huile", "200", "g"],
+          ["Filets d'anchois à l'huile", "8", "piece"],
+          ["Olives noires", "80", "g"],
+          ["Poivron vert", "1", "piece"],
+          ["Oignons nouveaux", "3", "piece"],
+          ["Concombre", "0,5", "piece"],
+          ["Basilic", "6", "feuille"],
+          ["Ail", "1", "gousse"],
+          ["Huile d'olive", "4", "cas"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Cuire les œufs 10 minutes dans l'eau bouillante, les passer sous l'eau froide, les écaler et les couper en quartiers.",
+          "Couper les tomates en quartiers, les saler légèrement et les laisser dégorger 10 minutes dans une passoire.",
+          "Émincer le poivron en fines lanières, le concombre en rondelles et les oignons nouveaux en fines tranches.",
+          "Frotter le fond d'un grand plat avec la gousse d'ail coupée en deux.",
+          "Disposer les tomates, le concombre, le poivron et les oignons. Ajouter le thon émietté, les anchois, les olives et les œufs.",
+          "Arroser d'huile d'olive, poivrer, parsemer de basilic ciselé et servir sans mélanger. La recette traditionnelle ne contient ni légumes cuits ni vinaigre."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Gougères",
+    "type": "Entrée",
+    "position": "89",
+    "preparationTime": 20,
+    "cookingTime": 25,
+    "servings": 6,
+    "difficulty": "medium",
+    "keywords": ["gougères", "bourgogne", "pâte à choux", "fromage", "comté", "apéritif", "entrée"],
+    "parts": [
+      {
+        "title": "Gougères",
+        "ingredients": [
+          ["Eau", "25", "cl"],
+          ["Beurre", "80", "g"],
+          ["Sel", "0,5", "cac"],
+          ["Farine", "150", "g"],
+          ["Œufs", "4", "piece"],
+          ["Comté râpé", "150", "g"],
+          ["Noix de muscade", "1", "pincee"],
+          ["Poivre", "1", "pincee"]
+        ],
+        "steps": [
+          "Préchauffer le four à 200 °C et couvrir deux plaques de papier cuisson.",
+          "Porter à ébullition l'eau avec le beurre en morceaux et le sel. Dès que le beurre est fondu, retirer du feu et verser la farine en une seule fois.",
+          "Mélanger vivement à la spatule, puis remettre sur feu doux 1 à 2 minutes pour dessécher la pâte : elle doit former une boule qui se détache des parois.",
+          "Hors du feu, laisser tiédir 2 minutes puis incorporer les œufs un par un, en mélangeant bien entre chaque. La pâte doit être lisse et former un ruban.",
+          "Ajouter 120 g de comté, la muscade et le poivre.",
+          "Former une trentaine de petits tas à la cuillère ou à la poche à douille, bien espacés. Parsemer du reste de comté.",
+          "Enfourner 20 à 25 minutes sans ouvrir la porte du four, jusqu'à ce que les gougères soient gonflées et bien dorées. Servir tièdes."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Houmous",
+    "type": "Entrée",
+    "position": "none",
+    "preparationTime": 15,
+    "cookingTime": 0,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["houmous", "pois chiches", "tahini", "libanais", "apéritif", "végétarien", "entrée"],
+    "parts": [
+      {
+        "title": "Houmous",
+        "ingredients": [
+          ["Pois chiches cuits égouttés", "265", "g"],
+          ["Tahini", "80", "g"],
+          ["Citron frais", "1", "piece"],
+          ["Ail", "1", "gousse"],
+          ["Eau", "4", "cas"],
+          ["Cumin", "0,5", "cac"],
+          ["Sel", "0,5", "cac"],
+          ["Huile d'olive", "2", "cas"],
+          ["Paprika", "1", "pincee"]
+        ],
+        "steps": [
+          "Rincer et égoutter les pois chiches (265 g, soit une boîte de 400 g). Pour un houmous très lisse, retirer leur peau en les frottant dans un torchon.",
+          "Mixer le tahini avec le jus du citron pendant 1 minute, jusqu'à ce que le mélange blanchisse et épaississe.",
+          "Ajouter l'ail dégermé, le sel et le cumin, puis mixer de nouveau.",
+          "Ajouter les pois chiches et mixer 3 à 4 minutes en versant l'eau, glacée, cuillère par cuillère, jusqu'à obtenir une texture crémeuse.",
+          "Goûter et ajuster en sel et en citron.",
+          "Servir dans une assiette creuse, creuser un sillon avec le dos d'une cuillère, arroser d'huile d'olive et saupoudrer de paprika. Accompagner de pain pita ou de naan."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Taboulé libanais",
+    "type": "Entrée",
+    "position": "none",
+    "preparationTime": 30,
+    "cookingTime": 0,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["taboulé", "libanais", "persil", "boulgour", "salade", "végétarien", "entrée"],
+    "parts": [
+      {
+        "title": "Taboulé libanais",
+        "ingredients": [
+          ["Persil", "2", "botte"],
+          ["Menthe fraîche", "0,5", "botte"],
+          ["Boulgour fin", "40", "g"],
+          ["Tomates", "3", "piece"],
+          ["Oignons nouveaux", "2", "piece"],
+          ["Citron frais", "2", "piece"],
+          ["Huile d'olive", "5", "cas"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Couper les tomates en tout petits dés en récupérant leur jus. Presser les citrons.",
+          "Verser le boulgour dans un saladier, l'arroser du jus de citron et du jus des tomates, puis le laisser gonfler 20 minutes. Il ne se cuit pas.",
+          "Laver et sécher soigneusement le persil et la menthe. Les effeuiller et les hacher finement au couteau, jamais au mixeur, qui les réduirait en purée.",
+          "Émincer très finement les oignons nouveaux.",
+          "Ajouter au boulgour le persil, la menthe, les tomates et les oignons. Le persil doit rester l'ingrédient principal.",
+          "Juste avant de servir, verser l'huile d'olive, saler, poivrer et mélanger. Servir frais, avec des feuilles de salade romaine en guise de cuillère."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Falafels",
+    "type": "Entrée",
+    "position": "none",
+    "preparationTime": 25,
+    "cookingTime": 15,
+    "servings": 4,
+    "difficulty": "medium",
+    "keywords": ["falafels", "pois chiches", "libanais", "friture", "végétarien", "entrée"],
+    "parts": [
+      {
+        "title": "Falafels",
+        "ingredients": [
+          ["Pois chiches secs", "250", "g"],
+          ["Oignons", "1", "piece"],
+          ["Ail", "3", "gousse"],
+          ["Persil", "0,5", "botte"],
+          ["Coriandre fraîche", "0,5", "botte"],
+          ["Cumin", "1", "cac"],
+          ["Coriandre moulue", "1", "cac"],
+          ["Bicarbonate de soude", "0,5", "cac"],
+          ["Sel", "1", "cac"],
+          ["Huile", "1", "l"]
+        ],
+        "steps": [
+          "La veille, faire tremper les pois chiches secs 12 à 24 heures dans un grand volume d'eau froide. Ne pas utiliser de pois chiches en boîte : les falafels se déferaient à la cuisson.",
+          "Égoutter les pois chiches et les sécher dans un torchon.",
+          "Les mixer par impulsions avec l'oignon, l'ail, le persil et la coriandre, jusqu'à obtenir une texture de semoule grossière, pas une purée.",
+          "Ajouter le cumin, la coriandre moulue, le sel et le bicarbonate. Mélanger et laisser reposer 30 minutes au réfrigérateur.",
+          "Former une vingtaine de boulettes légèrement aplaties en les pressant bien entre les mains humides.",
+          "Chauffer l'huile à 175 °C et frire les falafels par petites quantités, 3 à 4 minutes, jusqu'à ce qu'ils soient bien bruns.",
+          "Égoutter sur du papier absorbant. Servir chauds, avec du houmous ou une sauce au tahini et au citron."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Bœuf bourguignon",
+    "type": "Plat",
+    "position": "71",
+    "preparationTime": 30,
+    "cookingTime": 180,
+    "servings": 6,
+    "difficulty": "medium",
+    "keywords": ["bœuf", "boeuf", "bourguignon", "bourgogne", "vin rouge", "mijoté", "plat"],
+    "parts": [
+      {
+        "title": "La viande et la sauce",
+        "ingredients": [
+          ["Bœuf à braiser", "1,2", "kg"],
+          ["Lardons", "200", "g"],
+          ["Carottes", "2", "piece"],
+          ["Oignons", "2", "piece"],
+          ["Ail", "2", "gousse"],
+          ["Farine", "2", "cas"],
+          ["Vin rouge de Bourgogne", "75", "cl"],
+          ["Bouillon de bœuf", "25", "cl"],
+          ["Bouquet garni", "1", "piece"],
+          ["Huile", "2", "cas"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Couper la viande (paleron, joue ou macreuse) en cubes de 4 à 5 cm et les sécher avec du papier absorbant. Émincer les oignons, couper les carottes en rondelles épaisses.",
+          "Dans une cocotte en fonte, faire dorer les lardons, puis les réserver.",
+          "Dans la même cocotte, ajouter l'huile et faire colorer la viande sur toutes les faces, en plusieurs fois pour ne pas la faire bouillir. Réserver.",
+          "Faire revenir les oignons et les carottes 5 minutes. Remettre la viande et les lardons, saupoudrer de farine et mélanger 2 minutes.",
+          "Verser le vin et le bouillon en grattant le fond de la cocotte. Ajouter l'ail écrasé et le bouquet garni. Saler et poivrer.",
+          "Porter à frémissement, couvrir et laisser mijoter 2 h 30 à 3 heures à feu très doux, en remuant de temps en temps. La viande doit se défaire à la fourchette."
+        ]
+      },
+      {
+        "title": "La garniture",
+        "ingredients": [
+          ["Champignons de Paris", "250", "g"],
+          ["Oignons grelots", "12", "piece"],
+          ["Beurre", "30", "g"]
+        ],
+        "steps": [
+          "Trente minutes avant la fin, faire dorer les oignons grelots épluchés dans la moitié du beurre pendant 10 minutes.",
+          "Faire sauter les champignons coupés en quartiers dans le reste du beurre jusqu'à évaporation de leur eau.",
+          "Ajouter oignons et champignons dans la cocotte pour les 15 dernières minutes de cuisson.",
+          "Retirer le bouquet garni, rectifier l'assaisonnement et servir avec des pommes de terre vapeur ou des tagliatelles. Le plat est encore meilleur réchauffé le lendemain."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Tartiflette",
+    "type": "Plat",
+    "position": "74",
+    "preparationTime": 20,
+    "cookingTime": 50,
+    "servings": 6,
+    "difficulty": "easy",
+    "keywords": ["tartiflette", "savoie", "reblochon", "pommes de terre", "hiver", "gratin", "plat"],
+    "parts": [
+      {
+        "title": "Tartiflette",
+        "ingredients": [
+          ["Pomme de terre", "1,2", "kg"],
+          ["Reblochon", "1", "piece"],
+          ["Lardons", "200", "g"],
+          ["Oignons", "2", "piece"],
+          ["Vin blanc sec", "10", "cl"],
+          ["Crème fraîche", "15", "cl"],
+          ["Ail", "1", "gousse"],
+          ["Beurre", "20", "g"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Cuire les pommes de terre à chair ferme avec leur peau 20 minutes dans l'eau bouillante salée : elles doivent rester un peu fermes. Les éplucher et les couper en rondelles épaisses.",
+          "Préchauffer le four à 200 °C. Frotter un plat à gratin avec la gousse d'ail coupée en deux, puis le beurrer.",
+          "Faire revenir les oignons émincés et les lardons 5 à 8 minutes à la poêle, jusqu'à légère coloration.",
+          "Verser le vin blanc, laisser réduire 2 minutes, puis ajouter les pommes de terre et mélanger délicatement. Poivrer, saler très peu.",
+          "Verser la moitié du mélange dans le plat, napper de la moitié de la crème, puis recommencer avec le reste.",
+          "Couper le reblochon en deux dans l'épaisseur et poser les deux moitiés sur le dessus, croûte vers le haut.",
+          "Enfourner 20 à 25 minutes, jusqu'à ce que le fromage soit fondu et gratiné. Servir avec une salade verte."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Poulet basquaise",
+    "type": "Plat",
+    "position": "64",
+    "preparationTime": 20,
+    "cookingTime": 50,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["poulet", "basquaise", "pays basque", "poivrons", "piment d'espelette", "plat"],
+    "parts": [
+      {
+        "title": "Poulet basquaise",
+        "ingredients": [
+          ["Cuisses de poulet", "4", "piece"],
+          ["Poivron rouge", "2", "piece"],
+          ["Poivron vert", "2", "piece"],
+          ["Tomates", "6", "piece"],
+          ["Oignons", "2", "piece"],
+          ["Ail", "3", "gousse"],
+          ["Jambon de Bayonne", "2", "tranche"],
+          ["Vin blanc sec", "15", "cl"],
+          ["Piment d'Espelette", "1", "cac"],
+          ["Bouquet garni", "1", "piece"],
+          ["Huile d'olive", "3", "cas"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Saler et poivrer les cuisses de poulet. Les faire dorer dans une cocotte avec l'huile d'olive, 4 à 5 minutes par face, puis les réserver.",
+          "Dans la même cocotte, faire revenir les oignons émincés et le jambon coupé en lanières pendant 3 minutes.",
+          "Ajouter les poivrons coupés en lanières et l'ail haché. Laisser fondre 10 minutes à feu moyen en remuant.",
+          "Ajouter les tomates pelées et concassées, le vin blanc, le bouquet garni et le piment d'Espelette.",
+          "Remettre le poulet dans la sauce, couvrir et laisser mijoter 35 minutes à feu doux.",
+          "Retirer le couvercle pour les 10 dernières minutes afin de faire réduire la sauce. Rectifier l'assaisonnement et servir avec du riz."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Galettes complètes",
+    "type": "Plat",
+    "position": "35",
+    "preparationTime": 15,
+    "cookingTime": 20,
+    "servings": 4,
+    "difficulty": "medium",
+    "keywords": ["galettes", "bretonnes", "sarrasin", "blé noir", "bretagne", "jambon", "œuf", "plat"],
+    "parts": [
+      {
+        "title": "Pâte à galettes",
+        "ingredients": [
+          ["Farine de sarrasin", "330", "g"],
+          ["Eau", "75", "cl"],
+          ["Œufs", "1", "piece"],
+          ["Sel", "10", "g"]
+        ],
+        "steps": [
+          "Mélanger la farine de sarrasin et le sel. Creuser un puits, y casser l'œuf et verser un tiers de l'eau.",
+          "Fouetter énergiquement plusieurs minutes pour aérer la pâte, puis ajouter le reste de l'eau petit à petit.",
+          "Couvrir et laisser reposer au moins 2 heures au réfrigérateur, idéalement une nuit. Détendre avec un peu d'eau si la pâte a épaissi."
+        ]
+      },
+      {
+        "title": "Garniture",
+        "ingredients": [
+          ["Œufs", "8", "piece"],
+          ["Jambon blanc", "8", "tranche"],
+          ["Emmental râpé", "200", "g"],
+          ["Beurre demi-sel", "40", "g"]
+        ],
+        "steps": [
+          "Chauffer fortement une crêpière ou une grande poêle et la graisser avec un peu de beurre demi-sel.",
+          "Verser une louche de pâte, l'étaler finement et cuire 1 à 2 minutes. Retourner la galette quand les bords se décollent.",
+          "Baisser le feu. Casser un œuf au centre et étaler le blanc à la spatule sans percer le jaune.",
+          "Répartir l'emmental puis une tranche de jambon autour du jaune.",
+          "Quand le blanc est pris, replier les quatre bords vers le centre pour former un carré qui laisse voir le jaune.",
+          "Ajouter une noisette de beurre demi-sel sur le dessus et servir aussitôt. Recommencer pour les 7 autres galettes."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Carbonade flamande",
+    "type": "Plat",
+    "position": "59",
+    "preparationTime": 25,
+    "cookingTime": 180,
+    "servings": 6,
+    "difficulty": "easy",
+    "keywords": ["carbonade", "flamande", "nord", "bière", "bœuf", "boeuf", "mijoté", "plat"],
+    "parts": [
+      {
+        "title": "Carbonade flamande",
+        "ingredients": [
+          ["Bœuf à braiser", "1,2", "kg"],
+          ["Oignons", "4", "piece"],
+          ["Bière brune", "75", "cl"],
+          ["Pain d'épices", "4", "tranche"],
+          ["Moutarde", "2", "cas"],
+          ["Sucre cassonade", "2", "cas"],
+          ["Vinaigre de vin", "1", "cas"],
+          ["Farine", "1", "cas"],
+          ["Beurre", "40", "g"],
+          ["Bouquet garni", "1", "piece"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Couper la viande (paleron ou macreuse) en gros cubes et les sécher. Émincer les oignons.",
+          "Dans une cocotte, faire colorer la viande dans le beurre en plusieurs fois. Saler, poivrer et réserver.",
+          "Dans la même cocotte, faire fondre les oignons 10 minutes à feu moyen. Ajouter la cassonade et laisser caraméliser légèrement.",
+          "Remettre la viande, saupoudrer de farine, mélanger, puis verser le vinaigre et la bière en grattant le fond. Ajouter le bouquet garni.",
+          "Tartiner les tranches de pain d'épices de moutarde et les poser sur la viande, moutarde vers le bas.",
+          "Couvrir et laisser mijoter 3 heures à feu très doux. Le pain d'épices fond et lie la sauce : mélanger de temps en temps après la première heure.",
+          "Retirer le bouquet garni et servir avec des frites ou des pommes de terre vapeur."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Aligot",
+    "type": "Plat",
+    "position": "12",
+    "preparationTime": 20,
+    "cookingTime": 30,
+    "servings": 4,
+    "difficulty": "medium",
+    "keywords": ["aligot", "aubrac", "aveyron", "tome fraîche", "purée", "fromage", "plat"],
+    "parts": [
+      {
+        "title": "Aligot",
+        "ingredients": [
+          ["Pomme de terre", "1", "kg"],
+          ["Tome fraîche", "400", "g"],
+          ["Crème fraîche", "20", "cl"],
+          ["Beurre", "50", "g"],
+          ["Ail", "1", "gousse"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Éplucher les pommes de terre farineuses (type bintje), les couper en morceaux et les cuire 20 à 25 minutes dans l'eau salée avec la gousse d'ail.",
+          "Couper la tome fraîche en fines lamelles et la laisser à température ambiante.",
+          "Égoutter les pommes de terre et les passer au presse-purée avec l'ail. Ne pas utiliser de mixeur, qui rendrait la purée collante.",
+          "Remettre la purée dans la casserole sur feu doux. Incorporer le beurre et la crème, saler et poivrer.",
+          "Ajouter la tome et travailler vigoureusement à la spatule en bois, toujours dans le même sens et en soulevant la masse, pendant 10 à 15 minutes.",
+          "L'aligot est prêt quand il est lisse, brillant et qu'il file en long ruban. Servir immédiatement, avec une saucisse grillée."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Gratin dauphinois",
+    "type": "Plat",
+    "position": "38",
+    "preparationTime": 20,
+    "cookingTime": 60,
+    "servings": 6,
+    "difficulty": "easy",
+    "keywords": ["gratin", "dauphinois", "pommes de terre", "crème", "isère", "accompagnement", "plat"],
+    "parts": [
+      {
+        "title": "Gratin dauphinois",
+        "ingredients": [
+          ["Pomme de terre", "1,5", "kg"],
+          ["Lait entier", "50", "cl"],
+          ["Crème liquide entière", "50", "cl"],
+          ["Ail", "2", "gousse"],
+          ["Beurre", "20", "g"],
+          ["Noix de muscade", "1", "pincee"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Préchauffer le four à 160 °C. Frotter un plat à gratin avec une gousse d'ail coupée en deux, puis le beurrer.",
+          "Éplucher les pommes de terre à chair ferme et les couper en rondelles de 3 mm. Ne pas les rincer : leur amidon donne le liant du gratin.",
+          "Dans une grande casserole, porter à frémissement le lait et la crème avec la seconde gousse d'ail écrasée, la muscade, du sel et du poivre.",
+          "Ajouter les pommes de terre et cuire 10 minutes à feu doux en remuant délicatement pour qu'elles n'attachent pas.",
+          "Verser le tout dans le plat et bien répartir les rondelles.",
+          "Enfourner 50 minutes, jusqu'à ce que le dessus soit doré et qu'un couteau s'enfonce sans résistance. Laisser reposer 10 minutes avant de servir. Le vrai gratin dauphinois ne contient pas de fromage."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Moules marinières",
+    "type": "Plat",
+    "position": "17",
+    "preparationTime": 20,
+    "cookingTime": 10,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["moules", "marinières", "vin blanc", "fruits de mer", "charente-maritime", "plat"],
+    "parts": [
+      {
+        "title": "Moules marinières",
+        "ingredients": [
+          ["Moules de bouchot", "2", "kg"],
+          ["Échalotes", "3", "piece"],
+          ["Ail", "1", "gousse"],
+          ["Vin blanc sec", "20", "cl"],
+          ["Beurre", "40", "g"],
+          ["Persil", "0,5", "botte"],
+          ["Poivre", "1", "pincee"]
+        ],
+        "steps": [
+          "Gratter les moules, retirer les filaments et les rincer rapidement à l'eau froide. Jeter celles qui sont cassées ou qui restent ouvertes quand on les tapote.",
+          "Dans une grande cocotte, faire fondre le beurre et y faire suer 3 minutes les échalotes ciselées et l'ail haché, sans coloration.",
+          "Verser le vin blanc, poivrer et porter à ébullition. Ne pas saler : les moules rendent une eau déjà salée.",
+          "Ajouter les moules, couvrir et cuire 5 à 6 minutes à feu vif en secouant la cocotte deux ou trois fois.",
+          "Dès que les moules sont toutes ouvertes, retirer du feu. Jeter celles qui sont restées fermées.",
+          "Parsemer de persil haché et servir aussitôt avec le jus de cuisson et des frites."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Butter chicken",
+    "type": "Plat",
+    "position": "none",
+    "preparationTime": 20,
+    "cookingTime": 30,
+    "servings": 4,
+    "difficulty": "medium",
+    "keywords": ["butter chicken", "poulet au beurre", "indien", "curry", "garam masala", "plat"],
+    "parts": [
+      {
+        "title": "Poulet mariné",
+        "ingredients": [
+          ["Blancs de poulet", "600", "g"],
+          ["Yaourt nature", "125", "g"],
+          ["Gingembre", "20", "g"],
+          ["Ail", "3", "gousse"],
+          ["Garam masala", "1", "cas"],
+          ["Curcuma", "1", "cac"],
+          ["Citron frais", "0,5", "piece"],
+          ["Sel", "1", "cac"]
+        ],
+        "steps": [
+          "Couper le poulet en gros cubes de 3 cm.",
+          "Mélanger le yaourt, le gingembre râpé, l'ail haché, le garam masala, le curcuma, le jus du demi-citron et le sel.",
+          "Enrober le poulet de cette marinade, couvrir et laisser au réfrigérateur au moins 2 heures, idéalement une nuit."
+        ]
+      },
+      {
+        "title": "Sauce",
+        "ingredients": [
+          ["Beurre", "50", "g"],
+          ["Oignons", "1", "piece"],
+          ["Purée de tomates", "400", "g"],
+          ["Crème liquide entière", "20", "cl"],
+          ["Garam masala", "1", "cac"],
+          ["Cumin", "1", "cac"],
+          ["Sucre", "1", "cac"],
+          ["Coriandre fraîche", "4", "brin"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Faire fondre la moitié du beurre dans une sauteuse à feu vif et y saisir le poulet égoutté 5 à 6 minutes, jusqu'à ce qu'il soit bien coloré. Réserver.",
+          "Dans la même sauteuse, faire fondre le reste du beurre et y faire revenir l'oignon finement haché 5 minutes.",
+          "Ajouter le garam masala et le cumin, mélanger 30 secondes, puis verser la purée de tomates et le sucre. Laisser mijoter 10 minutes.",
+          "Pour une sauce bien lisse, la mixer à ce stade.",
+          "Ajouter la crème et le poulet, puis laisser mijoter encore 10 minutes à feu doux. Rectifier l'assaisonnement.",
+          "Parsemer de coriandre fraîche et servir avec du riz basmati et des naans."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Dahl de lentilles corail",
+    "type": "Plat",
+    "position": "none",
+    "preparationTime": 10,
+    "cookingTime": 25,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["dahl", "dhal", "lentilles corail", "indien", "lait de coco", "végétarien", "vegan", "plat"],
+    "parts": [
+      {
+        "title": "Dahl de lentilles corail",
+        "ingredients": [
+          ["Lentilles corail", "250", "g"],
+          ["Lait de coco", "40", "cl"],
+          ["Tomates concassées", "400", "g"],
+          ["Eau", "40", "cl"],
+          ["Oignons", "1", "piece"],
+          ["Ail", "2", "gousse"],
+          ["Gingembre", "20", "g"],
+          ["Curry en poudre", "1", "cas"],
+          ["Curcuma", "1", "cac"],
+          ["Cumin", "1", "cac"],
+          ["Huile", "2", "cas"],
+          ["Citron frais", "0,5", "piece"],
+          ["Coriandre fraîche", "4", "brin"],
+          ["Sel", "1", "cac"]
+        ],
+        "steps": [
+          "Rincer les lentilles corail à l'eau froide jusqu'à ce que l'eau soit claire.",
+          "Dans une casserole, faire revenir l'oignon haché dans l'huile 5 minutes. Ajouter l'ail haché et le gingembre râpé, puis cuire 1 minute.",
+          "Ajouter le curry, le curcuma et le cumin. Mélanger 30 secondes pour torréfier les épices.",
+          "Verser les lentilles, les tomates concassées, le lait de coco et l'eau. Porter à ébullition.",
+          "Baisser le feu et laisser mijoter 20 minutes à découvert en remuant régulièrement, jusqu'à ce que les lentilles soient fondantes. Ajouter un peu d'eau si le dahl épaissit trop.",
+          "Saler en fin de cuisson, ajouter le jus de citron et parsemer de coriandre. Servir avec du riz basmati ou des naans."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Pad thaï",
+    "type": "Plat",
+    "position": "none",
+    "preparationTime": 25,
+    "cookingTime": 10,
+    "servings": 2,
+    "difficulty": "medium",
+    "keywords": ["pad thaï", "pad thai", "thaïlandais", "nouilles de riz", "crevettes", "wok", "plat"],
+    "parts": [
+      {
+        "title": "Sauce",
+        "ingredients": [
+          ["Sauce poisson", "3", "cas"],
+          ["Pâte de tamarin", "2", "cas"],
+          ["Sucre cassonade", "2", "cas"],
+          ["Eau", "2", "cas"]
+        ],
+        "steps": [
+          "Mélanger la sauce poisson (nuoc-mâm), la pâte de tamarin, la cassonade et l'eau jusqu'à dissolution du sucre. Goûter : la sauce doit être à la fois salée, acide et sucrée."
+        ]
+      },
+      {
+        "title": "Nouilles sautées",
+        "ingredients": [
+          ["Nouilles de riz", "200", "g"],
+          ["Crevettes crues décortiquées", "200", "g"],
+          ["Tofu ferme", "100", "g"],
+          ["Œufs", "2", "piece"],
+          ["Pousses de soja", "100", "g"],
+          ["Oignons nouveaux", "3", "piece"],
+          ["Ail", "2", "gousse"],
+          ["Cacahuètes grillées", "40", "g"],
+          ["Citron vert", "1", "piece"],
+          ["Huile", "3", "cas"]
+        ],
+        "steps": [
+          "Faire tremper les nouilles de riz 20 à 30 minutes dans de l'eau tiède, jusqu'à ce qu'elles soient souples mais encore fermes. Les égoutter.",
+          "Préparer tous les ingrédients avant de commencer, la cuisson est très rapide : tofu en dés, ail haché, oignons nouveaux émincés, cacahuètes concassées.",
+          "Chauffer un wok à feu très vif avec 2 cuillères d'huile. Faire dorer le tofu 2 minutes, puis ajouter les crevettes et l'ail et cuire 1 à 2 minutes. Réserver.",
+          "Ajouter le reste de l'huile, puis les nouilles et la sauce. Sauter 2 minutes en remuant sans arrêt, jusqu'à absorption de la sauce.",
+          "Pousser les nouilles sur le côté, casser les œufs dans l'espace libre, les brouiller, puis les mélanger aux nouilles.",
+          "Remettre les crevettes et le tofu, ajouter la moitié des pousses de soja et les oignons nouveaux, et mélanger 30 secondes.",
+          "Servir aussitôt avec les cacahuètes, le reste des pousses de soja et des quartiers de citron vert. Pour 4 personnes, cuire en deux fois : un wok trop chargé fait bouillir les nouilles."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Risotto aux champignons",
+    "type": "Plat",
+    "position": "none",
+    "preparationTime": 15,
+    "cookingTime": 30,
+    "servings": 4,
+    "difficulty": "medium",
+    "keywords": ["risotto", "champignons", "italien", "riz arborio", "parmesan", "végétarien", "plat"],
+    "parts": [
+      {
+        "title": "Risotto aux champignons",
+        "ingredients": [
+          ["Riz arborio", "320", "g"],
+          ["Champignons de Paris", "400", "g"],
+          ["Échalotes", "2", "piece"],
+          ["Ail", "1", "gousse"],
+          ["Vin blanc sec", "10", "cl"],
+          ["Bouillon de volaille", "1", "l"],
+          ["Parmesan râpé", "80", "g"],
+          ["Beurre", "50", "g"],
+          ["Huile d'olive", "2", "cas"],
+          ["Persil", "4", "brin"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Faire chauffer le bouillon et le maintenir frémissant pendant toute la cuisson.",
+          "Faire sauter les champignons émincés à feu vif dans l'huile d'olive jusqu'à ce qu'ils soient dorés. Ajouter l'ail haché, saler, poivrer et réserver.",
+          "Dans une sauteuse, faire fondre 20 g de beurre et y faire suer les échalotes ciselées 3 minutes sans coloration.",
+          "Ajouter le riz, sans le rincer, et remuer 2 minutes jusqu'à ce que les grains deviennent translucides sur les bords.",
+          "Verser le vin blanc et laisser évaporer complètement.",
+          "Ajouter le bouillon chaud louche par louche, en remuant souvent et en attendant qu'il soit absorbé avant d'en remettre. Compter 18 à 20 minutes : le riz doit rester légèrement ferme à cœur.",
+          "Hors du feu, incorporer les champignons, le reste du beurre bien froid et le parmesan. Mélanger vivement, couvrir et laisser reposer 2 minutes.",
+          "Servir aussitôt, parsemé de persil haché. Le risotto doit être crémeux et s'étaler doucement dans l'assiette."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Spaghetti carbonara",
+    "type": "Plat",
+    "position": "none",
+    "preparationTime": 10,
+    "cookingTime": 15,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["spaghetti", "carbonara", "pâtes", "italien", "guanciale", "pecorino", "plat"],
+    "parts": [
+      {
+        "title": "Spaghetti carbonara",
+        "ingredients": [
+          ["Spaghetti", "400", "g"],
+          ["Guanciale", "150", "g"],
+          ["Jaunes d'œufs", "4", "piece"],
+          ["Œufs", "2", "piece"],
+          ["Pecorino romano râpé", "100", "g"],
+          ["Poivre", "1", "cac"],
+          ["Sel", "", ""]
+        ],
+        "steps": [
+          "Porter à ébullition une grande casserole d'eau, la saler modérément et y cuire les spaghetti al dente.",
+          "Pendant ce temps, couper le guanciale (ou, à défaut, de la pancetta) en bâtonnets et le faire dorer à feu moyen dans une grande poêle, sans matière grasse, jusqu'à ce qu'il soit croustillant. Retirer du feu.",
+          "Dans un bol, fouetter les jaunes, les œufs entiers, le pecorino et le poivre fraîchement moulu jusqu'à obtenir une crème épaisse.",
+          "Prélever une louche d'eau de cuisson, puis égoutter les pâtes et les verser dans la poêle avec le guanciale. Mélanger pour les enrober de gras.",
+          "Hors du feu, attendre 30 secondes puis verser la crème d'œufs en remuant vivement. Ajouter un peu d'eau de cuisson pour obtenir une sauce nappante. La poêle ne doit plus être sur le feu, sinon les œufs coagulent.",
+          "Servir immédiatement avec un peu de pecorino et de poivre. La recette italienne ne contient ni crème ni oignon."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Chili con carne",
+    "type": "Plat",
+    "position": "none",
+    "preparationTime": 20,
+    "cookingTime": 75,
+    "servings": 6,
+    "difficulty": "easy",
+    "keywords": ["chili", "con carne", "tex-mex", "haricots rouges", "bœuf haché", "épicé", "plat"],
+    "parts": [
+      {
+        "title": "Chili con carne",
+        "ingredients": [
+          ["Bœuf haché", "600", "g"],
+          ["Haricots rouges cuits égouttés", "500", "g"],
+          ["Tomates concassées", "800", "g"],
+          ["Oignons", "2", "piece"],
+          ["Poivron rouge", "1", "piece"],
+          ["Ail", "3", "gousse"],
+          ["Concentré de tomates", "2", "cas"],
+          ["Bouillon de bœuf", "25", "cl"],
+          ["Cumin", "2", "cac"],
+          ["Paprika fumé", "2", "cac"],
+          ["Origan", "1", "cac"],
+          ["Piment de Cayenne", "0,5", "cac"],
+          ["Huile", "2", "cas"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Dans une cocotte, faire revenir les oignons hachés et le poivron coupé en dés dans l'huile pendant 5 minutes. Ajouter l'ail haché.",
+          "Ajouter le bœuf haché et le faire colorer à feu vif en l'émiettant à la spatule, jusqu'à ce qu'il n'y ait plus de jus.",
+          "Ajouter le cumin, le paprika fumé, l'origan, le piment et le concentré de tomates. Mélanger 1 minute.",
+          "Verser les tomates concassées et le bouillon. Saler, poivrer, porter à frémissement, puis couvrir à moitié et laisser mijoter 45 minutes.",
+          "Ajouter les haricots rouges rincés et égouttés (500 g, soit deux boîtes de 400 g) et poursuivre la cuisson 20 minutes à découvert, jusqu'à ce que le chili soit épais.",
+          "Goûter et ajuster le sel et le piment. Servir avec du riz, de la crème fraîche et de la coriandre. Comme tous les plats mijotés, il est meilleur le lendemain."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Tajine de poulet au citron confit",
+    "type": "Plat",
+    "position": "none",
+    "preparationTime": 20,
+    "cookingTime": 60,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["tajine", "poulet", "citron confit", "olives", "marocain", "mijoté", "plat"],
+    "parts": [
+      {
+        "title": "Tajine de poulet au citron confit",
+        "ingredients": [
+          ["Cuisses de poulet", "4", "piece"],
+          ["Citrons confits", "2", "piece"],
+          ["Olives vertes", "150", "g"],
+          ["Oignons", "2", "piece"],
+          ["Ail", "3", "gousse"],
+          ["Gingembre moulu", "1", "cac"],
+          ["Curcuma", "1", "cac"],
+          ["Safran", "1", "pincee"],
+          ["Coriandre fraîche", "0,5", "botte"],
+          ["Persil", "0,5", "botte"],
+          ["Huile d'olive", "3", "cas"],
+          ["Eau", "30", "cl"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Mélanger l'huile d'olive, le gingembre, le curcuma, le safran, l'ail haché, du poivre et très peu de sel. Enrober le poulet de ce mélange et, si possible, laisser mariner 1 heure.",
+          "Dans un tajine ou une cocotte, faire fondre les oignons émincés 5 minutes, puis poser le poulet par-dessus et le faire dorer légèrement.",
+          "Ajouter l'eau et la moitié des herbes hachées. Couvrir et laisser mijoter 40 minutes à feu doux, en retournant le poulet à mi-cuisson.",
+          "Rincer les citrons confits, retirer la pulpe et couper l'écorce en lanières. Rincer les olives.",
+          "Ajouter l'écorce de citron et les olives, puis poursuivre la cuisson 15 minutes à découvert pour faire réduire la sauce.",
+          "Goûter avant de saler : citrons confits et olives le sont déjà. Parsemer du reste des herbes et servir avec de la semoule ou du pain."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Shakshuka",
+    "type": "Plat",
+    "position": "none",
+    "preparationTime": 10,
+    "cookingTime": 25,
+    "servings": 2,
+    "difficulty": "easy",
+    "keywords": ["shakshuka", "chakchouka", "œufs", "tomates", "poivrons", "brunch", "végétarien", "plat"],
+    "parts": [
+      {
+        "title": "Shakshuka",
+        "ingredients": [
+          ["Œufs", "4", "piece"],
+          ["Tomates concassées", "400", "g"],
+          ["Poivron rouge", "1", "piece"],
+          ["Oignons", "1", "piece"],
+          ["Ail", "2", "gousse"],
+          ["Concentré de tomates", "1", "cas"],
+          ["Cumin", "1", "cac"],
+          ["Paprika", "1", "cac"],
+          ["Piment de Cayenne", "1", "pincee"],
+          ["Huile d'olive", "2", "cas"],
+          ["Feta", "60", "g"],
+          ["Coriandre fraîche", "4", "brin"],
+          ["Sel et poivre", "", ""]
+        ],
+        "steps": [
+          "Dans une poêle munie d'un couvercle, faire revenir l'oignon émincé et le poivron en lanières dans l'huile d'olive pendant 8 minutes.",
+          "Ajouter l'ail haché, le cumin, le paprika, le piment et le concentré de tomates. Mélanger 1 minute.",
+          "Verser les tomates concassées, saler, poivrer et laisser mijoter 10 minutes, jusqu'à ce que la sauce épaississe.",
+          "Creuser quatre puits dans la sauce avec le dos d'une cuillère et y casser les œufs.",
+          "Couvrir et cuire 5 à 6 minutes à feu doux : les blancs doivent être pris et les jaunes encore coulants.",
+          "Parsemer de feta émiettée et de coriandre. Servir directement dans la poêle, avec du pain pour saucer."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Tarte Tatin",
+    "type": "Dessert",
+    "position": "41",
+    "preparationTime": 30,
+    "cookingTime": 45,
+    "servings": 8,
+    "difficulty": "medium",
+    "keywords": ["tarte", "tatin", "pommes", "caramel", "sologne", "dessert"],
+    "parts": [
+      {
+        "title": "Pâte brisée",
+        "ingredients": [
+          ["Farine", "200", "g"],
+          ["Beurre froid", "100", "g"],
+          ["Sucre", "1", "cas"],
+          ["Eau", "4", "cl"],
+          ["Sel", "1", "pincee"]
+        ],
+        "steps": [
+          "Sabler la farine, le sucre, le sel et le beurre froid en dés du bout des doigts.",
+          "Ajouter l'eau froide, former une boule sans trop travailler, filmer et réserver 30 minutes au réfrigérateur."
+        ]
+      },
+      {
+        "title": "Pommes caramélisées",
+        "ingredients": [
+          ["Pommes", "1,5", "kg"],
+          ["Sucre", "125", "g"],
+          ["Beurre", "100", "g"]
+        ],
+        "steps": [
+          "Préchauffer le four à 180 °C. Éplucher les pommes (une variété ferme, reinette ou golden), les couper en quartiers et retirer le cœur.",
+          "Dans un moule de 24 cm allant sur le feu et au four, faire fondre le beurre avec le sucre à feu moyen jusqu'à obtenir un caramel blond.",
+          "Hors du feu, ranger les quartiers de pommes debout, bien serrés : ils réduisent à la cuisson.",
+          "Remettre sur feu moyen 15 à 20 minutes, jusqu'à ce que le caramel remonte entre les pommes et prenne une couleur ambrée.",
+          "Étaler la pâte en un disque un peu plus grand que le moule, la poser sur les pommes et rentrer les bords à l'intérieur. Faire une petite cheminée au centre.",
+          "Enfourner 25 à 30 minutes, jusqu'à ce que la pâte soit bien dorée.",
+          "Laisser reposer 5 à 10 minutes, puis retourner la tarte sur un plat d'un geste franc. Servir tiède, avec de la crème fraîche épaisse."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Canelés",
+    "type": "Dessert",
+    "position": "33",
+    "preparationTime": 15,
+    "cookingTime": 60,
+    "servings": 12,
+    "difficulty": "medium",
+    "keywords": ["canelés", "cannelés", "bordeaux", "bordelais", "rhum", "vanille", "dessert"],
+    "parts": [
+      {
+        "title": "Canelés",
+        "ingredients": [
+          ["Lait entier", "50", "cl"],
+          ["Beurre", "50", "g"],
+          ["Vanille", "1", "gousse"],
+          ["Sucre", "250", "g"],
+          ["Farine", "100", "g"],
+          ["Œufs", "2", "piece"],
+          ["Jaunes d'œufs", "2", "piece"],
+          ["Rhum brun", "5", "cl"],
+          ["Sel", "1", "pincee"]
+        ],
+        "steps": [
+          "La veille, porter à ébullition le lait avec le beurre et la gousse de vanille fendue et grattée. Retirer du feu et laisser tiédir.",
+          "Mélanger la farine, le sucre et le sel. Ajouter les œufs et les jaunes légèrement battus, sans fouetter : il ne faut pas incorporer d'air.",
+          "Verser le lait tiède en filet en mélangeant doucement jusqu'à obtenir une pâte fluide, comme une pâte à crêpes. Ajouter le rhum.",
+          "Couvrir et laisser reposer 24 heures au réfrigérateur, avec la gousse de vanille. Ce repos est indispensable.",
+          "Le jour même, préchauffer le four à 240 °C et beurrer généreusement 12 moules à canelés. Retirer la vanille et mélanger doucement la pâte.",
+          "Remplir les moules aux trois quarts. Enfourner 10 minutes à 240 °C, puis baisser à 180 °C et poursuivre 50 minutes. Les canelés doivent être très bruns, presque noirs sur le dessus.",
+          "Démouler encore chauds et laisser refroidir sur une grille : la croûte devient croustillante en refroidissant. À déguster le jour même."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Far breton",
+    "type": "Dessert",
+    "position": "29",
+    "preparationTime": 15,
+    "cookingTime": 45,
+    "servings": 8,
+    "difficulty": "easy",
+    "keywords": ["far", "breton", "bretagne", "pruneaux", "flan", "dessert"],
+    "parts": [
+      {
+        "title": "Far breton",
+        "ingredients": [
+          ["Farine", "200", "g"],
+          ["Sucre", "150", "g"],
+          ["Œufs", "4", "piece"],
+          ["Lait entier", "75", "cl"],
+          ["Pruneaux dénoyautés", "250", "g"],
+          ["Beurre demi-sel", "30", "g"],
+          ["Rhum brun", "2", "cas"],
+          ["Sel", "1", "pincee"]
+        ],
+        "steps": [
+          "Préchauffer le four à 200 °C. Beurrer généreusement un plat à gratin d'environ 20 × 30 cm avec le beurre demi-sel.",
+          "Mélanger la farine, le sucre et le sel. Ajouter les œufs un par un en fouettant pour éviter les grumeaux.",
+          "Verser le lait tiédi petit à petit, puis le rhum. La pâte doit être lisse et très liquide.",
+          "Répartir les pruneaux dans le plat et verser la pâte par-dessus.",
+          "Enfourner 10 minutes à 200 °C, puis baisser à 180 °C et poursuivre 35 minutes. Le far doit être bien doré et pris, encore légèrement tremblotant au centre.",
+          "Laisser refroidir complètement avant de couper : le far se sert froid ou à peine tiède, et se raffermit en refroidissant."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Tarte aux pralines",
+    "type": "Dessert",
+    "position": "69",
+    "preparationTime": 25,
+    "cookingTime": 35,
+    "servings": 8,
+    "difficulty": "medium",
+    "keywords": ["tarte", "pralines", "pralines roses", "lyon", "lyonnaise", "dessert"],
+    "parts": [
+      {
+        "title": "Pâte sablée",
+        "ingredients": [
+          ["Farine", "200", "g"],
+          ["Beurre pommade", "100", "g"],
+          ["Sucre glace", "80", "g"],
+          ["Poudre d'amandes", "25", "g"],
+          ["Œufs", "1", "piece"],
+          ["Sel", "1", "pincee"]
+        ],
+        "steps": [
+          "Mélanger le beurre pommade avec le sucre glace, la poudre d'amandes et le sel. Ajouter l'œuf, puis la farine, sans trop travailler.",
+          "Former un disque, filmer et laisser reposer 1 heure au réfrigérateur.",
+          "Préchauffer le four à 180 °C. Étaler la pâte, foncer un moule de 24 cm et piquer le fond.",
+          "Couvrir de papier cuisson et de billes de cuisson, cuire 15 minutes, puis retirer les billes et poursuivre 5 minutes pour dorer le fond."
+        ]
+      },
+      {
+        "title": "Crème aux pralines",
+        "ingredients": [
+          ["Pralines roses", "250", "g"],
+          ["Crème liquide entière", "25", "cl"]
+        ],
+        "steps": [
+          "Concasser grossièrement les pralines roses au rouleau à pâtisserie, dans un torchon.",
+          "Les verser dans une casserole avec la crème et porter à ébullition en remuant.",
+          "Laisser cuire 10 à 15 minutes à petits bouillons, jusqu'à ce que le mélange épaississe et nappe la cuillère (environ 110 °C au thermomètre).",
+          "Verser sur le fond de tarte cuit et enfourner 10 à 15 minutes à 160 °C.",
+          "Laisser refroidir au moins 3 heures à température ambiante : la garniture, liquide à la sortie du four, fige en refroidissant."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Tiramisu",
+    "type": "Dessert",
+    "position": "none",
+    "preparationTime": 25,
+    "cookingTime": 0,
+    "servings": 6,
+    "difficulty": "easy",
+    "keywords": ["tiramisu", "mascarpone", "café", "italien", "sans cuisson", "dessert"],
+    "parts": [
+      {
+        "title": "Crème au mascarpone",
+        "ingredients": [
+          ["Œufs", "3", "piece"],
+          ["Sucre", "80", "g"],
+          ["Mascarpone", "250", "g"],
+          ["Sel", "1", "pincee"]
+        ],
+        "steps": [
+          "Utiliser des œufs très frais. Séparer les blancs des jaunes, puis fouetter les jaunes avec le sucre jusqu'à ce que le mélange blanchisse et double de volume.",
+          "Ajouter le mascarpone et fouetter juste assez pour obtenir une crème lisse.",
+          "Monter les blancs en neige ferme avec la pincée de sel, puis les incorporer délicatement à la crème avec une spatule, en trois fois."
+        ]
+      },
+      {
+        "title": "Montage",
+        "ingredients": [
+          ["Biscuits à la cuillère", "24", "piece"],
+          ["Café fort", "30", "cl"],
+          ["Amaretto", "2", "cas"],
+          ["Cacao amer en poudre", "2", "cas"]
+        ],
+        "steps": [
+          "Verser le café refroidi dans une assiette creuse, avec l'amaretto ou du marsala si vous en utilisez (facultatif).",
+          "Tremper très rapidement les biscuits, une seconde de chaque côté, et tapisser le fond d'un plat d'environ 20 × 25 cm.",
+          "Recouvrir de la moitié de la crème, ajouter une seconde couche de biscuits imbibés, puis le reste de la crème. Lisser.",
+          "Couvrir et placer au réfrigérateur au moins 6 heures, idéalement une nuit.",
+          "Saupoudrer de cacao amer juste avant de servir. Cette recette contient des œufs crus : à consommer dans les 24 heures."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Cheesecake",
+    "type": "Dessert",
+    "position": "none",
+    "preparationTime": 25,
+    "cookingTime": 60,
+    "servings": 10,
+    "difficulty": "medium",
+    "keywords": ["cheesecake", "new-yorkais", "américain", "fromage frais", "spéculoos", "dessert"],
+    "parts": [
+      {
+        "title": "Base biscuitée",
+        "ingredients": [
+          ["Spéculoos", "200", "g"],
+          ["Beurre fondu", "80", "g"]
+        ],
+        "steps": [
+          "Préchauffer le four à 160 °C. Chemiser de papier cuisson le fond d'un moule à charnière de 22 cm.",
+          "Réduire les biscuits en poudre (spéculoos ou petits-beurre) et les mélanger au beurre fondu.",
+          "Tasser ce mélange au fond du moule avec le dos d'un verre, puis enfourner 10 minutes. Laisser refroidir."
+        ]
+      },
+      {
+        "title": "Appareil au fromage frais",
+        "ingredients": [
+          ["Fromage frais à tartiner", "600", "g"],
+          ["Sucre", "150", "g"],
+          ["Crème fraîche", "20", "cl"],
+          ["Œufs", "3", "piece"],
+          ["Farine", "1", "cas"],
+          ["Citron frais", "1", "piece"],
+          ["Extrait de vanille", "1", "cac"]
+        ],
+        "steps": [
+          "Sortir tous les ingrédients 1 heure à l'avance : à température ambiante, l'appareil se mélange sans grumeaux.",
+          "Fouetter doucement le fromage frais avec le sucre et la farine jusqu'à ce qu'il soit lisse.",
+          "Ajouter la crème, la vanille, le zeste du citron et une cuillère à soupe de son jus.",
+          "Incorporer les œufs un par un, en mélangeant le moins possible : trop d'air ferait gonfler puis craquer le cheesecake.",
+          "Verser sur la base et enfourner 50 minutes à 160 °C. Les bords doivent être pris et le centre encore tremblotant.",
+          "Éteindre le four, entrouvrir la porte et laisser le cheesecake refroidir 1 heure à l'intérieur.",
+          "Placer au réfrigérateur au moins 12 heures avant de démouler. Servir nature ou avec un coulis de fruits rouges."
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Pancakes",
+    "type": "Dessert",
+    "position": "none",
+    "preparationTime": 10,
+    "cookingTime": 15,
+    "servings": 4,
+    "difficulty": "easy",
+    "keywords": ["pancakes", "américains", "petit-déjeuner", "brunch", "goûter", "dessert"],
+    "parts": [
+      {
+        "title": "Pancakes",
+        "ingredients": [
+          ["Farine", "250", "g"],
+          ["Levure chimique", "1", "sachet"],
+          ["Sucre", "30", "g"],
+          ["Sel", "1", "pincee"],
+          ["Œufs", "2", "piece"],
+          ["Lait", "30", "cl"],
+          ["Beurre fondu", "40", "g"]
+        ],
+        "steps": [
+          "Dans un saladier, mélanger la farine, la levure, le sucre et le sel.",
+          "Dans un autre récipient, battre les œufs avec le lait et le beurre fondu tiédi.",
+          "Verser les liquides sur la farine et mélanger brièvement au fouet. Arrêter dès que la farine est incorporée : quelques grumeaux donnent des pancakes plus moelleux.",
+          "Laisser reposer la pâte 10 minutes pendant que la poêle chauffe à feu moyen.",
+          "Graisser légèrement la poêle et verser une petite louche de pâte par pancake, sans l'étaler.",
+          "Quand des bulles apparaissent à la surface et que les bords sont secs, après environ 2 minutes, retourner le pancake et cuire encore 1 minute.",
+          "Garder les pancakes au chaud sous un torchon. Servir une douzaine de pancakes avec du sirop d'érable, du miel ou des fruits frais."
+        ]
+      }
+    ]
+  }
+]

@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "backfill:public-profiles": "node scripts/backfill-public-profiles.mjs",
     "backfill:recipe-counters": "node scripts/backfill-recipe-counters.mjs",
-    "seed:units": "node scripts/seed-units.mjs"
+    "seed:units": "node scripts/seed-units.mjs",
+    "import:recipes": "node scripts/import-recipes.mjs"
   },
   "dependencies": {
     "firebase": "^11.3.0",

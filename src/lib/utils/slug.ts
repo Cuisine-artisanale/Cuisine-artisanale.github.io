@@ -14,6 +14,9 @@ export function slugify(title: string): string {
     .trim();
 
   return normalizedTitle
+    // Ligatures : sans équivalent décomposé, elles seraient supprimées ("bœuf" -> "buf")
+    .replace(/œ/gi, 'oe')
+    .replace(/æ/gi, 'ae')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
     .replace(/[^\w\s-]/g, '') // Supprime les caractères spéciaux
