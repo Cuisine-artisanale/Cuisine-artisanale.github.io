@@ -50,8 +50,6 @@
   }
 
   /* Icônes cliquables */
-  i.clickable,
-  .pi.clickable,
   button > i,
   a > i {
 	padding: 0.5rem;
@@ -155,38 +153,8 @@
 
 @media (max-width: 768px) {
   /* Dialog transformé en bottom sheet */
-  .p-dialog.mobile-bottom-sheet {
-	position: fixed !important;
-	bottom: 0 !important;
-	left: 0 !important;
-	right: 0 !important;
-	top: auto !important;
-	width: 100% !important;
-	max-width: 100% !important;
-	margin: 0 !important;
-	border-radius: 1rem 1rem 0 0 !important;
-	max-height: 90vh !important;
-	animation: slideUp 0.3s ease-out !important;
-  }
-
-  .p-dialog.mobile-bottom-sheet .p-dialog-content {
-	max-height: 70vh;
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
-  }
 
   /* Handle de drag (indicateur visuel) */
-  .p-dialog.mobile-bottom-sheet::before {
-	content: '';
-	position: absolute;
-	top: 0.5rem;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 40px;
-	height: 4px;
-	background: var(--surface-border);
-	border-radius: 2px;
-  }
 }
 
 @keyframes slideUp {
@@ -218,9 +186,7 @@
   }
 
   /* Menu items plus grands pour touch */
-  .navbar-navigation a,
-  .mobile-menu a,
-  .burger-menu a {
+  .navbar-navigation a {
 	min-height: 48px !important;
 	padding: 1rem !important;
 	display: flex;
@@ -234,19 +200,6 @@
 
 @media (max-width: 768px) {
   /* Filtre en bottom sheet sur mobile */
-  .Filtre.mobile-sheet {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	max-height: 80vh;
-	border-radius: 1rem 1rem 0 0;
-	margin: 0;
-	z-index: 1000;
-	animation: slideUp 0.3s ease-out;
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
-  }
 
   /* Checkbox groups plus espacés */
   .Filtre_type > div {
@@ -333,9 +286,7 @@
    ================================================ */
 
 @supports (padding: env(safe-area-inset-bottom)) {
-  .navbar,
-  .mobile-menu,
-  .p-dialog.mobile-bottom-sheet {
+  .navbar {
 	padding-bottom: calc(env(safe-area-inset-bottom) + 1rem) !important;
   }
 

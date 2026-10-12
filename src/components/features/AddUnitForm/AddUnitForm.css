@@ -11,59 +11,6 @@
   z-index: 1000;
 }
 
-.formUnits{
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 8px;
-  background-color: var(--primary-color-navbar);
-}
-
-.formUnits div {
-  margin-bottom: 20px;
-}
-
-.formUnits label {
-  display: block;
-  font-size: 1rem;
-  color: var(--text-color-light);
-  margin-bottom: 8px;
-}
-
-.formUnits input[type="text"], .formUnits textarea {
-  width: 100%;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.formUnits input[type="text"]:focus, .formUnits textarea:focus {
-  border-color: #4CAF50;
-  outline: none;
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-}
-
-.formUnits button {
-  width: 100%;
-  padding: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.add-unit-form {
-  padding: 1.5rem;
-  background: var(--surface-card);
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
-}
-
 .form-container {
   display: flex;
   flex-direction: column;
@@ -145,9 +92,6 @@
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
-  .add-unit-form {
-	padding: 1rem;
-  }
 
   .form-container {
 	gap: 1rem;
@@ -163,9 +107,6 @@
 }
 
 /* Dark Theme Support */
-[data-theme="dark"] .add-unit-form {
-  background: var(--surface-card);
-}
 
 [data-theme="dark"] .form-field .p-inputtext {
   background: var(--surface-card);

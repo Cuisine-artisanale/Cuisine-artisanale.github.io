@@ -6,7 +6,6 @@
 
 export function registerServiceWorker() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-	console.log('[SW] Service Worker non supporté');
 	return;
   }
 
@@ -16,7 +15,6 @@ export function registerServiceWorker() {
 	navigator.serviceWorker
 	  .register(swUrl)
 	  .then((registration) => {
-		console.log('[SW] Service Worker enregistré avec succès:', registration.scope);
 
 		// Vérifier les mises à jour toutes les heures
 		setInterval(() => {
@@ -30,7 +28,6 @@ export function registerServiceWorker() {
 		  if (newWorker) {
 			newWorker.addEventListener('statechange', () => {
 			  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-				console.log('[SW] Nouvelle version disponible !');
 
 				// Optionnel: Afficher une notification à l'utilisateur
 				if (confirm('Une nouvelle version est disponible. Recharger la page ?')) {
@@ -65,14 +62,12 @@ export async function unregisterServiceWorker() {
 	const registrations = await navigator.serviceWorker.getRegistrations();
 	for (const registration of registrations) {
 	  await registration.unregister();
-	  console.log('[SW] Service Worker désinstallé');
 	}
 
 	// Vider les caches
 	const cacheNames = await caches.keys();
 	for (const name of cacheNames) {
 	  await caches.delete(name);
-	  console.log('[SW] Cache supprimé:', name);
 	}
   }
 }

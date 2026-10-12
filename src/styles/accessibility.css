@@ -141,8 +141,7 @@ label {
 }
 
 /* Error messages */
-.error-message,
-.form-error {
+.error-message {
   color: var(--input-error-border);
   font-size: 14px;
   margin-top: 4px;

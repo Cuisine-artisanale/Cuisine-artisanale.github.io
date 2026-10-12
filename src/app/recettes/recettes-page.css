@@ -32,36 +32,8 @@
 }
 
 /* Empty State */
-.recettes_empty {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: var(--surface-card);
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
-}
-
-.recettes_empty p {
-  color: var(--text-color-secondary);
-  font-size: 1.2rem;
-  margin-bottom: 1.5rem;
-}
 
 /* Loading Animation */
-.recettes_loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-}
-
-.loading_spinner {
-  width: 50px;
-  height: 50px;
-  border: 3px solid var(--surface-border);
-  border-radius: 50%;
-  border-top-color: var(--primary-color);
-  animation: spin 1s linear infinite;
-}
 
 /* Filtre Component Styles */
 .Filtre {
@@ -207,36 +179,8 @@
   }
 
   /* Bottom sheet style pour mobile */
-  .Filtre.mobile-sheet {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	max-height: 85vh;
-	border-radius: 1rem 1rem 0 0;
-	margin: 0;
-	z-index: 1100;
-	animation: slideUpFiltre 0.3s ease-out;
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
-	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-  }
 
   /* Handle de drag pour bottom sheet */
-  .Filtre.mobile-sheet::before {
-	content: '';
-	position: sticky;
-	top: 0.5rem;
-	left: 50%;
-	transform: translateX(-50%);
-	display: block;
-	width: 40px;
-	height: 4px;
-	background: var(--surface-border);
-	border-radius: 2px;
-	margin: 0 auto 1rem;
-	z-index: 1;
-  }
 
   .filtre_input {
 	grid-template-columns: 1fr;
@@ -300,10 +244,6 @@
 	grid-template-columns: 1fr;
 	padding: 0.75rem;
 	width: 100%;
-  }
-
-  .recettes_empty {
-	padding: 2rem 1rem;
   }
 }
 

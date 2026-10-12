@@ -199,19 +199,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  setError(null);
 
 	  // Create user account
-	  console.log('Creating user account...');
 	  const result = await createUserWithEmailAndPassword(auth, email, password);
-	  console.log('User account created:', result.user.uid);
 
 	  // Update profile with display name
-	  console.log('Updating profile with display name...');
 	  await updateProfile(result.user, {
 		displayName: displayName
 	  });
 
 	  // Send verification email via API route Next.js (seulement si la vérification est activée)
 	  if (REQUIRE_EMAIL_VERIFICATION) {
-		console.log('Sending verification email via API route (Resend) to:', email);
 		try {
 		  const idToken = await result.user.getIdToken();
 		  const response = await fetch('/api/send-verification-email', {
@@ -232,7 +228,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			throw new Error(responseData.error || responseData.message || 'Erreur lors de l\'envoi de l\'email');
 		  }
 
-		  console.log('✅ Verification email sent successfully via API route (Resend)!', responseData);
 		} catch (emailError: any) {
 		  console.error("❌ Erreur lors de l'envoi de l'email de vérification:", emailError);
 		  console.error("❌ Détails de l'erreur:", {
@@ -248,22 +243,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		  }
 		  throw new Error(emailError.message || 'Erreur lors de l\'envoi de l\'email de vérification. Veuillez réessayer.');
 		}
-	  } else {
-		console.log('⚠️ Envoi d\'email de vérification désactivé (REQUIRE_EMAIL_VERIFICATION = false)');
 	  }
 
 	  // Create user in Firestore
 	  // Si la vérification est désactivée, considérer l'email comme vérifié
-	  console.log('Creating user document in Firestore...');
 	  await createUserInFirestore(result.user.uid, email, displayName, !REQUIRE_EMAIL_VERIFICATION);
-	  console.log('User document created in Firestore');
 
-	  if (REQUIRE_EMAIL_VERIFICATION) {
-		// Don't sign out - let the user stay logged in but restrict access to protected routes
-		console.log('User remains logged in but email not verified yet');
-	  } else {
-		console.log('✅ User created and logged in (email verification disabled)');
-	  }
+	  // L'utilisateur reste connecté ; l'accès aux pages protégées dépend de la vérification de l'email
 	} catch (err: any) {
 	  console.error("❌ Error signing up with email:", err);
 	  console.error("Error code:", err.code);

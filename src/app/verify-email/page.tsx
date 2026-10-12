@@ -94,7 +94,6 @@ const { logout } = useAuth();
               emailVerified: true,
               emailVerifiedAt: serverTimestamp()
             });
-            console.log('✅ Statut de vérification mis à jour dans Firestore pour l\'utilisateur:', currentUser.uid);
           } else {
             // Le document n'existe pas, le créer
             await setDoc(userRef, {
@@ -105,7 +104,6 @@ const { logout } = useAuth();
               emailVerified: true,
               emailVerifiedAt: serverTimestamp()
             });
-            console.log('✅ Document utilisateur créé dans Firestore avec emailVerified: true');
           }
         } catch (firestoreError: any) {
           // Ne pas bloquer si la mise à jour Firestore échoue

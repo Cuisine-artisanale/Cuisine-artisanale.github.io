@@ -39,9 +39,6 @@ export const toggleLikeRecipes = async (recetteId: string, userId: string) => {
 		recetteId: recetteId,
 		createdAt: serverTimestamp(),
 	  });
-	  console.log(`Like ajouté: ${userName} a liké la recette ${recetteId}`);
-	} else {
-	  console.log("User a déjà liké cette recette");
 	}
 
   } catch (error) {
@@ -62,7 +59,6 @@ export const unlikeRecipes = async (recetteId: string, userId: string) => {
 	if (likeSnap.exists()) {
 	  // Supprimer le like
 	  await deleteDoc(likeRef);
-	  console.log(`Like supprimé: userId ${userId} pour recette ${recetteId}`);
 	} else {
 	  console.warn("Like non trouvé");
 	}

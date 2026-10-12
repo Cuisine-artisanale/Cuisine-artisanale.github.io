@@ -73,19 +73,6 @@
   font-style: italic;
 }
 
-.Post_request_actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.Post_acceptButton.p-button {
-  background: var(--primary-color);
-}
-
-.Post_declineButton.p-button {
-  background: var(--background-color-secondary);
-}
-
 .Post-hidden {
   opacity: 0.6;
   border: 2px dashed var(--surface-border);
@@ -113,9 +100,5 @@
 	flex-direction: column;
 	align-items: stretch;
 	text-align: center;
-  }
-
-  .Post_request_actions {
-	flex-direction: column;
   }
 }

@@ -82,17 +82,17 @@ export const exportRecipePDF = async (recipe: RecipeExportData) => {
               pdf.addImage(imgData, 'JPEG', margin, yPosition, imgWidth, finalHeight);
               yPosition += finalHeight + 5;
             }
-          } catch (e) {
+          } catch {
             // Skip image if error
           }
         }
-      } catch (error) {
+      } catch {
         // Skip image if it fails to load
       }
     }
 
     // Recipe Parts
-    recipe.recipeParts.forEach((part, partIndex) => {
+    recipe.recipeParts.forEach((part) => {
       checkPageBreak(15);
       yPosition += 5;
       addWrappedText(part.title, 14, 'bold');
@@ -273,7 +273,7 @@ export const printRecipe = (recipe: RecipeExportData) => {
             <img src="${recipe.images[0]}" alt="${recipe.title}" class="main-image" />
           ` : ''}
 
-          ${recipe.recipeParts.map((part, idx) => `
+          ${recipe.recipeParts.map((part) => `
             <div class="recipe-part">
               <h2>${part.title}</h2>
 

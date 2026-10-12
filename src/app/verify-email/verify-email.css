@@ -78,24 +78,6 @@
   gap: 1rem;
 }
 
-.check-button {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--button-bg) !important;
-  border: 1px solid var(--button-border) !important;
-  color: var(--button-text) !important;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.check-button:hover {
-  background: var(--button-hover-bg) !important;
-  border-color: var(--button-hover-border) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
-}
-
 .resend-button {
   width: 100%;
   padding: 0.75rem;

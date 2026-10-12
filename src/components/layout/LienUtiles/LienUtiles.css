@@ -11,13 +11,3 @@
   justify-content: space-around;
   margin: 0;
 }
-.lien-utiles a {
-	color: var(--link-color);
-	text-decoration: none;
-	transition: color 0.3s ease;
-}
-
-.lien-utiles a:hover {
-	color: var(--link-color-hover);
-	text-decoration: underline;
-}

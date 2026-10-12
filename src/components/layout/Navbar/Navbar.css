@@ -43,14 +43,6 @@
   padding-right: 1rem;
 }
 
-.page-title {
-  color: var(--text-color-secondary);
-  font-size: 1rem;
-  font-weight: 500;
-  padding-left: 1rem;
-  border-left: 2px solid var(--surface-border);
-}
-
 /* Navigation */
 .navbar-navigation {
   flex: 1;
@@ -108,11 +100,6 @@
   .user-menu-content .menu-item:hover i {
     color: var(--primary-color);
   }
-
-  .google-auth-btn:hover {
-    background-color: #4285f4 !important;
-    color: white !important;
-  }
 }
 
 /* Mobile touch feedback */
@@ -136,10 +123,6 @@
   .mobile-user-menu .menu-item:active {
     transform: scale(0.98);
     background: var(--surface-hover) !important;
-  }
-
-  .google-auth-btn:active {
-    transform: scale(0.98);
   }
 }
 
@@ -191,10 +174,6 @@
 }
 
 /* Mobile Menu */
-.mobile-menu {
-  display: none;
-  margin: 0 !important;
-}
 
 /* Dark Theme Adjustments */
 [data-theme="dark"] .navbar {
@@ -358,20 +337,12 @@
     display: none;
   }
 
-  .page-title {
-    display: none;
-  }
-
   .auth-buttons {
     display: none;
   }
 
   .user-menu {
     display: none;
-  }
-
-  .mobile-menu {
-    display: block;
   }
 
   /* Site title mobile plus petit */
@@ -426,35 +397,8 @@
 }
 
 /* Google Auth Button */
-.google-auth-btn {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  background-color: white !important;
-  border-color: #4285f4 !important;
-  color: #4285f4 !important;
-  font-weight: 500 !important;
-  font-size: 16px !important; /* Évite le zoom iOS */
-  min-height: 44px !important; /* Touch target */
-  transition: all 0.2s ease !important;
-}
-
-.google-auth-btn .p-button-icon {
-  font-size: 1.125rem;
-}
-
-[data-theme="dark"] .google-auth-btn {
-  background-color: var(--surface-card) !important;
-  border-color: #4285f4 !important;
-  color: #4285f4 !important;
-}
 
 /* Mobile Auth Buttons */
-.mobile-auth-buttons .google-auth-btn {
-  width: 100%;
-  justify-content: center;
-  padding: 0.875rem 1rem !important;
-}
 
 .user-role {
   background: var(--primary-color);

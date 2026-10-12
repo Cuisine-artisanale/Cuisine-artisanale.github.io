@@ -24,8 +24,6 @@ export default function PWAProvider() {
 	  e.preventDefault();
 	  deferredPrompt = e;
 
-	  console.log('[PWA] App installable');
-
 	  // Optionnel: Afficher un bouton d'installation personnalisé
 	  // Pour l'instant, on laisse le navigateur gérer
 	};
@@ -34,7 +32,6 @@ export default function PWAProvider() {
 
 	// Détecter quand l'app est installée
 	window.addEventListener('appinstalled', () => {
-	  console.log('[PWA] App installée avec succès !');
 	  deferredPrompt = null;
 	});
 

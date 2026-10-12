@@ -55,7 +55,7 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 		await toggleLikePost(postId, userId);
 		setLikes((prev) => (prev.includes(userId) ? prev : [...prev, userId]));
 	  }
-	} catch (error) {
+	} catch {
 	  showToast({
 		severity: 'error',
 		summary: toastMessages.error.default,
@@ -79,7 +79,7 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 		summary: toastMessages.success.default,
 		detail: `Le post est maintenant ${!isVisible ? 'visible' : 'masqué'}.`
 	  });
-	} catch (error) {
+	} catch {
 	  showToast({
 		severity: 'error',
 		summary: toastMessages.error.default,
@@ -112,7 +112,7 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 		summary: toastMessages.success.default,
 		detail: toastMessages.success.delete
 	  });
-	} catch (error) {
+	} catch {
 	  showToast({
 		severity: 'error',
 		summary: toastMessages.error.default,

@@ -599,7 +599,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				summary: 'Avis supprimé',
 				detail: "L'avis a été supprimé"
 			})
-		} catch (error) {
+		} catch {
 			showToast({
 				severity: 'error',
 				summary: 'Erreur',

@@ -1,27 +1,8 @@
 /* Common styles for admin components */
-.admin-table {
-	border: 1px solid var(--border-color);
-	border-radius: var(--border-radius);
-	overflow: hidden;
-}
-
-.admin-table th,
-.admin-table td {
-	border: 1px solid var(--border-color);
-}
-
-.admin-table tr:hover {
-	background-color: var(--surface-section);
-}
 
 .admin-panel {
 	border: 1px solid var(--border-color);
 	border-radius: var(--border-radius);
 	background-color: var(--surface-card);
 	padding: 1rem;
-}
-
-.admin-divider {
-	border-bottom: 1px solid var(--border-color);
-	margin: 1rem 0;
 }

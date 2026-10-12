@@ -332,7 +332,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 					))
 				)}
 
-				{displayedRecettes.map((recette, index) => (
+				{displayedRecettes.map((recette) => (
 					<Recette
 						key={recette.recetteId}
 						recetteId={recette.recetteId}

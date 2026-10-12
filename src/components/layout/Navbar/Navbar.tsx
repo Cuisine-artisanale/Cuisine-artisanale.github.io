@@ -12,7 +12,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useScroll } from '@/hooks/useScroll';
 
 const Navbar: React.FC = () => {
-  const { user, logout, signInWithGoogle, role, displayName } = useAuth();
+  const { user, logout, role, displayName } = useAuth();
   const { theme, toggleTheme } = useContext(ThemeContext);
   const pathname = usePathname();
   const router = useRouter();
@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
   const overlayPanelRef = useRef<OverlayPanel>(null);
 
   // Utiliser le hook useScroll
-  const { scrollY, isScrolled, direction } = useScroll({
+  const { isScrolled, direction } = useScroll({
 	threshold: 20,
 	onScroll: (currentScrollY) => {
 	  const isMobile = window.innerWidth <= 768;

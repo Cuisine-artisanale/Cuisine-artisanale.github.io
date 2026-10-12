@@ -13,7 +13,7 @@ function getServiceAccountFromEnv() {
 
   try {
     return JSON.parse(raw);
-  } catch (error) {
+  } catch {
     throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY contient un JSON invalide');
   }
 }
@@ -27,7 +27,7 @@ function getServiceAccountFromFile() {
   try {
     const raw = fs.readFileSync(serviceAccountPath, 'utf8');
     return JSON.parse(raw);
-  } catch (error) {
+  } catch {
     throw new Error('Le fichier src/firebase/serviceAccountKey.json est invalide');
   }
 }

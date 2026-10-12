@@ -18,12 +18,10 @@ const STATIC_ASSETS = [
 
 // Installation du Service Worker
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installation...');
 
   event.waitUntil(
 	caches.open(CACHE_NAME)
 	  .then((cache) => {
-		console.log('[SW] Mise en cache des assets statiques');
 		return cache.addAll(STATIC_ASSETS);
 	  })
 	  .then(() => self.skipWaiting())
@@ -32,7 +30,6 @@ self.addEventListener('install', (event) => {
 
 // Activation du Service Worker
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activation...');
 
   event.waitUntil(
 	caches.keys()
@@ -42,7 +39,6 @@ self.addEventListener('activate', (event) => {
 		  cacheNames
 			.filter((name) => name.startsWith('cuisine-artisanale-') && name !== CACHE_NAME)
 			.map((name) => {
-			  console.log('[SW] Suppression du cache obsolète:', name);
 			  return caches.delete(name);
 			})
 		);
@@ -86,7 +82,6 @@ self.addEventListener('fetch', (event) => {
 		// En cas d'échec réseau, fallback sur le cache
 		return caches.match(request).then((cachedResponse) => {
 		  if (cachedResponse) {
-			console.log('[SW] Réponse depuis le cache:', request.url);
 			return cachedResponse;
 		  }
 

@@ -1,621 +1,485 @@
 "use client";
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { storage } from '@/lib/config/firebase-storage';
 import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { compressImage } from '@/lib/utils/image';
+import { Button } from 'primereact/button';
+import { toast } from 'react-toastify';
+import { compressImage, isOptimizableImage } from '@/lib/utils/image';
+import { slugify } from '@/lib/utils/slug';
+import { formatIngredientName, ingredientNameKey } from '@/lib/utils/ingredient-name';
+import { DEPARTEMENTS } from '@/constants/departements';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
-import type { Recipe, RecipePart } from '@/types/recipe.types';
-import './edit-recette.css';
+import type { Recipe } from '@/types/recipe.types';
 import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
+import IngredientListEditor, { type CatalogIngredient, type EditableIngredient } from '@/components/features/IngredientListEditor/IngredientListEditor';
+import StepListEditor from '@/components/features/StepListEditor/StepListEditor';
+import { syncRecipeIngredientsWithCatalog } from '@/lib/services/ingredient-catalog.service';
 import { useUnits } from '@/hooks/useUnits';
 import { revalidateRecipe } from '@/lib/utils/revalidate-recipe';
-import { resolveUnit, selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
+import type { UnitDef } from '@/lib/utils/units';
+// Même mise en page que le formulaire « Proposer une recette »
+import '@/components/features/AddRecetteForm/AddRecetteForm.css';
 
-function EditRecetteContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const id = searchParams?.get('id');
-
-  const [recette, setRecette] = useState<Recipe | null>(null);
-  const [title, setTitle] = useState<string>('');
-  const [type, setType] = useState<string>('');
-  const [preparationTime, setPreparationTime] = useState<number>(0);
-  const [cookingTime, setCookingTime] = useState<number>(0);
-  const [servings, setServings] = useState<number | null>(null);
-  const [video, setVideo] = useState<string>('');
-  const [images, setImages] = useState<File[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [imageURLs, setImageURLs] = useState<string[]>([]);
-  const [successMessage, setSuccessMessage] = useState<string>('');
-  const [recipeParts, setRecipeParts] = useState<RecipePart[]>([]);
-
-  // Fetch the recette data from Firestore
-  const getRecette = async (id: string) => {
-    const recetteRef = doc(db, 'recipes', id);
-
-    try {
-      const recetteSnap = await getDoc(recetteRef);
-
-      if (!recetteSnap.exists()) {
-        console.log("Pas de recette trouvée avec cet ID");
-        return;
-      }
-
-      const recetteData = recetteSnap.data() as Recipe;
-
-      setRecette(recetteData);
-      setTitle(recetteData.title);
-      setType(recetteData.type);
-      setPreparationTime(recetteData.preparationTime);
-      setCookingTime(recetteData.cookingTime);
-      setServings(recetteData.servings ?? null);
-      setVideo(recetteData.video || '');
-      setImageURLs(recetteData.images || []);
-
-      // Gérer recipeParts : si la recette a des recipeParts, les utiliser
-      // Sinon, créer un recipePart par défaut
-      if (recetteData.recipeParts && recetteData.recipeParts.length > 0) {
-        setRecipeParts(recetteData.recipeParts);
-      } else {
-        // Si pas de recipeParts, créer un par défaut
-        const defaultRecipePart: RecipePart = {
-          title: recetteData.title || 'Recette',
-          steps: [],
-          ingredients: []
-        };
-        setRecipeParts([defaultRecipePart]);
-      }
-    } catch (error) {
-      console.error("Erreur lors de la récupération de la recette :", error);
-    }
-  };
-
-  useEffect(() => {
-    if (id) {
-      getRecette(id);
-    }
-  }, [id]);
-
-  // Handle form submission to update the recipe
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!id || !recette) return;
-
-    // Préserver les champs existants qui ne sont pas modifiés dans ce formulaire
-    const updatedRecette: Partial<Recipe> & { selectedIngredients?: string[] } = {
-      title,
-      type,
-      preparationTime,
-      cookingTime,
-      ...(servings && servings > 0 ? { servings } : {}),
-      recipeParts: recipeParts,
-      video,
-      images: imageURLs,
-      // Préserver les champs existants
-      position: recette.position || '',
-      selectedIngredients: (recette as any).selectedIngredients || [],
-      createdBy: recette.createdBy,
-      createdAt: recette.createdAt,
-    };
-
-    const recetteRef = doc(db, 'recipes', id);
-
-    try {
-      await updateDoc(recetteRef, updatedRecette);
-      // La fiche publique est en cache : on la fait régénérer avec les nouvelles données
-      revalidateRecipe({ id, url: recette.url });
-      router.back();
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour de la recette :", error);
-    }
-  };
-
-  // Fonctions pour gérer les recipeParts
-  const addRecipePart = () => {
-    setRecipeParts([...recipeParts, {
-      title: `Partie ${recipeParts.length + 1}`,
-      steps: [],
-      ingredients: []
-    }]);
-  };
-
-  const removeRecipePart = (partIndex: number) => {
-    if (recipeParts.length > 1) {
-      setRecipeParts(recipeParts.filter((_, i) => i !== partIndex));
-    }
-  };
-
-  const updateRecipePartTitle = (partIndex: number, title: string) => {
-    const updatedParts = [...recipeParts];
-    updatedParts[partIndex] = {
-      ...updatedParts[partIndex],
-      title
-    };
-    setRecipeParts(updatedParts);
-  };
-
-  // Fonctions pour gérer les steps d'une partie spécifique
-  const addStep = (partIndex: number) => {
-    const updatedParts = [...recipeParts];
-    updatedParts[partIndex] = {
-      ...updatedParts[partIndex],
-      steps: [...(updatedParts[partIndex].steps || []), '']
-    };
-    setRecipeParts(updatedParts);
-  };
-
-  const handleStepChange = (partIndex: number, stepIndex: number, value: string) => {
-    const updatedParts = [...recipeParts];
-    const updatedSteps = [...(updatedParts[partIndex].steps || [])];
-    updatedSteps[stepIndex] = value;
-    updatedParts[partIndex] = {
-      ...updatedParts[partIndex],
-      steps: updatedSteps
-    };
-    setRecipeParts(updatedParts);
-  };
-
-  const removeStep = (partIndex: number, stepIndex: number) => {
-    const updatedParts = [...recipeParts];
-    updatedParts[partIndex] = {
-      ...updatedParts[partIndex],
-      steps: (updatedParts[partIndex].steps || []).filter((_, i) => i !== stepIndex)
-    };
-    setRecipeParts(updatedParts);
-  };
-
-  // ---- Ingrédients : quantité et unité propres à cette recette ----
-  const { units: allUnits, index: unitIndex, reload: reloadUnits } = useUnits();
-  const unitChoices = selectableUnits(allUnits);
-  const [unitTarget, setUnitTarget] = useState<{ partIndex: number; ingredientIndex: number } | null>(null);
-
-  const updateIngredient = (partIndex: number, ingredientIndex: number, changes: { quantity?: string; unitId?: string }) => {
-    const updatedParts = [...recipeParts];
-    const ingredients = [...(updatedParts[partIndex].ingredients || [])];
-    const current = { ...ingredients[ingredientIndex] };
-    if (changes.quantity !== undefined) current.quantity = changes.quantity;
-    if (changes.unitId !== undefined) {
-      const unit = changes.unitId ? unitIndex.byId.get(changes.unitId) : null;
-      current.unit = unit ? unit.abbreviation || unit.name : '';
-      if (unit) current.unitId = unit.id;
-      else delete current.unitId;
-    }
-    ingredients[ingredientIndex] = current;
-    updatedParts[partIndex] = { ...updatedParts[partIndex], ingredients };
-    setRecipeParts(updatedParts);
-  };
-
-  const removeIngredientFromPart = (partIndex: number, ingredientIndex: number) => {
-    const updatedParts = [...recipeParts];
-    updatedParts[partIndex] = {
-      ...updatedParts[partIndex],
-      ingredients: (updatedParts[partIndex].ingredients || []).filter((_, i) => i !== ingredientIndex)
-    };
-    setRecipeParts(updatedParts);
-  };
-
-  const handleUnitCreated = (unit: UnitDef) => {
-    reloadUnits();
-    if (unitTarget) updateIngredient(unitTarget.partIndex, unitTarget.ingredientIndex, { unitId: unit.id });
-    setUnitTarget(null);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Valider les fichiers avant de les ajouter
-    const newImages: File[] = Array.from(e.target.files || []);
-
-    // Filtrer les fichiers valides (images uniquement)
-    const validImages = newImages.filter(file => {
-      if (!file.type.startsWith('image/')) {
-        console.warn(`${file.name} n'est pas une image. Fichier ignoré.`);
-        return false;
-      }
-      if (file.size > 5 * 1024 * 1024) { // 5MB max
-        console.warn(`${file.name} dépasse 5MB. Fichier ignoré.`);
-        return false;
-      }
-      return true;
-    });
-
-    setImages((prevImages) => [...prevImages, ...validImages]);
-    setSuccessMessage(`${validImages.length} image(s) sélectionnée(s)`);
-    setTimeout(() => setSuccessMessage(''), 3000);
-  };
-
-  const handleUpload = async () => {
-    if (images.length === 0) return;
-
-    setUploading(true);
-    setUploadProgress(0);
-    const urls: string[] = [];
-    let completedUploads = 0;
-
-    // Télécharger les nouvelles images
-    for (const original of images) {
-      const image = await compressImage(original);
-      // Créer un nom unique pour éviter les conflits
-      const timestamp = Date.now();
-      const fileName = `${timestamp}_${image.name}`;
-      const storageRef = ref(storage, `recipes/${title}/${fileName}`);
-      const uploadTask = uploadBytesResumable(storageRef, image);
-
-      await new Promise<void>((resolve, reject) => {
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            // Mettre à jour la progression
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadProgress(Math.round(progress));
-          },
-          (error) => {
-            console.error("Upload failed:", error);
-            setSuccessMessage(`❌ Erreur: ${error.message}`);
-            reject(error);
-          },
-          async () => {
-            try {
-              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-              urls.push(downloadURL);
-              completedUploads++;
-              setUploadProgress((completedUploads / images.length) * 100);
-              resolve();
-            } catch (error) {
-              console.error("Erreur lors de la récupération de l'URL:", error);
-              reject(error);
-            }
-          }
-        );
-      });
-    }
-
-    // Ajouter les nouvelles URLs aux anciennes
-    setImageURLs((prevURLs) => [...prevURLs, ...urls]);
-    setImages([]); // Réinitialiser la liste des images à uploader
-    setUploading(false);
-    setUploadProgress(0);
-    setSuccessMessage(`✅ ${urls.length} image(s) uploadée(s) avec succès!`);
-    setTimeout(() => setSuccessMessage(''), 3000);
-  };
-
-  const removeSelectedImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
-
-  const handleImageDelete = async (imageURL: string) => {
-    const imageRef = ref(storage, imageURL);
-    try {
-      await deleteObject(imageRef);
-      setImageURLs(imageURLs.filter((url) => url !== imageURL));
-    } catch (error) {
-      console.error("Erreur lors de la suppression de l'image :", error);
-    }
-  };
-
-  const typeOptions = [
-    { name: 'Entrée', value: 'Entrée' },
-    { name: 'Plat', value: 'Plat' },
-    { name: 'Dessert', value: 'Dessert' }
-  ];
-
-  return (
-    <div className="edit-recette">
-      <Breadcrumb />
-      <h1>Editer la recette</h1>
-      {recette && (
-        <div>
-          <form onSubmit={handleSubmit} className="form-recette">
-            <div>
-              <section className="form-recette-section-text">
-                <div className="form-field">
-                  <label htmlFor="title">*Titre:</label>
-                  <input
-                    type="text"
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <AddUnitForm
-                  visible={unitTarget !== null}
-                  onHide={() => setUnitTarget(null)}
-                  onUnitCreated={handleUnitCreated}
-                />
-                <div className="recipe-parts-section">
-                  <h3>*Parties de la recette:</h3>
-                  {recipeParts.map((part, partIndex) => (
-                    <div key={partIndex} className="recipe-part-container" style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <input
-                          type="text"
-                          value={part.title}
-                          onChange={(e) => updateRecipePartTitle(partIndex, e.target.value)}
-                          placeholder="Titre de la partie"
-                          style={{ flex: 1, marginRight: '1rem', padding: '0.5rem' }}
-                          required
-                        />
-                        {recipeParts.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeRecipePart(partIndex)}
-                            className="btn-delete-step"
-                            title="Supprimer cette partie"
-                          >
-                            🗑️ Supprimer la partie
-                          </button>
-                        )}
-                      </div>
-                      {(part.ingredients || []).length > 0 && (
-                        <div className="ingredients-edit-section">
-                          <h4>Ingrédients :</h4>
-                          {(part.ingredients || []).map((ingredient, ingredientIndex) => {
-                            const resolved = resolveUnit(unitIndex, ingredient.unitId, ingredient.unit);
-                            const unknownUnit = !resolved && ingredient.unit ? ingredient.unit : '';
-                            return (
-                              <div key={`${ingredient.id}-${ingredientIndex}`} className="ingredient-edit-row">
-                                <span className="ingredient-edit-name">{ingredient.name}</span>
-                                <input
-                                  type="text"
-                                  inputMode="decimal"
-                                  value={ingredient.quantity && ingredient.quantity !== '0' ? ingredient.quantity : ''}
-                                  onChange={(e) => updateIngredient(partIndex, ingredientIndex, { quantity: e.target.value })}
-                                  placeholder="Quantité"
-                                  aria-label={`Quantité de ${ingredient.name}`}
-                                />
-                                <select
-                                  value={resolved?.id || ''}
-                                  onChange={(e) => updateIngredient(partIndex, ingredientIndex, { unitId: e.target.value })}
-                                  aria-label={`Unité de ${ingredient.name}`}
-                                >
-                                  <option value="">{unknownUnit ? `« ${unknownUnit} » (non reconnue)` : 'Sans unité'}</option>
-                                  {unitChoices.map((u) => (
-                                    <option key={u.id} value={u.id}>{unitOptionLabel(u)}</option>
-                                  ))}
-                                </select>
-                                <button
-                                  type="button"
-                                  className="btn-add-unit"
-                                  onClick={() => setUnitTarget({ partIndex, ingredientIndex })}
-                                  title="Créer une unité manquante"
-                                >
-                                  + unité
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn-delete-step"
-                                  onClick={() => removeIngredientFromPart(partIndex, ingredientIndex)}
-                                  title="Retirer cet ingrédient"
-                                >
-                                  ❌
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                      <div className="steps-section">
-                        <h4>Étapes de préparation:</h4>
-                        {(part.steps || []).map((step, stepIndex) => (
-                          <div key={stepIndex} className="step-container">
-                            <input
-                              type="text"
-                              value={step}
-                              onChange={(e) => handleStepChange(partIndex, stepIndex, e.target.value)}
-                              placeholder={`Étape ${stepIndex + 1}`}
-                              required
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeStep(partIndex, stepIndex)}
-                              className="btn-delete-step"
-                              title="Supprimer cette étape"
-                            >
-                              ❌
-                            </button>
-                          </div>
-                        ))}
-                        <button
-                          type="button"
-                          onClick={() => addStep(partIndex)}
-                          className="btn-add-step"
-                        >
-                          + Ajouter une étape
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={addRecipePart}
-                    className="btn-add-step"
-                    style={{ marginTop: '1rem' }}
-                  >
-                    + Ajouter une partie
-                  </button>
-                </div>
-
-                <div className="form-field">
-                  <label htmlFor="type">*Type:</label>
-                  <select
-                    id="type"
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    required
-                  >
-                    <option value="">Sélectionner un type</option>
-                    {typeOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-field">
-                  <label htmlFor="preparationTime">*Temps de préparation (minutes):</label>
-                  <input
-                    type="number"
-                    id="preparationTime"
-                    value={preparationTime}
-                    onChange={(e) => setPreparationTime(parseInt(e.target.value) || 0)}
-                    min="0"
-                    required
-                  />
-                </div>
-
-                <div className="form-field">
-                  <label htmlFor="cookingTime">*Temps de cuisson (minutes):</label>
-                  <input
-                    type="number"
-                    id="cookingTime"
-                    value={cookingTime}
-                    onChange={(e) => setCookingTime(parseInt(e.target.value) || 0)}
-                    min="0"
-                    required
-                  />
-                </div>
-
-                <div className="form-field">
-                  <label htmlFor="servings">Nombre de personnes :</label>
-                  <input
-                    type="number"
-                    id="servings"
-                    value={servings ?? ''}
-                    onChange={(e) => setServings(parseInt(e.target.value) || null)}
-                    min="1"
-                    max="50"
-                    placeholder="ex. 4"
-                  />
-                </div>
-              </section>
-
-              <section className="form-recette-section-media">
-                <div className="form-field">
-                  <label htmlFor="video">Vidéo:</label>
-                  <input
-                    type="text"
-                    id="video"
-                    value={video}
-                    onChange={(e) => setVideo(e.target.value)}
-                    placeholder="ex: https://youtube.com/watch?v=..."
-                  />
-                </div>
-
-                {/* Section Messages de succès/erreur */}
-                {successMessage && (
-                  <div className="success-message-banner">
-                    {successMessage}
-                  </div>
-                )}
-
-                <div className="form-recette-image">
-                  <h3>📸 Ajouter des images</h3>
-                  <p className="image-info">Max 5MB par image • Formats: JPG, PNG, WebP</p>
-
-                  <div className="file-upload-area">
-                    <label htmlFor="file-input" className="file-upload-label">
-                      <span className="file-icon">📁</span>
-                      <p>Cliquez pour sélectionner des images ou glissez-les ici</p>
-                    </label>
-                    <input
-                      id="file-input"
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="file-input"
-                    />
-                  </div>
-
-                  {/* Afficher les images sélectionnées (avant upload) */}
-                  {images.length > 0 && (
-                    <div className="selected-images-section">
-                      <h4>Images sélectionnées ({images.length}):</h4>
-                      <div className="selected-images-grid">
-                        {images.map((image, index) => (
-                          <div key={index} className="selected-image-item">
-                            <div className="selected-image-preview">
-                              <img
-                                src={URL.createObjectURL(image)}
-                                alt={`Selected ${index + 1}`}
-                              />
-                            </div>
-                            <small className="image-name">
-                              {image.name.substring(0, 10)}...
-                            </small>
-                            <button
-                              type="button"
-                              onClick={() => removeSelectedImage(index)}
-                              className="btn-remove-selected"
-                              title="Supprimer cette image"
-                            >
-                              ❌
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleUpload}
-                        disabled={uploading || images.length === 0}
-                        className="btn-upload"
-                      >
-                        {uploading ? `📤 Upload... ${uploadProgress}%` : "📤 Uploader les images"}
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Afficher les images existantes (après upload) */}
-                  {imageURLs.length > 0 && (
-                    <div className="uploaded-images-section">
-                      <h3>✅ Images uploadées ({imageURLs.length}):</h3>
-                      <section className="uploaded-images-grid">
-                        {imageURLs.map((url, index) => (
-                          <div key={index} className="uploaded-image-item">
-                            <div className="uploaded-image-preview">
-                              <img
-                                src={url}
-                                alt={`Recipe ${index + 1}`}
-                              />
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleImageDelete(url)}
-                              className="btn-delete-image"
-                            >
-                              🗑️ Supprimer
-                            </button>
-                          </div>
-                        ))}
-                      </section>
-                    </div>
-                  )}
-                </div>
-
-                <div className="form-submit-section">
-                  <button type="submit" className="btn-submit">
-                    💾 Sauvegarder les modifications
-                  </button>
-                </div>
-              </section>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
-  );
+/** Partie d'une recette telle que saisie dans le formulaire */
+interface RecipePartForm {
+	title: string;
+	ingredients: EditableIngredient[];
+	steps: string[];
 }
 
-export default function EditRecettePage() {
-  return (
-    <Suspense fallback={<div className="loading-fallback">Chargement...</div>}>
-      <EditRecetteContent />
-    </Suspense>
-  );
+const RECIPE_TYPES = ['Entrée', 'Plat', 'Dessert', 'Boisson'];
+const MAX_IMAGES = 6;
+
+function isValidVideoUrl(url: string) {
+	return /^(https?:\/\/)?(www\.)?(tiktok\.com|vm\.tiktok\.com|instagram\.com|youtu\.be|youtube\.com|facebook\.com)\/.+$/i.test(url);
+}
+
+/** Durée ou nombre saisi dans un champ numérique : entier positif, ou null si vide. */
+function toPositiveInt(value: string, max: number): number | null {
+	const n = Math.round(Number(value));
+	return value.trim() !== '' && Number.isFinite(n) && n >= 0 ? Math.min(max, n) : null;
+}
+
+function EditRecetteContent() {
+	const router = useRouter();
+	const id = useSearchParams()?.get('id');
+	const { units: allUnits, reload: reloadUnits } = useUnits();
+
+	const [recette, setRecette] = useState<Recipe | null>(null);
+	const [status, setStatus] = useState<'loading' | 'ready' | 'missing'>('loading');
+
+	const [title, setTitle] = useState('');
+	const [type, setType] = useState('');
+	const [preparationTime, setPreparationTime] = useState<number | null>(null);
+	const [cookingTime, setCookingTime] = useState<number | null>(null);
+	const [servings, setServings] = useState<number | null>(null);
+	const [position, setPosition] = useState('none');
+	const [video, setVideo] = useState('');
+	const [parts, setParts] = useState<RecipePartForm[]>([]);
+
+	const [imageURLs, setImageURLs] = useState<string[]>([]);
+	// Photos retirées pendant l'édition : supprimées du stockage seulement après l'enregistrement
+	const [removedImages, setRemovedImages] = useState<string[]>([]);
+	const [uploading, setUploading] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const [catalog, setCatalog] = useState<CatalogIngredient[]>([]);
+	const [unitTarget, setUnitTarget] = useState<{ partIndex: number; index: number } | null>(null);
+	const [saving, setSaving] = useState(false);
+
+	useEffect(() => {
+		if (!id) {
+			setStatus('missing');
+			return;
+		}
+		let cancelled = false;
+
+		(async () => {
+			const [snapshot, ingredients] = await Promise.all([
+				getDoc(doc(db, 'recipes', id)),
+				getDocs(collection(db, 'ingredients')).catch(() => null),
+			]);
+			if (cancelled) return;
+
+			if (ingredients) {
+				setCatalog(
+					ingredients.docs.map((d) => {
+						const data = d.data();
+						return { id: d.id, name: data.name, unit: data.unit || '', ...(data.defaultUnitId ? { defaultUnitId: data.defaultUnitId } : {}) };
+					})
+				);
+			}
+
+			if (!snapshot.exists()) {
+				setStatus('missing');
+				return;
+			}
+
+			const data = snapshot.data() as Recipe;
+			const names = new Map((ingredients?.docs ?? []).map((d) => [d.id, String(d.data().name || '')]));
+
+			setRecette(data);
+			setTitle(data.title || '');
+			setType(data.type || '');
+			setPreparationTime(Number(data.preparationTime) || null);
+			setCookingTime(Number(data.cookingTime) || null);
+			setServings(data.servings ?? null);
+			setPosition(data.position || 'none');
+			setVideo(data.video || '');
+			setImageURLs(data.images || []);
+			setParts(
+				(data.recipeParts?.length ? data.recipeParts : [{ title: '', steps: [], ingredients: [] }]).map((part) => ({
+					title: part.title || '',
+					steps: part.steps?.length ? [...part.steps] : [''],
+					ingredients: (part.ingredients || []).map((ingredient) => ({
+						// Nom de la fiche ingrédient s'il existe (c'est celui affiché sur le site)
+						name: names.get(ingredient.id) || ingredient.name || '',
+						quantity: ingredient.quantity && ingredient.quantity !== '0' ? String(ingredient.quantity) : '',
+						unit: ingredient.unit || '',
+						...(ingredient.unitId ? { unitId: ingredient.unitId } : {}),
+					})),
+				}))
+			);
+			setStatus('ready');
+		})().catch((error) => {
+			console.error('Chargement de la recette impossible :', error);
+			if (!cancelled) setStatus('missing');
+		});
+
+		return () => { cancelled = true; };
+	}, [id]);
+
+	const updatePart = (partIndex: number, changes: Partial<RecipePartForm>) =>
+		setParts((current) => current.map((part, i) => (i === partIndex ? { ...part, ...changes } : part)));
+
+	const handleUnitCreated = (unit: UnitDef) => {
+		reloadUnits();
+		if (unitTarget) {
+			const { partIndex, index } = unitTarget;
+			updatePart(partIndex, {
+				ingredients: parts[partIndex].ingredients.map((ingredient, i) =>
+					i === index ? { ...ingredient, unit: unit.abbreviation || unit.name, unitId: unit.id } : ingredient
+				),
+			});
+		}
+		setUnitTarget(null);
+	};
+
+	// ---- Ce qui manque avant l'enregistrement ----
+	const filledParts = parts
+		.map((part) => ({
+			title: part.title.trim(),
+			ingredients: part.ingredients.filter((ingredient) => ingredient.name.trim()),
+			steps: part.steps.map((step) => step.trim()).filter(Boolean),
+		}))
+		.filter((part) => part.ingredients.length > 0 || part.steps.length > 0);
+
+	const missing: string[] = [];
+	if (title.trim().length < 3) missing.push('le titre');
+	if (!type) missing.push('le type de plat');
+	if (!filledParts.some((part) => part.steps.length > 0)) missing.push('au moins une étape');
+	const videoInvalid = Boolean(video.trim()) && !isValidVideoUrl(video.trim());
+
+	// ---- Photos : envoyées dès leur sélection ----
+	const handleFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		const files = Array.from(event.target.files || []).slice(0, MAX_IMAGES - imageURLs.length);
+		event.target.value = '';
+		if (files.length === 0) return;
+
+		setUploading(true);
+		try {
+			const folder = title.trim() || 'sans-titre';
+			for (const original of files) {
+				const image = await compressImage(original);
+				// Préfixe horodaté : évite d'écraser l'image d'une autre recette portant le même nom
+				const storageRef = ref(storage, `recipes/${folder}/${Date.now()}_${image.name}`);
+				const task = uploadBytesResumable(storageRef, image);
+				await new Promise<void>((resolve, reject) => task.on('state_changed', null, reject, () => resolve()));
+				const url = await getDownloadURL(task.snapshot.ref);
+				setImageURLs((current) => [...current, url]);
+			}
+		} catch (error) {
+			console.error('Envoi de photo impossible :', error);
+			toast.error("Une photo n'a pas pu être envoyée. Réessayez.");
+		} finally {
+			setUploading(false);
+		}
+	};
+
+	const removeImage = (url: string) => {
+		setImageURLs((current) => current.filter((item) => item !== url));
+		setRemovedImages((current) => [...current, url]);
+	};
+
+	const handleSubmit = async (event: React.FormEvent) => {
+		event.preventDefault();
+		if (!id || !recette || saving || uploading) return;
+
+		if (missing.length > 0) {
+			toast.error(`Il manque : ${missing.join(', ')}.`);
+			return;
+		}
+		if (videoInvalid) {
+			toast.error('Le lien vidéo doit venir de TikTok, Instagram, YouTube ou Facebook.');
+			return;
+		}
+
+		const recipeTitle = title.trim();
+		const catalogByKey = new Map(catalog.map((item) => [ingredientNameKey(item.name), item] as const));
+		let rank = 0;
+		const draftParts = filledParts.map((part, partIndex) => ({
+			title: filledParts.length === 1 ? recipeTitle : part.title || `Partie ${partIndex + 1}`,
+			steps: part.steps,
+			ingredients: part.ingredients.map((ingredient) => {
+				rank += 1;
+				const name = formatIngredientName(ingredient.name) || ingredient.name.trim();
+				const known = catalogByKey.get(ingredientNameKey(name));
+				return {
+					id: known?.id || `${slugify(name) || 'ingredient'}-${rank}`,
+					name: known?.name || name,
+					quantity: ingredient.quantity.trim(),
+					unit: ingredient.unit,
+					...(ingredient.unitId ? { unitId: ingredient.unitId } : {}),
+				};
+			}),
+		}));
+
+		setSaving(true);
+		try {
+			// La recette est déjà publiée : les ingrédients nouveaux reçoivent tout de suite leur fiche
+			const { recipeParts, created } = await syncRecipeIngredientsWithCatalog(draftParts);
+
+			await updateDoc(doc(db, 'recipes', id), {
+				title: recipeTitle,
+				type,
+				preparationTime: preparationTime ?? 0,
+				cookingTime: cookingTime ?? 0,
+				...(servings && servings > 0 ? { servings } : {}),
+				position: position || 'none',
+				video: video.trim(),
+				images: imageURLs,
+				recipeParts,
+				titleKeywords: recipeTitle.toLowerCase().split(' '),
+				updatedAt: new Date(),
+			});
+
+			// Les photos retirées ne sont effacées du stockage qu'une fois la recette enregistrée
+			await Promise.all(
+				removedImages
+					.filter((url) => isOptimizableImage(url))
+					.map((url) => deleteObject(ref(storage, url)).catch((error) => console.error('Photo non supprimée du stockage :', error)))
+			);
+
+			// La fiche publique est en cache : on la fait régénérer avec les nouvelles données
+			revalidateRecipe({ id, url: recette.url });
+			toast.success(created.length > 0 ? `Recette enregistrée. Ajouté au catalogue : ${created.join(', ')}` : 'Recette enregistrée');
+			router.back();
+		} catch (error) {
+			console.error('Enregistrement de la recette impossible :', error);
+			toast.error("La recette n'a pas pu être enregistrée. Réessayez.");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	if (status === 'loading') {
+		return <div className="add-recipe-container"><p role="status">Chargement de la recette…</p></div>;
+	}
+
+	if (status === 'missing') {
+		return (
+			<div className="add-recipe-container">
+				<Breadcrumb />
+				<header className="add-recipe-header">
+					<h1>Recette introuvable</h1>
+					<p className="subtitle">Cette recette n&apos;existe pas ou a été supprimée.</p>
+				</header>
+			</div>
+		);
+	}
+
+	const severalParts = parts.length > 1;
+
+	return (
+		<div className="add-recipe-container">
+			<Breadcrumb />
+			<header className="add-recipe-header">
+				<h1>Modifier la recette</h1>
+				<p className="subtitle">Les changements sont visibles sur le site dès l&apos;enregistrement.</p>
+			</header>
+
+			<form onSubmit={handleSubmit} className="recipe-form" noValidate>
+				<AddUnitForm visible={unitTarget !== null} onHide={() => setUnitTarget(null)} onUnitCreated={handleUnitCreated} />
+
+				{/* ---- La recette ---- */}
+				<section className="recipe-card">
+					<h2>La recette</h2>
+					<label className="recipe-field">
+						<span>Titre *</span>
+						<input
+							type="text"
+							className="recipe-input recipe-input-title"
+							value={title}
+							maxLength={100}
+							onChange={(e) => setTitle(e.target.value)}
+						/>
+					</label>
+
+					<div className="recipe-grid">
+						<label className="recipe-field">
+							<span>Type de plat *</span>
+							<select className="recipe-input" value={type} onChange={(e) => setType(e.target.value)}>
+								<option value="">Choisir…</option>
+								{RECIPE_TYPES.map((name) => <option key={name} value={name}>{name}</option>)}
+							</select>
+						</label>
+						<label className="recipe-field">
+							<span>Préparation (min)</span>
+							<input
+								type="number"
+								className="recipe-input"
+								min={0}
+								max={1440}
+								inputMode="numeric"
+								value={preparationTime ?? ''}
+								onChange={(e) => setPreparationTime(toPositiveInt(e.target.value, 1440))}
+							/>
+						</label>
+						<label className="recipe-field">
+							<span>Cuisson (min)</span>
+							<input
+								type="number"
+								className="recipe-input"
+								min={0}
+								max={1440}
+								inputMode="numeric"
+								value={cookingTime ?? ''}
+								onChange={(e) => setCookingTime(toPositiveInt(e.target.value, 1440))}
+							/>
+						</label>
+						<label className="recipe-field">
+							<span>Personnes</span>
+							<input
+								type="number"
+								className="recipe-input"
+								min={1}
+								max={50}
+								inputMode="numeric"
+								value={servings ?? ''}
+								onChange={(e) => setServings(toPositiveInt(e.target.value, 50) || null)}
+							/>
+						</label>
+					</div>
+
+					<div className="recipe-grid recipe-grid-wide">
+						<label className="recipe-field">
+							<span>Département d&apos;origine</span>
+							<select className="recipe-input" value={position} onChange={(e) => setPosition(e.target.value)}>
+								<option value="none">Aucun département</option>
+								{DEPARTEMENTS.map((departement) => (
+									<option key={departement.code} value={departement.code}>{departement.nom}</option>
+								))}
+							</select>
+						</label>
+						<label className="recipe-field">
+							<span>Lien vidéo</span>
+							<input
+								type="url"
+								className="recipe-input"
+								value={video}
+								placeholder="TikTok, Instagram, YouTube…"
+								aria-invalid={videoInvalid}
+								onChange={(e) => setVideo(e.target.value)}
+							/>
+							{videoInvalid && <small className="recipe-error">Lien TikTok, Instagram, YouTube ou Facebook attendu.</small>}
+						</label>
+					</div>
+				</section>
+
+				{/* ---- Ingrédients et étapes, par partie ---- */}
+				{parts.map((part, partIndex) => (
+					<section key={partIndex} className="recipe-card recipe-part">
+						{severalParts && (
+							<div className="recipe-part-header">
+								<input
+									type="text"
+									className="recipe-input recipe-part-title"
+									value={part.title}
+									maxLength={60}
+									placeholder={`Nom de la partie ${partIndex + 1} (pâte, garniture…)`}
+									aria-label={`Nom de la partie ${partIndex + 1}`}
+									onChange={(e) => updatePart(partIndex, { title: e.target.value })}
+								/>
+								<button
+									type="button"
+									className="recipe-icon-button"
+									aria-label={`Supprimer la partie ${part.title || partIndex + 1}`}
+									onClick={() => setParts((current) => current.filter((_, i) => i !== partIndex))}
+								>
+									<span className="pi pi-trash" aria-hidden="true"></span>
+								</button>
+							</div>
+						)}
+						<div className="recipe-part-columns">
+							<div>
+								<h2>Ingrédients</h2>
+								<IngredientListEditor
+									ingredients={part.ingredients}
+									onChange={(ingredients) => updatePart(partIndex, { ingredients })}
+									catalog={catalog}
+									units={allUnits}
+									onCreateUnit={(index) => setUnitTarget({ partIndex, index })}
+								/>
+							</div>
+							<div>
+								<h2>Étapes</h2>
+								<StepListEditor steps={part.steps} onChange={(steps) => updatePart(partIndex, { steps })} />
+							</div>
+						</div>
+					</section>
+				))}
+
+				<button
+					type="button"
+					className="recipe-add-part"
+					onClick={() => setParts((current) => [...current, { title: '', ingredients: [{ name: '', quantity: '', unit: '' }], steps: [''] }])}
+				>
+					<span className="pi pi-plus" aria-hidden="true"></span>
+					Ajouter une partie (pâte, garniture, glaçage…)
+				</button>
+
+				{/* ---- Photos ---- */}
+				<section className="recipe-card">
+					<h2>Photos</h2>
+					<div className="recipe-photos">
+						{imageURLs.map((url, index) => (
+							<div key={url} className="recipe-photo">
+								{/* eslint-disable-next-line @next/next/no-img-element -- simple aperçu dans un formulaire */}
+								<img src={url} alt={`Photo ${index + 1}`} />
+								<button type="button" className="recipe-photo-remove" aria-label={`Retirer la photo ${index + 1}`} onClick={() => removeImage(url)}>
+									<span className="pi pi-times" aria-hidden="true"></span>
+								</button>
+							</div>
+						))}
+						{imageURLs.length < MAX_IMAGES && (
+							<button type="button" className="recipe-photo-add" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+								<span className={`pi ${uploading ? 'pi-spin pi-spinner' : 'pi-camera'}`} aria-hidden="true"></span>
+								{uploading ? 'Envoi…' : 'Ajouter'}
+							</button>
+						)}
+					</div>
+					<input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={handleFiles} />
+					<small className="recipe-card-help">Jusqu&apos;à {MAX_IMAGES} photos. La première sert d&apos;image principale.</small>
+				</section>
+
+				{/* ---- Enregistrement ---- */}
+				<footer className="recipe-submit-bar">
+					<p className="recipe-submit-status" aria-live="polite">
+						{missing.length > 0 ? <>Il manque : {missing.join(', ')}.</> : 'Les changements ne sont pas encore enregistrés.'}
+					</p>
+					<div className="recipe-submit-actions">
+						<button type="button" className="recipe-link-button" onClick={() => router.back()}>Annuler</button>
+						<Button
+							type="submit"
+							label={saving ? 'Enregistrement…' : uploading ? 'Envoi des photos…' : 'Enregistrer'}
+							icon="pi pi-check"
+							loading={saving}
+							disabled={saving || uploading}
+						/>
+					</div>
+				</footer>
+			</form>
+		</div>
+	);
+}
+
+export default function EditRecette() {
+	return (
+		<Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Chargement…</div>}>
+			<EditRecetteContent />
+		</Suspense>
+	);
 }
