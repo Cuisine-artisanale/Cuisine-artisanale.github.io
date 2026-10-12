@@ -2,7 +2,6 @@ import { cache } from 'react';
 import type { Recipe, RecipePart } from '@/types';
 import { getFirebaseAdminDb } from '@/lib/config/firebase-admin';
 import { mergeIngredientDetails } from '@/lib/utils/recipe-ingredients';
-import { getRecipeStats } from '@/lib/utils/recipe-stats';
 import { buildUnitIndex, formatAmount, type UnitDef } from '@/lib/utils/units';
 
 export const SITE_URL = 'https://www.cuisine-artisanale.fr';
@@ -37,7 +36,7 @@ export interface ServerRecipe {
   recipe: Recipe;
   authorName: string | null;
   rating: RecipeRating | null;
-  /** Compteur stocké sur la recette (Cloud Function syncRecipeLikesCount) */
+  /** Nombre de likes de la recette */
   likesCount: number;
   /** Avis les plus récents d'abord */
   reviews: RecipeReview[];
@@ -117,9 +116,12 @@ export const getRecipeBySlug = cache(async (slug: string): Promise<ServerRecipe 
     difficulty: data.difficulty || undefined,
   };
 
-  const [authorSnap, reviewsSnap, similarSnap] = await Promise.all([
+  const [authorSnap, reviewsSnap, likesAgg, similarSnap] = await Promise.all([
     recipe.createdBy ? db.collection('publicProfiles').doc(recipe.createdBy).get() : Promise.resolve(null),
     db.collection('reviews').where('recipeId', '==', snap.id).get(),
+    // Compté directement : le compteur likesCount de la recette est mis à jour quelques secondes
+    // après un like, ce qui figerait une valeur périmée dans le cache de la page
+    db.collection('likes').where('recetteId', '==', snap.id).count().get(),
     // Même type et même département (une de plus, au cas où la recette courante en fait partie)
     db.collection('recipes')
       .where('type', '==', data.type || '')
@@ -163,7 +165,7 @@ export const getRecipeBySlug = cache(async (slug: string): Promise<ServerRecipe 
   return {
     recipe,
     authorName: authorSnap?.exists ? (authorSnap.data()?.displayName as string) || null : null,
-    likesCount: getRecipeStats(data).likesCount,
+    likesCount: likesAgg.data().count,
     reviews: reviews.slice(0, MAX_REVIEWS),
     similar,
     rating: ratings.length

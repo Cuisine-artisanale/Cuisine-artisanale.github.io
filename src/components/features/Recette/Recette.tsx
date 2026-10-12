@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { slugify } from '@/lib/utils/slug';
 import { getDepartementName } from '@/constants/departements';
+import { revalidateRecipe } from '@/lib/utils/revalidate-recipe';
 import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
@@ -70,6 +71,8 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 			} else {
 				await toggleLikeRecipes(recetteId, userId);
 			}
+			// La fiche de la recette (en cache) affiche aussi le nombre de likes
+			revalidateRecipe({ id: recetteId, url });
 		} catch (error) {
 			setHasLiked(wasLiked);
 			setLikesCount((c) => Math.max(0, c + (wasLiked ? 1 : -1)));

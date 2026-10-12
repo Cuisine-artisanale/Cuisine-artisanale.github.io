@@ -13,6 +13,7 @@ import dynamic from 'next/dynamic';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
 import { formatAmount, isConvertibleToMetric, resolveUnit, type UnitDef } from '@/lib/utils/units';
 import { useUnitPreference } from '@/hooks/useUnitPreference';
+import { revalidateRecipe } from '@/lib/utils/revalidate-recipe';
 import { useUnits } from '@/hooks/useUnits';
 import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { Button } from 'primereact/button';
@@ -126,6 +127,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 		: `×${multiplier.toLocaleString('fr-FR')}`;
 	const [checkingToDo, setCheckingToDo] = useState(false);
 	const [cookingMode, setCookingMode] = useState(false);
+	// La fiche est en cache côté serveur : on la fait régénérer après chaque action qui la modifie
+	const refreshCache = () => revalidateRecipe({ id: recette?.id, url: recette?.url });
 	const hasSteps = Boolean(recette?.recipeParts.some((p) => p.steps.some((s) => s && s.trim())));
 
 
@@ -205,6 +208,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				summary: 'Succès',
 				detail: 'Recette supprimée avec succès'
 			});
+			refreshCache();
 			router.push('/recettes');
 		} catch (error) {
 			console.error("Erreur lors de la suppression de la recette :", error);
@@ -254,6 +258,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				setHasLiked(true);
 				setLikesCount((count) => count + 1);
 			}
+			refreshCache();
 		} catch (error) {
 			console.error("Erreur lors du like:", error);
 			showToast({
@@ -554,6 +559,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				{ id: reviewId, ...review, createdAt: new Date().toISOString() },
 				...prev.filter((r) => r.id !== reviewId),
 			]);
+			refreshCache();
 
 			setNewReview('');
 			setNewRating(null);
@@ -579,6 +585,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 			const { db, doc, deleteDoc } = await loadFirestore();
 			await deleteDoc(doc(db, "reviews", id));
 			setReviews((prev) => prev.filter((review) => review.id !== id));
+			refreshCache();
 
 			showToast({
 				severity: 'success',

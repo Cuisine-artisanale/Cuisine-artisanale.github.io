@@ -11,6 +11,7 @@ import type { Recipe, RecipePart } from '@/types/recipe.types';
 import './edit-recette.css';
 import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
 import { useUnits } from '@/hooks/useUnits';
+import { revalidateRecipe } from '@/lib/utils/revalidate-recipe';
 import { resolveUnit, selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
 
 function EditRecetteContent() {
@@ -106,6 +107,8 @@ function EditRecetteContent() {
 
     try {
       await updateDoc(recetteRef, updatedRecette);
+      // La fiche publique est en cache : on la fait régénérer avec les nouvelles données
+      revalidateRecipe({ id, url: recette.url });
       router.back();
     } catch (error) {
       console.error("Erreur lors de la mise à jour de la recette :", error);

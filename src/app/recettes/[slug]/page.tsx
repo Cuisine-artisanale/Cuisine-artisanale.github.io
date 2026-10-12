@@ -13,6 +13,15 @@ import {
 import { getUnits } from '@/lib/server/units';
 import { isOptimizableImage } from '@/lib/utils/image';
 
+// Fiche générée à la première visite puis servie depuis le cache, régénérée au plus toutes les
+// 10 minutes — et immédiatement après un like, un avis ou une modification (/api/revalidate-recipe).
+export const revalidate = 600;
+
+// Aucune fiche générée au build : chacune l'est à la demande (nécessaire pour activer le cache)
+export function generateStaticParams() {
+  return [];
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
