@@ -3,7 +3,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { DEPARTEMENT_NAMES } from '@/constants/departements';
 import './RecetteDesc.css';
 import VideoEmbed from '@/components/ui/VideoEmbed/VideoEmbed';
-import { SkeletonLoader } from '@/components/ui/SkeletonLoader/SkeletonLoader';
 import Image from 'next/image';
 import { isOptimizableImage } from '@/lib/utils/image';
 
@@ -39,6 +38,14 @@ function formatReviewDate(iso?: string): string {
 
 // Chargé uniquement à l'ouverture du mode cuisine
 const CookingMode = dynamic(() => import('@/components/features/CookingMode/CookingMode'), { ssr: false });
+
+/** Durée lisible : 45 → « 45 min », 90 → « 1 h 30 ». */
+function formatDuration(minutes: number): string {
+	if (minutes < 60) return `${minutes} min`;
+	const hours = Math.floor(minutes / 60);
+	const rest = minutes % 60;
+	return rest ? `${hours} h ${String(rest).padStart(2, '0')}` : `${hours} h`;
+}
 
 interface RecetteDescProps {
 	/** Recette chargée côté serveur (premier rendu complet, SEO) */
@@ -605,191 +612,160 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 	<>
 		<div className="RecetteDesc">
 			<ConfirmDialog />
-			<div className="recette-desc-button-container">
-				<div className="recette-desc-button-container-left">
-					<Button
-						icon="pi pi-arrow-left"
-						onClick={() => router.back()}
-						className="p-button-text"
-						tooltipOptions={{ position: 'bottom' }}
-					/>
-					<Button
-						icon="pi pi-home"
-						onClick={() => router.push("/recettes/")}
-						className="p-button-text"
-						tooltipOptions={{ position: 'bottom' }}
-					/>
-					<Button
-						icon={hasLiked ? 'pi pi-heart-fill' : 'pi pi-heart'}
-						label={likesCount > 0 ? String(likesCount) : undefined}
-						aria-label={hasLiked ? 'Ne plus aimer cette recette' : 'Aimer cette recette'}
-						onClick={handleLike}
-						className="p-button-text"
-						severity={hasLiked ? 'danger' : 'info'}
-						tooltipOptions={{ position: 'bottom' }}
-					/>
-					{user && (
-						<Button
-							icon={isInToDo ? 'pi pi-check-circle' : 'pi pi-bookmark'}
-							onClick={isInToDo ? handleRemoveFromToDo : handleAddToToDo}
-							className="p-button-text"
-							severity={isInToDo ? 'success' : 'info'}
-							loading={checkingToDo}
-							tooltip={isInToDo ? 'Retirer de "à faire"' : 'Ajouter à "à faire"'}
-							tooltipOptions={{ position: 'bottom' }}
-						/>
-					)}
-					<Button
-						icon="pi pi-share-alt"
-						onClick={handleShare}
-						className="p-button-text"
-						tooltip="Partager cette recette"
-						tooltipOptions={{ position: 'bottom' }}
-					/>
-					<Button
-						icon="pi pi-download"
-						onClick={handleDownloadPDF}
-						className="p-button-text"
-						loading={isExporting}
-						disabled={isExporting}
-						tooltip="Télécharger en PDF"
-						tooltipOptions={{ position: 'bottom' }}
-					/>
-					<Button
-						icon="pi pi-print"
-						onClick={handlePrintRecipe}
-						className="p-button-text"
-						tooltip="Imprimer la recette"
-						tooltipOptions={{ position: 'bottom' }}
-					/>
-					</div>
+			<div className="recipe-topbar">
+				<button type="button" className="recipe-back" onClick={() => router.back()}>
+					<span className="pi pi-arrow-left" aria-hidden="true"></span>
+					Retour
+				</button>
 				{role === 'admin' && (
-				<div className="recette-desc-admin-buttons">
-					<Button
-						icon="pi pi-pencil"
-						onClick={() => router.push(`/recettes/edit?id=${id}`)}
-						className="p-button-text"
-					/>
-					<Button
-						icon="pi pi-trash"
-						onClick={confirmDelete}
-						className="p-button-text p-button-danger"
-					/>
-				</div>
+					<div className="recipe-admin">
+						<button type="button" className="recipe-action" onClick={() => router.push(`/recettes/edit?id=${id}`)}>
+							<span className="pi pi-pencil" aria-hidden="true"></span>
+							Modifier
+						</button>
+						<button type="button" className="recipe-action is-danger" onClick={confirmDelete}>
+							<span className="pi pi-trash" aria-hidden="true"></span>
+							Supprimer
+						</button>
+					</div>
 				)}
 			</div>
 
-			{recette ? (
-				<>
-					<h1 className="recette-desc-title">{recette.title}</h1>
-
-					{/* Creator Info */}
-					{recette.createdBy && authorName && (
-						<div className="recette-creator-info">
-							<p>
-								Créée par <a href={`/profil?id=${recette.createdBy}`} className="creator-link">
-									{authorName}
-								</a>
-							</p>
-						</div>
-					)}
-
-					{/* Affichage de la note moyenne en haut */}
-					<div className="recette-overall-rating">
-						{averageRating && (
-							<div className="recette-average-rating-display">
-								<Rating value={parseFloat(averageRating)} readOnly cancel={false} />
-								<span className="rating-text">{averageRating} / 5 ({reviews.length} avis)</span>
-							</div>
-						)}
-						{!averageRating && (
-							<p className="no-rating-text">Aucun avis pour le moment</p>
-						)}
-					</div>
-				</>
-			) : (
-				<>
-					<SkeletonLoader type="text" height="32px" width="60%" style={{ marginBottom: '16px' }} />
-					<SkeletonLoader type="text" height="20px" width="40%" />
-				</>
-			)}
-
-			<div className="recette-desc-description">
-				<div className="recette-desc-info">
-				<div className="recette-desc-info-left">
-					<p>
-					<strong>Type:</strong> {recette?.type}
-					</p>
-					{/* Recette sans département (position « none ») : la ligne n'est pas affichée */}
-					{recette?.position && departements.get(recette.position) && (
-					<div className="recette-desc-position">
-						<p>
-						<strong>Département :</strong> {departements.get(recette.position)}
-						</p>
-					</div>
-					)}
-					<div className="recette-desc-timing">
-					<p>
-						<i className="pi pi-clock"></i>
-						<strong>Temps de préparation:</strong> {recette?.preparationTime} min
-					</p>
-					<p>
-						<i className="pi pi-hourglass"></i>
-						<strong>Temps de cuisson:</strong> {recette?.cookingTime} min
-					</p>
-					<p>
-						<i className="pi pi-users"></i>
-						<strong>Quantités pour :</strong>{' '}
-						{baseServings
-							? `${baseServings} personne${baseServings > 1 ? 's' : ''}`
-							: 'nombre de personnes non précisé'}
-					</p>
-					</div>
-					{recette?.video && (
-					<h3 className='recette-desc-video'>
-						<strong>Vidéo associée :</strong>
-						<VideoEmbed url={recette.video} />
-					</h3>
-					)}
-				</div>
-				<div className="recette-desc-info-right">
-					{recette?.images && recette.images.length > 0 && (
-					<div className="recette-desc-gallery">
-						<div className="recette-desc-main-image">
-						<Image
-							src={recette.images[currentImageIndex]}
-							alt={`${recette.title} - Image ${currentImageIndex + 1}`}
-							width={600}
-							height={400}
-							priority={currentImageIndex === 0}
-							sizes="(max-width: 768px) 100vw, 50vw"
-							unoptimized={!isOptimizableImage(recette.images[currentImageIndex])}
-						/>
-						</div>
-						{recette.images.length > 1 && (
-						<div className="recette-desc-thumbnails">
-							{recette.images.map((image, index) => (
-							<div
-								key={index}
-								className={`recette-desc-thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-								onClick={() => handleImageClick(index)}
-							>
+			{recette && (
+				<header className={`recipe-hero${recette.images && recette.images.length > 0 ? '' : ' has-no-image'}`}>
+					{recette.images && recette.images.length > 0 && (
+						<div className="recipe-hero-gallery">
+							<div className="recipe-hero-image">
 								<Image
-								src={image}
-								alt={`${recette.title} - Thumbnail ${index + 1}`}
-								width={100}
-								height={100}
-								sizes="100px"
-								unoptimized={!isOptimizableImage(image)}
+									src={recette.images[currentImageIndex]}
+									alt={`${recette.title} - photo ${currentImageIndex + 1}`}
+									width={800}
+									height={600}
+									priority={currentImageIndex === 0}
+									sizes="(max-width: 900px) 100vw, 50vw"
+									unoptimized={!isOptimizableImage(recette.images[currentImageIndex])}
 								/>
 							</div>
-							))}
+							{recette.images.length > 1 && (
+								<div className="recipe-hero-thumbnails">
+									{recette.images.map((image, index) => (
+										<button
+											type="button"
+											key={index}
+											className={`recipe-hero-thumbnail${index === currentImageIndex ? ' is-active' : ''}`}
+											aria-label={`Afficher la photo ${index + 1}`}
+											aria-pressed={index === currentImageIndex}
+											onClick={() => handleImageClick(index)}
+										>
+											<Image
+												src={image}
+												alt=""
+												width={100}
+												height={100}
+												sizes="72px"
+												unoptimized={!isOptimizableImage(image)}
+											/>
+										</button>
+									))}
+								</div>
+							)}
 						</div>
-						)}
-					</div>
 					)}
-				</div>
-				</div>
+
+					<div className="recipe-hero-body">
+						{recette.type && <span className="recipe-hero-type">{recette.type}</span>}
+						<h1 className="recipe-hero-title">{recette.title}</h1>
+
+						<p className="recipe-hero-meta">
+							{recette.createdBy && authorName && (
+								<span>
+									Par <Link href={`/profil?id=${recette.createdBy}`} className="creator-link">{authorName}</Link>
+								</span>
+							)}
+							<a href="#avis" className="recipe-hero-rating">
+								{averageRating ? (
+									<>
+										<span className="pi pi-star-fill" aria-hidden="true"></span>
+										{averageRating.replace('.', ',')} / 5 · {reviews.length} avis
+									</>
+								) : (
+									<>
+										<span className="pi pi-star" aria-hidden="true"></span>
+										Donner le premier avis
+									</>
+								)}
+							</a>
+						</p>
+
+						<ul className="recipe-facts">
+							{recette.preparationTime > 0 && (
+								<li>
+									<span className="pi pi-clock" aria-hidden="true"></span>
+									<span><small>Préparation</small>{formatDuration(recette.preparationTime)}</span>
+								</li>
+							)}
+							{recette.cookingTime > 0 && (
+								<li>
+									<span className="pi pi-hourglass" aria-hidden="true"></span>
+									<span><small>Cuisson</small>{formatDuration(recette.cookingTime)}</span>
+								</li>
+							)}
+							{baseServings && (
+								<li>
+									<span className="pi pi-users" aria-hidden="true"></span>
+									<span><small>Pour</small>{baseServings} personne{baseServings > 1 ? 's' : ''}</span>
+								</li>
+							)}
+							{/* Recette sans département (position « none ») : rien n'est affiché */}
+							{recette.position && departements.get(recette.position) && (
+								<li>
+									<span className="pi pi-map-marker" aria-hidden="true"></span>
+									<span><small>Origine</small>{departements.get(recette.position)}</span>
+								</li>
+							)}
+						</ul>
+
+						<div className="recipe-actions">
+							<button
+								type="button"
+								className={`recipe-action${hasLiked ? ' is-active' : ''}`}
+								aria-pressed={hasLiked}
+								onClick={handleLike}
+							>
+								<span className={`pi ${hasLiked ? 'pi-heart-fill' : 'pi-heart'}`} aria-hidden="true"></span>
+								J&apos;aime{likesCount > 0 ? ` · ${likesCount}` : ''}
+							</button>
+							{user && (
+								<button
+									type="button"
+									className={`recipe-action${isInToDo ? ' is-active' : ''}`}
+									aria-pressed={isInToDo}
+									onClick={isInToDo ? handleRemoveFromToDo : handleAddToToDo}
+									disabled={checkingToDo}
+								>
+									<span className={`pi ${isInToDo ? 'pi-check-circle' : 'pi-bookmark'}`} aria-hidden="true"></span>
+									{isInToDo ? 'Dans ma liste' : 'À faire'}
+								</button>
+							)}
+							<button type="button" className="recipe-action" onClick={handleShare}>
+								<span className="pi pi-share-alt" aria-hidden="true"></span>
+								Partager
+							</button>
+							<button type="button" className="recipe-action" onClick={handleDownloadPDF} disabled={isExporting}>
+								<span className={`pi ${isExporting ? 'pi-spin pi-spinner' : 'pi-download'}`} aria-hidden="true"></span>
+								PDF
+							</button>
+							<button type="button" className="recipe-action" onClick={handlePrintRecipe}>
+								<span className="pi pi-print" aria-hidden="true"></span>
+								Imprimer
+							</button>
+						</div>
+					</div>
+				</header>
+			)}
+
+			<div className="recipe-body">
+				<div className="recipe-tools">
 				{recette && recette.recipeParts.some((p) => p.ingredients.length > 0) && (
 				<div className="recette-desc-servings" role="group" aria-label="Ajuster les quantités">
 					<span className="recette-desc-servings-label">
@@ -853,41 +829,52 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 					<span className="recette-desc-cooking-hint">Les étapes en grand, une par une, écran toujours allumé</span>
 				</div>
 				)}
-				{recette?.recipeParts.map((part, index) => (
-				<div key={index} className="recette-desc-part">
-					<h2>{part.title}</h2>
-					<section>
-					<div className="recette-desc-part-ingredients">
-						<h3>Ingrédients</h3>
-						<ul>
-						{part.ingredients.map((ingredient, idx) => (
-							<li key={idx}>
-							<p>
-								{ingredient.name}
-								{amount(ingredient).text && (
-									<> - <span className={factor !== 1 || (metric && amount(ingredient).unitId !== resolveUnit(unitIndex, ingredient.unitId, ingredient.unit)?.id) ? 'recette-desc-quantity-scaled' : undefined}>{amount(ingredient).text}</span></>
-								)}
-							</p>
-							</li>
-						))}
-						</ul>
-					</div>
-
-					<div className="recette-desc-part-steps">
-						<h3>Étapes de préparation</h3>
-						<ol>
-						{part.steps.map((step, idx) => (
-							<li key={idx}>
-							<h4>{step}</h4>
-							</li>
-						))}
-						</ol>
-					</div>
-					</section>
 				</div>
+				{recette?.recipeParts.map((part, index) => (
+				<section key={index} className="recipe-part">
+					{/* Recette en une seule partie : son titre répète celui de la recette */}
+					{(recette.recipeParts.length > 1 || part.title !== recette.title) && part.title && <h2>{part.title}</h2>}
+					<div className="recipe-part-columns">
+						{part.ingredients.length > 0 && (
+						<div className="recipe-ingredients">
+							<h3>Ingrédients</h3>
+							<ul>
+							{part.ingredients.map((ingredient, idx) => {
+								const formatted = amount(ingredient);
+								const changed = factor !== 1 || (metric && formatted.unitId !== resolveUnit(unitIndex, ingredient.unitId, ingredient.unit)?.id);
+								return (
+									<li key={idx}>
+										<span className="recipe-ingredient-name">{ingredient.name}</span>
+										{formatted.text && (
+											<span className={`recipe-ingredient-amount${changed ? ' recette-desc-quantity-scaled' : ''}`}>{formatted.text}</span>
+										)}
+									</li>
+								);
+							})}
+							</ul>
+						</div>
+						)}
+
+						<div className="recipe-steps">
+							<h3>Préparation</h3>
+							<ol>
+							{part.steps.map((step, idx) => (
+								<li key={idx}><p>{step}</p></li>
+							))}
+							</ol>
+						</div>
+					</div>
+				</section>
 				))}
+
+				{recette?.video && (
+				<section className="recipe-part recipe-video">
+					<h2>En vidéo</h2>
+					<VideoEmbed url={recette.video} />
+				</section>
+				)}
 			</div>
-			<div className="recette-reviews-section">
+			<div className="recette-reviews-section" id="avis">
 				<h2>Avis et commentaires</h2>
 
 				<div className="recette-reviews-container">

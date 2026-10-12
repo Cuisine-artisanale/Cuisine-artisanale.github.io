@@ -20,6 +20,8 @@ interface RecetteData {
 	position: string;
 	url?: string;
 	stats?: RecipeStats;
+	/** Temps total (préparation + cuisson), en minutes */
+	time?: number;
 	score?: number;
 }
 
@@ -140,6 +142,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 								images: data.images ?? [],
 								url: data.url,
 								stats: getRecipeStats(data),
+								time: (Number(data.preparationTime) || 0) + (Number(data.cookingTime) || 0) || undefined,
 							});
 						});
 					}
@@ -162,6 +165,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 								images: data.images ?? [],
 								url: data.url,
 								stats: getRecipeStats(data),
+								time: (Number(data.preparationTime) || 0) + (Number(data.cookingTime) || 0) || undefined,
 							});
 						});
 					}
@@ -185,6 +189,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 							images: data.images ?? [],
 							url: data.url,
 								stats: getRecipeStats(data),
+								time: (Number(data.preparationTime) || 0) + (Number(data.cookingTime) || 0) || undefined,
 						});
 					});
 				}
@@ -248,6 +253,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 						images: data.images ?? [],
 						url: data.url,
 								stats: getRecipeStats(data),
+								time: (Number(data.preparationTime) || 0) + (Number(data.cookingTime) || 0) || undefined,
 					});
 				});
 
@@ -336,6 +342,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 						type={recette.type}
 						images={recette.images}
 						position={departements.get(recette.position) || ''}
+						time={recette.time}
 					/>
 				))}
 

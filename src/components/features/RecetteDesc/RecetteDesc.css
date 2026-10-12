@@ -1448,3 +1448,440 @@
   text-decoration: underline;
   padding: 0.25rem 0.5rem;
 }
+
+/* ==========================================================================
+   FICHE RECETTE — en-tête, outils, ingrédients et étapes (structure actuelle)
+   Les règles plus haut dans ce fichier qui ciblent d'anciennes classes
+   (recette-desc-button-container, recette-desc-info, recette-desc-part…) ne
+   s'appliquent plus à rien et pourront être supprimées.
+   Les !important neutralisent les styles globaux des boutons (index.css, mobile.css).
+   ========================================================================== */
+
+.RecetteDesc .recipe-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.RecetteDesc .recipe-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0 !important;
+  border: none;
+  background: transparent !important;
+  color: var(--text-color-secondary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.RecetteDesc .recipe-back:hover {
+  background: transparent !important;
+  color: var(--primary-color);
+}
+
+.recipe-admin {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---- En-tête : photo, titre, infos clés, actions ---- */
+.recipe-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.recipe-hero.has-no-image {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.recipe-hero-image {
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--surface-section);
+  aspect-ratio: 4 / 3;
+}
+
+.recipe-hero-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recipe-hero-thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.RecetteDesc .recipe-hero-thumbnail {
+  width: 4.5rem;
+  height: 4.5rem;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: var(--border-radius);
+  background: var(--surface-section) !important;
+  cursor: pointer;
+}
+
+.RecetteDesc .recipe-hero-thumbnail.is-active {
+  border-color: var(--primary-color);
+}
+
+.recipe-hero-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recipe-hero-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.recipe-hero-type {
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  background: var(--surface-section);
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.RecetteDesc .recipe-hero-title {
+  margin: 0;
+  font-size: clamp(1.8rem, 1.2rem + 2vw, 2.6rem);
+  line-height: 1.15;
+  color: var(--text-color);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.RecetteDesc .recipe-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-color-secondary);
+}
+
+.recipe-hero-meta .creator-link {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.recipe-hero-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+}
+
+.recipe-hero-rating:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.recipe-hero-rating .pi {
+  color: var(--primary-light);
+}
+
+.recipe-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recipe-facts li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  background: var(--surface-card);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.recipe-facts li > .pi {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.recipe-facts small {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+}
+
+.recipe-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.RecetteDesc .recipe-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem !important;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface-card) !important;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.RecetteDesc .recipe-action:hover:not(:disabled) {
+  background: var(--surface-hover) !important;
+  color: var(--text-color);
+}
+
+.RecetteDesc .recipe-action.is-active {
+  border-color: var(--primary-color);
+  background: var(--surface-section) !important;
+  color: var(--primary-color);
+}
+
+.RecetteDesc .recipe-action.is-danger {
+  color: var(--danger-700);
+}
+
+.RecetteDesc .recipe-action:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.recipe-back > .pi,
+.recipe-action > .pi {
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ---- Outils : portions, unités, mode cuisine ---- */
+.recipe-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface-card);
+}
+
+.recipe-tools:empty {
+  display: none;
+}
+
+.recipe-tools .recette-desc-servings,
+.recipe-tools .recette-desc-units,
+.recipe-tools .recette-desc-cooking {
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.recipe-tools .recette-desc-cooking {
+  margin-left: auto;
+}
+
+.recipe-tools .recette-desc-cooking-hint {
+  display: none;
+}
+
+/* ---- Ingrédients et étapes ---- */
+.recipe-part {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface-card);
+}
+
+.recipe-part > h2 {
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid var(--surface-section);
+  font-size: 1.4rem;
+  color: var(--primary-color);
+}
+
+.recipe-part-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.recipe-part h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  color: var(--text-color);
+}
+
+.recipe-ingredients ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recipe-ingredients li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--surface-border);
+  font-size: 1.05rem;
+}
+
+.recipe-ingredients li:last-child {
+  border-bottom: none;
+}
+
+.recipe-ingredient-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.recipe-ingredient-amount {
+  flex: none;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+.recipe-ingredient-amount.recette-desc-quantity-scaled {
+  color: var(--primary-color);
+}
+
+.recipe-steps ol {
+  list-style: none;
+  counter-reset: recipe-step;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recipe-steps li {
+  counter-increment: recipe-step;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.recipe-steps li::before {
+  content: counter(recipe-step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: var(--text-color-inverted, #fff);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.RecetteDesc .recipe-steps p {
+  margin: 0.2rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.recipe-video > h2 {
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+  .recipe-hero,
+  .recipe-part-columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .recipe-tools .recette-desc-cooking {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .recipe-part {
+    padding: 1rem;
+  }
+
+  .recipe-facts li {
+    flex: 1 1 calc(50% - 0.6rem);
+  }
+
+  .recipe-actions {
+    width: 100%;
+  }
+
+  /* Portions et unités : une ligne chacune */
+  .recipe-tools .recette-desc-servings,
+  .recipe-tools .recette-desc-units {
+    width: 100%;
+  }
+}
+
+@media print {
+  .recipe-topbar,
+  .recipe-actions,
+  .recipe-tools {
+    display: none;
+  }
+}
+
+/* Anciennes règles mobiles de ce fichier : elles étirent tous les boutons de la fiche */
+.RecetteDesc .recipe-action,
+.RecetteDesc .recipe-back,
+.RecetteDesc .recipe-hero-thumbnail {
+  flex: 0 0 auto !important;
+  width: auto;
+  white-space: nowrap;
+}
+
+.RecetteDesc .recipe-hero-thumbnail {
+  width: 4.5rem;
+}
+
+.recipe-back > .pi,
+.recipe-action > .pi {
+  flex: none;
+}

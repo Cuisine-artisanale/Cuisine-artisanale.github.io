@@ -17,6 +17,8 @@ export interface RecipeCardData {
   cookingTime?: number;
   likesCount?: number;
   stats?: RecipeStats;
+  /** Temps total (préparation + cuisson), en minutes */
+  time?: number;
 }
 
 export interface RecipesPage {
@@ -38,6 +40,7 @@ function toCard(id: string, data: FirebaseFirestore.DocumentData): RecipeCardDat
     url: data.url || undefined,
     cookingTime: typeof data.cookingTime === 'number' ? data.cookingTime : Number(data.cookingTime) || undefined,
     stats: getRecipeStats(data),
+    time: (Number(data.preparationTime) || 0) + (Number(data.cookingTime) || 0) || undefined,
   };
 }
 

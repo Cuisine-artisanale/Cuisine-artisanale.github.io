@@ -15,7 +15,7 @@ const ButtonLinkNav: React.FC<ButtonLinkNavProps> = ({ onClick, isMobile = false
   const navItems = [
 	{ path: '/', label: 'Accueil' },
 	{ path: '/recettes', label: 'Recettes' },
-	{ path: '/map', label: 'Map' },
+	{ path: '/map', label: 'Carte' },
 	{ path: '/about', label: 'À propos' }
   ];
 
