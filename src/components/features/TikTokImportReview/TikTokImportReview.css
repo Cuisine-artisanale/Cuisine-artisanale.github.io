@@ -1,5 +1,6 @@
 /* Relecture d'une recette importée de TikTok.
-   Les !important neutralisent les styles globaux des champs et boutons (index.css, mobile.css). */
+   Les listes d'ingrédients et d'étapes ont leurs propres styles (IngredientListEditor, StepListEditor).
+   Les !important neutralisent les styles globaux des champs (index.css, mobile.css). */
 
 .tiktok-review {
   display: flex;
@@ -9,8 +10,7 @@
 
 .tiktok-review-intro,
 .tiktok-review-note,
-.tiktok-review-author,
-.tiktok-review-empty {
+.tiktok-review-author {
   margin: 0;
   color: var(--text-color-secondary);
   font-size: 0.95rem;
@@ -58,10 +58,8 @@
   color: var(--text-color);
 }
 
-.tiktok-review input[type="text"],
-.tiktok-review input[type="number"],
-.tiktok-review select,
-.tiktok-review textarea {
+.tiktok-review-field input,
+.tiktok-review-field select {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
@@ -73,174 +71,14 @@
   padding: 0.55rem 0.65rem !important;
 }
 
-.tiktok-review input[aria-invalid="true"] {
+.tiktok-review-field input[aria-invalid="true"] {
   border-color: var(--danger-500);
-}
-
-.tiktok-review textarea {
-  resize: vertical;
 }
 
 .tiktok-review-section h3 {
   margin: 0 0 0.6rem;
   font-size: 1.05rem;
   color: var(--primary-color);
-}
-
-.tiktok-review-ingredients,
-.tiktok-review-steps {
-  list-style: none;
-  margin: 0 0 0.6rem;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.tiktok-review-ingredients li {
-  display: grid;
-  grid-template-columns: 4.5rem minmax(7rem, 11rem) minmax(0, 1fr) auto;
-  gap: 0.4rem;
-  align-items: center;
-}
-
-.tiktok-review-steps li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.5rem;
-  align-items: start;
-}
-
-.tiktok-review-step-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  margin-top: 0.4rem;
-  border-radius: 50%;
-  background: var(--primary-color);
-  color: var(--text-color-inverted, #fff);
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-.tiktok-review-step-actions {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.tiktok-review .tiktok-review-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  min-width: 2.5rem !important;
-  min-height: 2.5rem !important;
-  padding: 0 !important;
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius, 8px);
-  background: var(--surface-card) !important;
-  color: var(--text-color-secondary);
-  cursor: pointer;
-}
-
-.tiktok-review .tiktok-review-icon > span {
-  padding: 0;
-  min-width: 0;
-  min-height: 0;
-}
-
-.tiktok-review .tiktok-review-icon:hover:not(:disabled) {
-  background: var(--surface-hover) !important;
-  color: var(--text-color);
-}
-
-.tiktok-review .tiktok-review-icon:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.tiktok-review .tiktok-review-add {
-  background: transparent !important;
-  border: 1px dashed var(--surface-border);
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-.tiktok-review .tiktok-review-add:hover:not(:disabled) {
-  background: var(--surface-hover) !important;
-}
-
-/* ---- Nom d'ingrédient : suggestions du catalogue ---- */
-.tiktok-review-name {
-  position: relative;
-  min-width: 0;
-}
-
-.tiktok-review .tiktok-review-name input {
-  padding-right: 2.1rem !important;
-}
-
-.tiktok-review-known {
-  position: absolute;
-  top: 50%;
-  right: 0.6rem;
-  transform: translateY(-50%);
-  display: inline-flex;
-  color: var(--text-color-secondary);
-  pointer-events: none;
-}
-
-.tiktok-review-known.is-known {
-  color: var(--success-600);
-}
-
-.tiktok-review-suggestions {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 0;
-  right: 0;
-  z-index: 5;
-  list-style: none;
-  margin: 0;
-  padding: 0.25rem 0;
-  max-height: 14rem;
-  overflow-y: auto;
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius, 8px);
-  background: var(--surface-card);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-}
-
-.tiktok-review-suggestions li {
-  display: block;
-  padding: 0.6rem 0.75rem;
-  cursor: pointer;
-}
-
-.tiktok-review-suggestions li.is-highlighted,
-.tiktok-review-suggestions li:hover {
-  background: var(--surface-hover);
-}
-
-.tiktok-review-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 0.5rem;
-  margin: 0 0 0.6rem;
-  font-size: 0.85rem;
-  color: var(--text-color-secondary);
-}
-
-.tiktok-review-legend .pi-check-circle {
-  color: var(--success-600);
-}
-
-.tiktok-review-legend .pi-plus-circle {
-  margin-left: 0.75rem;
 }
 
 .tiktok-review-footer {
@@ -255,30 +93,13 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* Quantité + unité sur une ligne, nom + suppression sur la suivante */
-  .tiktok-review-ingredients li {
-    grid-template-columns: 4.5rem minmax(0, 1fr) auto;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--surface-border);
-  }
-
-  .tiktok-review-unit {
-    grid-column: 2 / 4;
-  }
-
-  .tiktok-review-name {
-    grid-column: 1 / 3;
-  }
-
-  .tiktok-review-steps li {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .tiktok-review-step-actions {
-    grid-column: 2;
-  }
-
   .tiktok-review-footer .p-button {
     flex: 1;
   }
+}
+
+/* mobile.css ajoute marge et retrait à tous les <label> : sans effet voulu ici */
+.tiktok-review .tiktok-review-field {
+  padding: 0 !important;
+  margin: 0 !important;
 }

@@ -1,0 +1,109 @@
+/* Étapes de préparation modifiables (formulaire de recette, relecture d'un import).
+   Les !important neutralisent les styles globaux des champs et boutons (index.css, mobile.css). */
+
+.step-editor-list {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.step-editor-list > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.step-editor-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-top: 0.4rem;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: var(--text-color-inverted, #fff);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.step-editor textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius, 8px);
+  background: var(--surface-ground);
+  color: var(--text-color);
+  font: inherit;
+  padding: 0.55rem 0.65rem !important;
+  resize: vertical;
+}
+
+.step-editor-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.step-editor .step-editor-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem !important;
+  min-height: 2.5rem !important;
+  padding: 0 !important;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius, 8px);
+  background: var(--surface-card) !important;
+  color: var(--text-color-secondary);
+  cursor: pointer;
+}
+
+.step-editor .step-editor-icon > span {
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.step-editor .step-editor-icon:hover:not(:disabled) {
+  background: var(--surface-hover) !important;
+  color: var(--text-color);
+}
+
+.step-editor .step-editor-icon:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.step-editor .step-editor-add {
+  background: transparent !important;
+  border: 1px dashed var(--surface-border);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.step-editor .step-editor-add:hover:not(:disabled) {
+  background: var(--surface-hover) !important;
+}
+
+@media (max-width: 600px) {
+  .step-editor-list > li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .step-editor-actions {
+    grid-column: 2;
+  }
+}
+
+.step-editor .step-editor-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
