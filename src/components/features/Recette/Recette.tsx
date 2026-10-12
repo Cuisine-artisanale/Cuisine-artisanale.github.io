@@ -112,8 +112,12 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 
 			const recetteData = recetteSnap.data();
 			const safeUrl = recetteData.url || slugify(recetteData.title || '') || `recette-${Date.now()}`;
+			// Les ingrédients nouveaux n'entrent au catalogue qu'ici, une fois la recette validée
+			const { syncRecipeIngredientsWithCatalog } = await import('@/lib/services/ingredient-catalog.service');
+			const { recipeParts } = await syncRecipeIngredientsWithCatalog(recetteData.recipeParts);
 			const docRef = await addDoc(collection(db, 'recipes'), {
 				...recetteData,
+				recipeParts,
 				url: safeUrl,
 				createdAt: new Date(),
 				// Compteurs maintenus par les Cloud Functions : jamais repris d'une demande

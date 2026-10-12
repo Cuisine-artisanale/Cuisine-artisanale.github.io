@@ -161,6 +161,12 @@ service cloud.firestore {
       allow delete: if isAdminUser();
     }
 
+    // === Propositions de correction du catalogue d'ingrédients ===
+    // Créées par la vérification hebdomadaire (serveur) ; l'admin les applique ou les ignore.
+    match /ingredientSuggestions/{suggestionId} {
+      allow read, update, delete: if isAdminUser();
+    }
+
     // === Units (unités de mesure) ===
     match /units/{unitId} {
       // Lecture publique

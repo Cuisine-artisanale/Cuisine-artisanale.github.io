@@ -4,6 +4,7 @@ import './recettes-admin.css';
 import { db } from '@/lib/config/firebase';
 import { collection, onSnapshot, orderBy, query, deleteDoc, doc, getDoc, addDoc, updateDoc, limit } from 'firebase/firestore';
 import { toastMessages } from '@/lib/utils/toast';
+import { syncRecipeIngredientsWithCatalog } from '@/lib/services/ingredient-catalog.service';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog/ConfirmDialog';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
@@ -134,8 +135,12 @@ export default function RecettesAdminPage() {
 
       const recetteData = recetteSnap.data();
 
+      // Les ingrédients nouveaux n'entrent au catalogue qu'ici, une fois la recette validée
+      const { recipeParts, created } = await syncRecipeIngredientsWithCatalog(recetteData.recipeParts);
+
       const recipeRef = await addDoc(collection(db, 'recipes'), {
         ...recetteData,
+        recipeParts,
         createdAt: new Date(),
         likes: [],
         // Compteurs maintenus par les Cloud Functions : jamais repris d'une demande
@@ -152,7 +157,9 @@ export default function RecettesAdminPage() {
       showToast({
         severity: 'success',
         summary: toastMessages.success.default,
-        detail: 'La recette a été acceptée et publiée'
+        detail: created.length > 0
+          ? `Recette publiée. Ajouté au catalogue : ${created.join(', ')}`
+          : 'La recette a été acceptée et publiée'
       });
     } catch (error) {
       console.error('Error accepting recipe:', error);

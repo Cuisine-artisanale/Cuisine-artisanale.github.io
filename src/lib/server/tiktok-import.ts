@@ -12,6 +12,7 @@ import { getFirebaseAdminBucket, getFirebaseAdminDb } from '@/lib/config/firebas
 import { getUnits } from '@/lib/server/units';
 import { slugify } from '@/lib/utils/slug';
 import { buildUnitIndex, normalizeUnitKey, resolveUnit, type UnitIndex } from '@/lib/utils/units';
+import { ingredientNameKey as ingredientKey } from '@/lib/utils/ingredient-name';
 import type { ImportDraft, ImportDraftIngredient } from '@/types/import.types';
 
 export const RECIPE_TYPES = ['Entrée', 'Plat', 'Dessert', 'Boisson'];
@@ -926,11 +927,6 @@ const getIngredientCatalog = unstable_cache(
   { revalidate: 600 },
 );
 
-/** Clé de comparaison d'un nom d'ingrédient : sans accents ni espaces, pluriel simple ignoré. */
-function ingredientKey(name: string) {
-  // Même règle que l'écran de relecture (TikTokImportReview) : « Œufs » = « oeuf »
-  return normalizeUnitKey(name.replace(/œ/gi, 'oe').replace(/æ/gi, 'ae')).replace(/s$/, '');
-}
 
 const MAX_THUMBNAIL_BYTES = 5 * 1024 * 1024;
 

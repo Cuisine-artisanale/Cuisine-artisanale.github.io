@@ -2,7 +2,8 @@
 import React, { useMemo, useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { buildUnitIndex, normalizeUnitKey, resolveUnit, selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
+import { buildUnitIndex, resolveUnit, selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
+import { ingredientNameKey as nameKey } from '@/lib/utils/ingredient-name';
 import type { ImportDraft, ImportDraftIngredient } from '@/types/import.types';
 import './TikTokImportReview.css';
 
@@ -18,11 +19,6 @@ export interface CatalogIngredient {
 }
 
 const MAX_SUGGESTIONS = 6;
-
-/** Clé de comparaison d'un nom : sans accents, espaces ni ligatures (« Œufs » = « oeuf »), pluriel simple ignoré. */
-function nameKey(name: string) {
-	return normalizeUnitKey(name.replace(/œ/gi, 'oe').replace(/æ/gi, 'ae')).replace(/s$/, '');
-}
 
 interface TikTokImportReviewProps {
 	draft: ImportDraft;

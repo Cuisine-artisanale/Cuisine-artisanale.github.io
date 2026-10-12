@@ -4,6 +4,7 @@ import './ingredients-admin.css';
 import { collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import AddIngredient from '@/components/features/AddIngredient/AddIngredient';
+import IngredientSuggestions from '@/components/features/IngredientSuggestions/IngredientSuggestions';
 import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog/ConfirmDialog';
@@ -231,6 +232,8 @@ export default function IngredientsAdminPage() {
           <AddIngredient />
         </div>
       </div>
+
+      <IngredientSuggestions />
 
       <div className="table-container">
         {filteredIngredients.length === 0 ? (
