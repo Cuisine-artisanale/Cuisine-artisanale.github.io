@@ -1,228 +1,381 @@
-@layer primereact {
+/* Thème du site : palette chaude (brun, crème), en mode clair et sombre.
+   Chargé après le thème PrimeReact (lara-light-indigo, importé dans providers.tsx) et hors de
+   tout @layer, pour que ces variables remplacent bien les siennes. */
 
-	/* ============================================
-	   ROOT LIGHT THEME (Base Theme)
-	   ============================================ */
+
+/* ============================================
+   ROOT LIGHT THEME (Base Theme)
+   ============================================ */
+:root {
+
+	/* =============================
+	   Core Brand Colors (Your Theme)
+	   ============================= */
+	--primary-color: #8B4513 !important;     /* Saddle Brown (Main Brand) */
+	--primary-dark: #2C1810 !important;
+	--primary-light: #CD853F !important;
+	--secondary-color: #2C1810 !important;
+
+	/* =============================
+	   PrimeReact Primary Scale
+	   ============================= */
+	--primary-50:  #F7EFE8;
+	--primary-100: #E8D5CC;
+	--primary-200: #D9BCAF;
+	--primary-300: #C9A293;
+	--primary-400: #BA8977;
+	--primary-500: var(--primary-color) !important;
+	--primary-600: #713A11;
+	--primary-700: #5A2E0E;
+	--primary-800: #43230A;
+	--primary-900: #2C1810;
+
+	--primary: var(--primary-500);
+
+	/* =============================
+	   Status Colors (Success / Info / Warning / Danger)
+	   ============================= */
+	--success-50:  #E8F5E9;
+	--success-100: #C8E6C9;
+	--success-200: #A5D6A7;
+	--success-300: #81C784;
+	--success-400: #66BB6A;
+	--success-500: #6BCB77;
+	--success-600: #43A047;
+	--success-700: #388E3C;
+	--success-800: #2E7D32;
+	--success-900: #1B5E20;
+
+	--info-50:  #E1F5FE;
+	--info-100: #B3E5FC;
+	--info-200: #81D4FA;
+	--info-300: #4FC3F7;
+	--info-400: #29B6F6;
+	--info-500: #40A2E3;
+	--info-600: #039BE5;
+	--info-700: #0288D1;
+	--info-800: #0277BD;
+	--info-900: #01579B;
+
+	--warning-50:  #FFF8E1;
+	--warning-100: #FFECB3;
+	--warning-200: #FFE082;
+	--warning-300: #FFD54F;
+	--warning-400: #FFCA28;
+	--warning-500: #FFB74D;
+	--warning-600: #FFB300;
+	--warning-700: #FFA000;
+	--warning-800: #FF8F00;
+	--warning-900: #FF6F00;
+
+	--danger-50:  #FFEBEE;
+	--danger-100: #FFCDD2;
+	--danger-200: #EF9A9A;
+	--danger-300: #E57373;
+	--danger-400: #EF5350;
+	--danger-500: #FF6B6B;
+	--danger-600: #E53935;
+	--danger-700: #D32F2F;
+	--danger-800: #C62828;
+	--danger-900: #B71C1C;
+
+	--success: var(--success-500);
+	--info:    var(--info-500);
+	--warning: var(--warning-500);
+	--danger:  var(--danger-500);
+
+	/* =============================
+	   Surfaces (Backgrounds)
+	   ============================= */
+	--surface-ground: #FFF9F5;
+	--surface-section: #FFF1E6;
+	--surface-card: #FFFFFF;
+	--surface-overlay: #FFFFFF;
+	--surface-hover: #FBEBDD;
+
+	/* Échelle de surfaces et variables propres à PrimeReact */
+	--surface-a: #FFFFFF;
+	--surface-b: #FFF9F5;
+	--surface-c: #FFF1E6;
+	--surface-d: #E8D5CC;
+	--surface-e: #FFFFFF;
+	--surface-f: #FFFFFF;
+	--surface-0: #FFFFFF;
+	--surface-50: #FFF9F5;
+	--surface-100: #FFF1E6;
+	--surface-200: #E8D5CC;
+	--surface-300: #D9BCAF;
+	--surface-400: #BA8977;
+	--surface-500: #7D4F50;
+	--surface-600: #5A2E0E;
+	--surface-700: #43230A;
+	--surface-800: #2C1810;
+	--surface-900: #1A0E05;
+	--highlight-bg: #F7EFE8;
+	--highlight-text-color: #5A2E0E;
+	--primary-color-text: #FFFFFF;
+	--font-family: var(--font-inter, Inter), system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+	/* =============================
+	   Borders / Lines
+	   ============================= */
+	--surface-border: #E8D5CC;
+	--border-color: #E8D5CC;
+	--border-color-hover: var(--primary-light);
+
+	/* =============================
+	   Text Colors
+	   ============================= */
+	--text-color: #2C1810;
+	--text-color-secondary: #7D4F50;
+	--text-color-light: #A0522D;
+	--text-color-inverted: #FFFFFF;
+
+	/* =============================
+	   Buttons
+	   ============================= */
+	--button-bg: var(--primary);
+	--button-text: #FFFFFF;
+	--button-hover-bg: var(--primary-dark);
+	--button-hover-text: #FFFFFF;
+	--button-border: var(--primary);
+	--button-hover-border: var(--primary-dark);
+
+	/* =============================
+	   Inputs
+	   ============================= */
+	--input-bg: var(--surface-card);
+	--input-text: var(--text-color);
+	--input-border: var(--surface-border);
+	--input-hover-border: var(--primary-light);
+	--input-focus-border: var(--primary);
+	--input-focus-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
+	--input-placeholder: var(--text-color-secondary);
+
+	--input-filled-bg: var(--surface-ground);
+
+	--input-error-border: var(--danger);
+	--input-error-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+
+	--input-success-border: var(--success);
+	--input-success-shadow: 0 0 0 2px rgba(107, 203, 119, 0.2);
+
+	/* =============================
+	   Panels / Cards / Dropdown
+	   ============================= */
+	--panel-header-bg: var(--surface-section);
+	--panel-content-bg: var(--surface-card);
+	--panel-border: var(--surface-border);
+
+	--dropdown-color: var(--surface-border);
+
+	/* =============================
+	   Shape / Shadow
+	   ============================= */
+	--border-radius: 8px;
+	--focus-ring: 0 0 0 0.2rem #E8C9A8;
+	--card-shadow: 0 2px 12px rgba(44, 24, 16, 0.08);
+
+	/* =============================
+	   Layout
+	   ============================= */
+	--container-width: 1200px;
+	--container-padding: 2rem;
+
+	/* =============================
+	   Links
+	   ============================= */
+	--link-color: var(--primary-color);
+	--link-color-hover: var(--primary-light);
+	--link-color-active: var(--primary-dark);
+
+	--background-base: var(--surface-ground) !important;
+	--background-paper: transparent;
+	--a-hover-color: var(--primary-color);
+
+}
+
+/* ============================================
+   DARK THEME
+   ============================================ */
+[data-theme="dark"] {
+	--primary-color: #CD853F !important;
+	--primary-dark: #8B4513 !important;
+	--primary-light: #DEB887 !important;
+
+	--surface-ground: #261511 !important;
+	--surface-section: #2C1810 !important;
+	--surface-card: #342013 !important;
+	--surface-border: #4D2B1D !important;
+	--surface-hover: #4D2B1D !important;
+
+	--surface-a: #342013;
+	--surface-b: #261511;
+	--surface-c: #2C1810;
+	--surface-d: #4D2B1D;
+	--surface-e: #342013;
+	--surface-f: #342013;
+	--surface-0: #1A0E05;
+	--surface-50: #261511;
+	--surface-100: #2C1810;
+	--surface-200: #4D2B1D;
+	--surface-300: #6B3F2A;
+	--surface-400: #965533;
+	--surface-500: #CD853F;
+	--surface-600: #DEB887;
+	--surface-700: #FFDAB9;
+	--surface-800: #FFE4D6;
+	--surface-900: #FFF9F5;
+	--highlight-bg: #4D2B1D;
+	--highlight-text-color: #FFE4D6;
+
+	--text-color: #FFE4D6 !important;
+	--text-color-secondary: #FFDAB9;
+
+	--input-bg: #070201;
+
+	--card-shadow: 0 2px 12px rgba(0,0,0,0.35);
+
+	--border-color: #4D2B1D;
+	--border-color-hover: #CD853F;
+
+	--dropdown-color: #4D2B1D;
+
+	--link-color: #DEB887 !important;
+	--link-color-hover: #FFE4B5 !important;
+	--link-color-active: #CD853F !important;
+
+	--background-base: #1A0E05 !important;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (min-width: 1200px) {
 	:root {
-
-		/* =============================
-		   Core Brand Colors (Your Theme)
-		   ============================= */
-		--primary-color: #8B4513 !important;     /* Saddle Brown (Main Brand) */
-		--primary-dark: #2C1810 !important;
-		--primary-light: #CD853F !important;
-		--secondary-color: #2C1810 !important;
-
-		/* =============================
-		   PrimeReact Primary Scale
-		   ============================= */
-		--primary-50:  #F7EFE8;
-		--primary-100: #E8D5CC;
-		--primary-200: #D9BCAF;
-		--primary-300: #C9A293;
-		--primary-400: #BA8977;
-		--primary-500: var(--primary-color) !important;
-		--primary-600: #713A11;
-		--primary-700: #5A2E0E;
-		--primary-800: #43230A;
-		--primary-900: #2C1810;
-
-		--primary: var(--primary-500);
-
-		/* =============================
-		   Status Colors (Success / Info / Warning / Danger)
-		   ============================= */
-		--success-50:  #E8F5E9;
-		--success-100: #C8E6C9;
-		--success-200: #A5D6A7;
-		--success-300: #81C784;
-		--success-400: #66BB6A;
-		--success-500: #6BCB77;
-		--success-600: #43A047;
-		--success-700: #388E3C;
-		--success-800: #2E7D32;
-		--success-900: #1B5E20;
-
-		--info-50:  #E1F5FE;
-		--info-100: #B3E5FC;
-		--info-200: #81D4FA;
-		--info-300: #4FC3F7;
-		--info-400: #29B6F6;
-		--info-500: #40A2E3;
-		--info-600: #039BE5;
-		--info-700: #0288D1;
-		--info-800: #0277BD;
-		--info-900: #01579B;
-
-		--warning-50:  #FFF8E1;
-		--warning-100: #FFECB3;
-		--warning-200: #FFE082;
-		--warning-300: #FFD54F;
-		--warning-400: #FFCA28;
-		--warning-500: #FFB74D;
-		--warning-600: #FFB300;
-		--warning-700: #FFA000;
-		--warning-800: #FF8F00;
-		--warning-900: #FF6F00;
-
-		--danger-50:  #FFEBEE;
-		--danger-100: #FFCDD2;
-		--danger-200: #EF9A9A;
-		--danger-300: #E57373;
-		--danger-400: #EF5350;
-		--danger-500: #FF6B6B;
-		--danger-600: #E53935;
-		--danger-700: #D32F2F;
-		--danger-800: #C62828;
-		--danger-900: #B71C1C;
-
-		--success: var(--success-500);
-		--info:    var(--info-500);
-		--warning: var(--warning-500);
-		--danger:  var(--danger-500);
-
-		/* =============================
-		   Surfaces (Backgrounds)
-		   ============================= */
-		--surface-ground: #FFF9F5;
-		--surface-section: #FFF1E6;
-		--surface-card: #FFFFFF;
-		--surface-overlay: #FFFFFF;
-		--surface-hover: #FAD4A7;
-
-		/* =============================
-		   Borders / Lines
-		   ============================= */
-		--surface-border: #E8D5CC;
-		--border-color: #E8D5CC;
-		--border-color-hover: var(--primary-light);
-
-		/* =============================
-		   Text Colors
-		   ============================= */
-		--text-color: #2C1810;
-		--text-color-secondary: #7D4F50;
-		--text-color-light: #A0522D;
-		--text-color-inverted: #FFFFFF;
-
-		/* =============================
-		   Buttons
-		   ============================= */
-		--button-bg: var(--primary);
-		--button-text: #FFFFFF;
-		--button-hover-bg: var(--primary-dark);
-		--button-hover-text: #FFFFFF;
-		--button-border: var(--primary);
-		--button-hover-border: var(--primary-dark);
-
-		/* =============================
-		   Inputs
-		   ============================= */
-		--input-bg: var(--surface-card);
-		--input-text: var(--text-color);
-		--input-border: var(--surface-border);
-		--input-hover-border: var(--primary-light);
-		--input-focus-border: var(--primary);
-		--input-focus-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
-		--input-placeholder: var(--text-color-secondary);
-
-		--input-filled-bg: var(--surface-ground);
-
-		--input-error-border: var(--danger);
-		--input-error-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
-
-		--input-success-border: var(--success);
-		--input-success-shadow: 0 0 0 2px rgba(107, 203, 119, 0.2);
-
-		/* =============================
-		   Panels / Cards / Dropdown
-		   ============================= */
-		--panel-header-bg: var(--surface-section);
-		--panel-content-bg: var(--surface-card);
-		--panel-border: var(--surface-border);
-
-		--dropdown-color: var(--surface-border);
-
-		/* =============================
-		   Shape / Shadow
-		   ============================= */
-		--border-radius: 8px;
-		--focus-ring: 0 0 0 2px #FFE4D6;
-		--card-shadow: 0 2px 12px rgba(44, 24, 16, 0.08);
-
-		/* =============================
-		   Layout
-		   ============================= */
 		--container-width: 1200px;
 		--container-padding: 2rem;
-
-		/* =============================
-		   Links
-		   ============================= */
-		--link-color: var(--primary-color);
-		--link-color-hover: var(--primary-light);
-		--link-color-active: var(--primary-dark);
-
-		--background-base: var(--primary-50) !important;
-
-	}
-
-	/* ============================================
-	   DARK THEME
-	   ============================================ */
-	[data-theme="dark"] {
-		--primary-color: #CD853F !important;
-		--primary-dark: #8B4513 !important;
-		--primary-light: #DEB887 !important;
-
-		--surface-ground: #261511 !important;
-		--surface-section: #2C1810 !important;
-		--surface-card: #342013 !important;
-		--surface-border: #4D2B1D !important;
-		--surface-hover: #965533 !important;
-
-		--text-color: #FFE4D6 !important;
-		--text-color-secondary: #FFDAB9;
-
-		--input-bg: #070201;
-
-		--card-shadow: 0 2px 12px rgba(0,0,0,0.35);
-
-		--border-color: #4D2B1D;
-		--border-color-hover: #CD853F;
-
-		--dropdown-color: #4D2B1D;
-
-		--link-color: #DEB887 !important;
-		--link-color-hover: #FFE4B5 !important;
-		--link-color-active: #CD853F !important;
-
-		--background-base: #1A0E05 !important;
-	}
-
-	/* ============================================
-	   RESPONSIVE
-	   ============================================ */
-
-	@media (min-width: 1200px) {
-		:root {
-			--container-width: 1200px;
-			--container-padding: 2rem;
-		}
-	}
-
-	@media (min-width: 768px) and (max-width: 1199px) {
-		:root {
-			--container-width: 90%;
-			--container-padding: 1.5rem;
-		}
-	}
-
-	@media (max-width: 767px) {
-		:root {
-			--container-width: 100%;
-			--container-padding: 1rem;
-		}
 	}
 }
 
+@media (min-width: 768px) and (max-width: 1199px) {
+	:root {
+		--container-width: 90%;
+		--container-padding: 1.5rem;
+	}
+}
+
+@media (max-width: 767px) {
+	:root {
+		--container-width: 100%;
+		--container-padding: 1rem;
+	}
+}
+
+/* ============================================
+   COMPOSANTS PRIMEREACT
+   ============================================
+   Le thème lara écrit ses couleurs (gris, indigo) en dur dans les composants :
+   on les ramène ici sur la palette du site, en mode clair comme en mode sombre. */
+
+/* Pas de règle sur .p-component : elle recolorerait aussi le texte des boutons */
+.p-inputtext,
+.p-dropdown .p-dropdown-label,
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content,
+.p-dialog .p-dialog-footer,
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item,
+.p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item {
+	color: var(--text-color);
+}
+
+.p-component,
+.p-inputtext {
+	font-family: var(--font-family);
+}
+
+.p-inputtext,
+.p-dropdown,
+.p-multiselect,
+.p-radiobutton .p-radiobutton-box,
+.p-checkbox .p-checkbox-box {
+	border-color: var(--surface-border);
+	background-color: var(--surface-card);
+}
+
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content,
+.p-dialog .p-dialog-footer,
+.p-dropdown-panel,
+.p-autocomplete-panel,
+.p-multiselect-panel {
+	background-color: var(--surface-card);
+}
+
+.p-inputtext::placeholder,
+.p-dropdown .p-dropdown-label.p-placeholder,
+.p-dropdown .p-dropdown-trigger {
+	color: var(--text-color-secondary);
+}
+
+/* Survol et focus : brun à la place de l'indigo */
+.p-inputtext:enabled:hover,
+.p-dropdown:not(.p-disabled):hover,
+.p-multiselect:not(.p-disabled):hover,
+.p-radiobutton:not(.p-disabled):has(.p-radiobutton-input:hover) .p-radiobutton-box,
+.p-checkbox:not(.p-disabled):has(.p-checkbox-input:hover) .p-checkbox-box {
+	border-color: var(--primary-light);
+}
+
+.p-inputtext:enabled:focus,
+.p-dropdown:not(.p-disabled).p-focus,
+.p-multiselect:not(.p-disabled).p-focus,
+.p-radiobutton:not(.p-disabled):has(.p-radiobutton-input:focus-visible) .p-radiobutton-box,
+.p-checkbox:not(.p-disabled):has(.p-checkbox-input:focus-visible) .p-checkbox-box {
+	border-color: var(--primary-color);
+	box-shadow: var(--focus-ring);
+}
+
+/* Cases et boutons radio cochés */
+.p-radiobutton.p-highlight .p-radiobutton-box,
+.p-checkbox.p-highlight .p-checkbox-box {
+	border-color: var(--primary-color);
+	background: var(--primary-color);
+}
+
+/* Élément sélectionné ou survolé dans une liste déroulante */
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight,
+.p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item.p-highlight,
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-highlight {
+	background: var(--highlight-bg);
+	color: var(--highlight-text-color);
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item:not(.p-highlight):not(.p-disabled):hover,
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item:not(.p-highlight):not(.p-disabled).p-focus {
+	background: var(--surface-hover);
+	color: var(--text-color);
+}
+
+/* Étoiles de notation */
+.p-rating .p-rating-item .p-rating-icon {
+	color: var(--surface-300);
+}
+
+.p-rating .p-rating-item.p-rating-item-active .p-rating-icon,
+.p-rating:not(.p-disabled):not(.p-readonly) .p-rating-item:hover .p-rating-icon {
+	color: var(--primary-light);
+}
+
+/* Fil d'Ariane et liens d'interface */
+.p-breadcrumb {
+	background: transparent;
+	border: none;
+}
+
+.p-breadcrumb .p-menuitem-link .p-menuitem-text,
+.p-breadcrumb .p-menuitem-link .p-menuitem-icon,
+.p-breadcrumb .p-menuitem-separator {
+	color: var(--text-color-secondary);
+}

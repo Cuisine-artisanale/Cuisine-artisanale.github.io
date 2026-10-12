@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font-family);
   line-height: 1.5;
   font-weight: 400;
 
@@ -17,8 +17,8 @@ body {
   width: 100%;
   color: var(--text-color);
   background-color: var(--background-base);
-  transition: all 0.3s ease;
-  font-family: sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: var(--font-family);
 }
 
 #root {

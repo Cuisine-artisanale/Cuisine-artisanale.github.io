@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Inter } from 'next/font/google';
 import Providers from './providers';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -13,6 +14,9 @@ import PWAProvider from '@/components/ui/PWAProvider/PWAProvider';
 import DeferredWidgets from '@/components/ui/DeferredWidgets/DeferredWidgets';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+// Police du site, hébergée avec le site (aucun appel à Google depuis le navigateur du visiteur)
+const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-inter' });
 
 export const metadata = {
 	title: {
@@ -104,7 +108,7 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
-		<html lang="fr">
+		<html lang="fr" className={inter.variable}>
 			<head>
 				{/* Structured Data (JSON-LD) pour le référencement */}
 				<script
