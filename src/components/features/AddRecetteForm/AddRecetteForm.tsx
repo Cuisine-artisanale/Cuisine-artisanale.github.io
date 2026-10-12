@@ -16,6 +16,8 @@ import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { compressImage } from '@/lib/utils/image';
 import { DEPARTEMENTS } from '@/constants/departements';
 import { useUnits } from '@/hooks/useUnits';
+import type { ImportDraft } from '@/types/import.types';
+import TikTokImportReview from '@/components/features/TikTokImportReview/TikTokImportReview';
 import { resolveUnit, selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
 import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
@@ -59,6 +61,8 @@ const AddRecetteForm: React.FC = () => {
   const [tiktokImportUrl, setTiktokImportUrl] = useState('');
   const [tiktokImportContext, setTiktokImportContext] = useState('');
   const [tiktokImporting, setTiktokImporting] = useState(false);
+  const [tiktokDraft, setTiktokDraft] = useState<ImportDraft | null>(null);
+  const [tiktokSaving, setTiktokSaving] = useState(false);
   const [isRecetteCreated, setIsRecetteCreated] = useState<boolean>(false);
   const { units: allUnits, index: unitIndex, reload: reloadUnits } = useUnits();
   const unitOptions = selectableUnits(allUnits).map((u) => ({ label: unitOptionLabel(u), value: u.id }));
@@ -265,6 +269,7 @@ const AddRecetteForm: React.FC = () => {
 	return /^(https?:\/\/)?(www\.)?(tiktok\.com|vm\.tiktok\.com|vt\.tiktok\.com)\/.+$/i.test(url);
   }
 
+  // Étape 1 : analyse de la vidéo. Le brouillon obtenu est relu par l'utilisateur (TikTokImportReview).
   const handleImportTikTokByUrl = async () => {
 	if (!user) {
 	  toast.error("Vous devez être connecté pour importer une vidéo TikTok.");
@@ -293,24 +298,51 @@ const AddRecetteForm: React.FC = () => {
 	  });
 
 	  const data = await response.json();
+	  if (!response.ok || !data?.success || !data.draft) {
+		throw new Error(data?.error || "Erreur lors de l'analyse de la vidéo TikTok.");
+	  }
+
+	  setTiktokDraft(data.draft as ImportDraft);
+	} catch (error: any) {
+	  toast.error(error?.message || "Erreur lors de l'analyse de la vidéo TikTok.");
+	} finally {
+	  setTiktokImporting(false);
+	}
+  };
+
+  // Étape 2 : envoi en modération de la recette relue
+  const handleSaveTikTokDraft = async (draft: ImportDraft) => {
+	if (!user) return;
+
+	try {
+	  setTiktokSaving(true);
+	  const idToken = await user.getIdToken();
+	  const response = await fetch('/api/tiktok/import-save', {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json',
+		  Authorization: `Bearer ${idToken}`,
+		},
+		body: JSON.stringify({ draft }),
+	  });
+
+	  const data = await response.json();
 	  if (!response.ok || !data?.success) {
-		throw new Error(data?.error || "Erreur lors de l'import TikTok.");
+		throw new Error(data?.error || "Erreur lors de l'enregistrement de la recette.");
 	  }
 
 	  if (data.duplicate) {
-		toast.info('Cette vidéo TikTok est déjà importée.');
+		toast.info('Cette vidéo TikTok a déjà été importée.');
 	  } else {
-		const aiNote = data.aiUsed
-		  ? `IA active (${data.aiProvider || 'provider inconnu'})`
-		  : `fallback ${data.aiError ? `(${data.aiError})` : '(sans IA)'}`;
-		toast.success(`Vidéo TikTok importée dans la modération - ${aiNote}.`);
+		toast.success('Recette envoyée à la vérification admin');
 	  }
+	  setTiktokDraft(null);
 	  setTiktokImportUrl('');
 	  setTiktokImportContext('');
 	} catch (error: any) {
-	  toast.error(error?.message || "Erreur lors de l'import de la vidéo TikTok.");
+	  toast.error(error?.message || "Erreur lors de l'enregistrement de la recette.");
 	} finally {
-	  setTiktokImporting(false);
+	  setTiktokSaving(false);
 	}
   };
 
@@ -525,7 +557,7 @@ const AddRecetteForm: React.FC = () => {
 
 		<section className="tiktok-import-panel">
 			<h2>Importer depuis TikTok</h2>
-			<p>Collez une URL TikTok, puis ajoutez du contexte pour aider l'IA a extraire les ingredients.</p>
+			<p>Collez le lien d'une vidéo TikTok : la recette est extraite de sa légende, puis vous la vérifiez avant l'envoi.</p>
 			<div className="tiktok-import-controls">
 				<InputText
 					value={tiktokImportUrl}
@@ -535,30 +567,43 @@ const AddRecetteForm: React.FC = () => {
 				/>
 				<Button
 					type="button"
-					label={tiktokImporting ? 'Import...' : 'Importer URL TikTok'}
+					label={tiktokImporting ? 'Analyse…' : 'Analyser la vidéo'}
+					icon="pi pi-search"
+					loading={tiktokImporting}
 					onClick={handleImportTikTokByUrl}
 					disabled={tiktokImporting || !user}
 				/>
 			</div>
 			<div className="tiktok-import-context">
 				<label htmlFor="tiktok-import-context">
-					Texte complementaire (ingredients / etapes)
+					Texte de la recette (facultatif)
 				</label>
 				<textarea
 					id="tiktok-import-context"
 					value={tiktokImportContext}
 					onChange={(e) => setTiktokImportContext(e.target.value)}
-					placeholder="Ex: Ingredients: 2 oeufs, 150g farine, 1 boite de thon..."
+					placeholder={"Ingrédients :\n- 2 œufs\n- 150 g de farine\nPréparation :\n1. Mélanger…"}
 					rows={4}
 					disabled={tiktokImporting || !user}
 					maxLength={3000}
 				/>
 				<p className="tiktok-import-hint">
-					Optionnel. Plus vous donnez de details ici, meilleure sera l'extraction des ingredients.
+					À remplir si la recette n'est pas écrite dans la légende de la vidéo (recette dictée, ou en commentaire) : collez ou tapez ici les ingrédients et les étapes.
 				</p>
 			</div>
 			{!user && <p className="tiktok-import-hint">Connectez-vous pour importer une vidéo TikTok.</p>}
 		</section>
+
+		{tiktokDraft && (
+			<TikTokImportReview
+				key={tiktokDraft.sourceVideoId}
+				draft={tiktokDraft}
+				units={allUnits}
+				submitting={tiktokSaving}
+				onCancel={() => setTiktokDraft(null)}
+				onSubmit={handleSaveTikTokDraft}
+			/>
+		)}
 
 		{/* Barre de progression */}
 		<div className="step-progress">

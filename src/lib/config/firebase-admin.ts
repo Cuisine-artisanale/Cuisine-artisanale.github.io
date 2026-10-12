@@ -1,6 +1,7 @@
 import { cert, getApp, getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 import fs from 'fs';
 import path from 'path';
 
@@ -64,6 +65,12 @@ export function getFirebaseAdminAuth() {
 export function getFirebaseAdminDb() {
   const app = getFirebaseAdminApp();
   return getFirestore(app);
+}
+
+/** Bucket Firebase Storage du site (photos des recettes). */
+export function getFirebaseAdminBucket() {
+  const app = getFirebaseAdminApp();
+  return getStorage(app).bucket(process.env.FIREBASE_STORAGE_BUCKET || 'recettes-cuisine-a1bf2.firebasestorage.app');
 }
 
 export function isFirebaseAdminInitialized() {
