@@ -12,7 +12,11 @@
     "originalSize": "2135x2136",
     "storagePath": "recipes/Nougat/1791815547081_nougat.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FNougat%2F1791815547081_nougat.webp?alt=media&token=3634607a-3b33-443d-abb6-b293660ee01a",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FNougat%2Fnougat-1.webp?alt=media&token=d33bef72-b47c-4ffe-9651-a3ef60f6f68e"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Crème Brûlée",
@@ -27,7 +31,12 @@
     "originalSize": "1024x677",
     "storagePath": "recipes/Crème Brûlée/1791815549048_creme-brulee.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCr%C3%A8me%20Br%C3%BBl%C3%A9e%2F1791815549048_creme-brulee.webp?alt=media&token=c7d6de22-dc03-4743-9e89-1c0c78cfb539",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCr%C3%A8me%20Br%C3%BBl%C3%A9e%2F1764256367992_creme-brelee-creme-brule-classic-creme-brulee-being-flambed-burning-flames-cabbage-vanilla-bean-blowtorch-sugar-blowtorch-e43-free-photo.jpg?alt=media&token=50fe0b42-e762-474f-9128-b7ad2699182a",
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCr%C3%A8me%20Br%C3%BBl%C3%A9e%2F1764256368955_stock-photo-creme-brulee.jpeg?alt=media&token=17471951-32d0-4ae2-b2b9-28f8c03a60fe"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Thon mi-cuit à l'asiatique",
@@ -42,7 +51,11 @@
     "originalSize": "1024x1024",
     "storagePath": "recipes/Thon mi-cuit à l'asiatique/1791815549851_thon-mi-cuit-a-lasiatique.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FThon%20mi-cuit%20%C3%A0%20l'asiatique%2F1791815549851_thon-mi-cuit-a-lasiatique.webp?alt=media&token=20ad7235-b91c-4c3e-92ce-a069a9af991f",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FThon%20mi-cuit%20%C3%A0%20l'asiatique%2Fff232151d72bdc6b44fcd9b84633d47c.jpg?alt=media&token=9ed03ab3-a661-4048-8572-fc8bf77dd5aa"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Coq au Vin",
@@ -57,7 +70,11 @@
     "originalSize": "1024x678",
     "storagePath": "recipes/Coq au Vin/1791815550913_coq-au-vin.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCoq%20au%20Vin%2F1791815550913_coq-au-vin.webp?alt=media&token=3b8a08bf-aa51-46a4-8272-bfb46ba6fd13",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCoq%20au%20Vin%2F1764256484379_istockphoto-1085445990-612x612.jpg?alt=media&token=b9f3739e-dd62-42c2-80f7-0ac4994a0a09"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Riz 3a Djej Poulet et riz libanais",
@@ -72,7 +89,11 @@
     "originalSize": "1024x1024",
     "storagePath": "recipes/Riz 3a Djej Poulet et riz libanais/1791815551613_riz-3a-djej-poulet-et-riz-libanais.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FRiz%203a%20Djej%20Poulet%20et%20riz%20libanais%2F1791815551613_riz-3a-djej-poulet-et-riz-libanais.webp?alt=media&token=9ef0f718-0925-404c-980d-b7205c1b9e98",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FRiz%203a%20Djej%20Poulet%20et%20riz%20libanais%2FLebanese-Chicken-and-Rice-7.jpeg?alt=media&token=9b49de05-a021-41b5-bf22-cbc7e866b041"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Cassoulet Toulousain",
@@ -87,7 +108,11 @@
     "originalSize": "1024x768",
     "storagePath": "recipes/Cassoulet Toulousain/1791815552263_cassoulet-toulousain.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCassoulet%20Toulousain%2F1791815552263_cassoulet-toulousain.webp?alt=media&token=68549728-9ca9-4331-a609-b3950d9ba9f9",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCassoulet%20Toulousain%2F1764256570931_istockphoto-1623308505-612x612.jpg?alt=media&token=e960d240-2c96-432d-be79-418482d5205e"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Sayniyyet kafta",
@@ -102,7 +127,12 @@
     "originalSize": "1024x768",
     "storagePath": "recipes/Sayniyyet kafta/1791815553238_sayniyyet-kafta.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FSayniyyet%20kafta%2F1791815553238_sayniyyet-kafta.webp?alt=media&token=3b3e9210-f5b4-4bfa-b6c6-74c71968b537",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FSayniyyet%20kafta%2F1769769298838_kafta-sanieh-9-684x1024.jpg?alt=media&token=f5e260d4-5e1b-434e-8bc0-8158167a9e87",
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FSayniyyet%20kafta%2F1769769300289_kafta-sanieh-13-1024x680.jpg?alt=media&token=e85ef5f3-f47e-43e6-be26-1e02aa12b0c8"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Clafoutis aux Cerises",
@@ -117,7 +147,13 @@
     "originalSize": "1024x768",
     "storagePath": "recipes/Clafoutis aux Cerises/1791815554273_clafoutis-aux-cerises.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FClafoutis%20aux%20Cerises%2F1791815554273_clafoutis-aux-cerises.webp?alt=media&token=5229661d-b392-43f1-bae5-a1414a0d70e3",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FClafoutis%20aux%20Cerises%2F1764256860080_CherryClafoutis4-320x321.jpg?alt=media&token=5a3e563e-d9d4-4f2a-a17a-73840998cf7e",
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FClafoutis%20aux%20Cerises%2F1764256861377_dsc08072-351x185.jpg?alt=media&token=ddb73917-b422-4a30-8db5-fe7ddcb15a12",
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FClafoutis%20aux%20Cerises%2F1764256862666_i204696-clafoutis-cerises-la-meilleure-recette.jpg?alt=media&token=590cca63-e7bf-4b24-8ea1-30b4a3badf1d"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Pot-au-Feu",
@@ -132,7 +168,11 @@
     "originalSize": "1024x768",
     "storagePath": "recipes/Pot-au-Feu/1791815555400_pot-au-feu.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FPot-au-Feu%2F1791815555400_pot-au-feu.webp?alt=media&token=6641946d-03b6-417a-978b-d9631bce7a16",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FPot-au-Feu%2F1764318658490_picture.jpeg?alt=media&token=68ab46e6-718a-4b44-931f-d47132b0d728"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Croissants Parisiens",
@@ -147,7 +187,12 @@
     "originalSize": "1024x768",
     "storagePath": "recipes/Croissants Parisiens/1791815556346_croissants-parisiens.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCroissants%20Parisiens%2F1791815556346_croissants-parisiens.webp?alt=media&token=c914d99f-d69f-461e-a9d8-afdcf5b2bfa8",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCroissants%20Parisiens%2F1764318585953_i32840-crst.jpeg?alt=media&token=950462e9-7efd-4f47-994a-37153b39414d",
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCroissants%20Parisiens%2F1764318586827_croissant-boulangerie-duc-de-la-chapelle.jpg?alt=media&token=9a60cf1e-fb7a-4204-9b12-8aa964fb198d"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Naan",
@@ -162,7 +207,12 @@
     "originalSize": "1024x680",
     "storagePath": "recipes/Naan/1791815557138_naan.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FNaan%2F1791815557138_naan.webp?alt=media&token=214de7e1-a824-47a6-bf68-18da88a6b744",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FWraps%2Fdelicious-roti-assortment-table-with-copy-space.jpg?alt=media&token=d1fdb5d8-6871-4f78-b35e-98d07d043b0f",
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FWraps%2Ftop-view-pakistani-meal-arrangement.jpg?alt=media&token=8e93336b-55cc-4428-b1f1-cb5ee42d2f95"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Bouillabaisse",
@@ -177,7 +227,11 @@
     "originalSize": "1024x768",
     "storagePath": "recipes/Bouillabaisse/1791815558082_bouillabaisse.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FBouillabaisse%2F1791815558082_bouillabaisse.webp?alt=media&token=8860e7e3-7cfc-4910-9e20-0dc5e488b7ef",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FBouillabaisse%2F1764318773543_gettyimages-184949147-612x612.jpg?alt=media&token=59622796-8e87-416d-b651-07b3945f9240"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Gaspacho",
@@ -192,7 +246,11 @@
     "originalSize": "1024x768",
     "storagePath": "recipes/Gaspacho/1791815559340_gaspacho.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FGaspacho%2F1791815559340_gaspacho.webp?alt=media&token=e4b97040-cd1e-454a-84e9-5989f325a1b8",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FGaspacho%2Ftraditional-spanish-gazpacho-soup-bowl-blue-background.jpg?alt=media&token=4a76b8da-0ad7-40b8-8e9d-d7be8552c1e4"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Cookies maison",
@@ -207,7 +265,11 @@
     "originalSize": "1024x768",
     "storagePath": "recipes/Cookies maison/1791815560292_cookies-maison.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCookies%20maison%2F1791815560292_cookies-maison.webp?alt=media&token=f7516c5e-a1d2-4914-8ada-e3cf53fbd857",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FCookies%20maison%2F93153_w600.jpg?alt=media&token=f1bbf2d5-6cc7-4cbb-bc56-42a0e944b841"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Sole Meunière",
@@ -222,7 +284,11 @@
     "originalSize": "1024x892",
     "storagePath": "recipes/Sole Meunière/1791815561093_sole-meuniere.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FSole%20Meuni%C3%A8re%2F1791815561093_sole-meuniere.webp?alt=media&token=f90e4274-737c-4501-93ed-4dbbb7ed59eb",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FSole%20Meuni%C3%A8re%2F1764318704708_sole-meuniere_1200x800.jpg?alt=media&token=234a00d2-d865-4a1b-ac5b-bd489f69c39e"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Tarte aux Fraises",
@@ -237,7 +303,11 @@
     "originalSize": "1024x768",
     "storagePath": "recipes/Tarte aux Fraises/1791815562041_tarte-aux-fraises.webp",
     "imageUrl": "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FTarte%20aux%20Fraises%2F1791815562041_tarte-aux-fraises.webp?alt=media&token=85c8c810-a62f-403b-bfbc-5f3805e2e252",
-    "retrievedAt": "2026-10-12"
+    "retrievedAt": "2026-10-12",
+    "previousImages": [
+      "https://firebasestorage.googleapis.com/v0/b/recettes-cuisine-a1bf2.firebasestorage.app/o/recipes%2FTarte%20aux%20Fraises%2F1764318516829_360_F_974128656_y2UebQoVCKR3VJbmVusUGYJOPVrWm5V9.jpg?alt=media&token=5e616062-a267-4bd1-80cb-6c4eac7f3787"
+    ],
+    "appliedAt": "2026-10-12"
   },
   {
     "title": "Quiche lorraine",
