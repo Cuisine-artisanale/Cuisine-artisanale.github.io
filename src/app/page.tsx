@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import PostsClient from './PostsClient';
 import TrendingRecipes from '@/components/features/TrendingRecipes/TrendingRecipes';
 import WeeklyRecipe from '@/components/features/WeeklyRecipe/WeeklyRecipe';
+import HomeHero from '@/components/features/HomeHero/HomeHero';
 import { getRecentPosts, getTrendingRecipes, getWeeklyRecipe } from '@/lib/server/listings';
 
 // Page générée côté serveur et mise en cache, régénérée au plus toutes les 10 minutes
@@ -37,9 +38,10 @@ export default async function Page() {
 
 	return (
 		<div className="Home">
-			<h1 className="sr-only">Cuisine Artisanale : recettes traditionnelles françaises</h1>
+			<HomeHero />
 			<WeeklyRecipe recipe={weekly} />
 			<TrendingRecipes recipes={trending} />
+			<h2 className="home-section-title home-posts-heading">Le fil de la communauté</h2>
 			<PostsClient initialPosts={posts} />
 		</div>
 	);

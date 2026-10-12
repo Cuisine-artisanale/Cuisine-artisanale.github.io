@@ -46,15 +46,15 @@ const NewsletterPopup: React.FC = () => {
 	  const data = await response.json();
 
 	  if (data.success) {
-		setStatus("✅ " + data.message);
+		setStatus(data.message);
 		setEmail("");
 		setTimeout(() => setShowPopup(false), 3000);
 	  } else {
-		setStatus("❌ " + (data.error || "Une erreur est survenue. Réessayez plus tard."));
+		setStatus(data.error || "Une erreur est survenue. Réessayez plus tard.");
 	  }
 	} catch (error) {
 	  console.error("Erreur lors de l'inscription:", error);
-	  setStatus("❌ Une erreur est survenue. Réessayez plus tard.");
+	  setStatus("Une erreur est survenue. Réessayez plus tard.");
 	} finally {
 	  setIsLoading(false);
 	}
@@ -90,7 +90,7 @@ const NewsletterPopup: React.FC = () => {
 			  ✕
 			</button>
 
-			<h2>🍪 Rejoignez la newsletter</h2>
+			<h2>Rejoignez la newsletter</h2>
 			<p>Recevez chaque dimanche une recette facile et gourmande !</p>
 
 			<form onSubmit={subscribeToNewsletter}>
@@ -103,7 +103,7 @@ const NewsletterPopup: React.FC = () => {
 				disabled={isLoading}
 			  />
 			  <button type="submit" disabled={isLoading}>
-				{isLoading ? "Inscription..." : "S'abonner 🍰"}
+				{isLoading ? "Inscription..." : "S'abonner"}
 			  </button>
 			</form>
 

@@ -35,7 +35,7 @@ function UnsubscribeContent() {
           {status === "loading" && (
             <div className="loading status-content">
               <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }} />
-              <h1>🍪 Traitement en cours...</h1>
+              <h1>Traitement en cours…</h1>
               <p>Veuillez patienter pendant que nous vous désabonnons.</p>
             </div>
           )}
@@ -43,7 +43,7 @@ function UnsubscribeContent() {
           {status === "success" && (
             <div className="success status-content">
               <i className="pi pi-check-circle" style={{ fontSize: '3rem', color: 'var(--success-500)' }} />
-              <h1>Désabonnement réussi 🎉</h1>
+              <h1>Désabonnement réussi</h1>
               <p>
                 Vous avez été désabonné(e) de la newsletter <strong>Cuisine Artisanale</strong>.
               </p>
@@ -76,7 +76,7 @@ function UnsubscribeContent() {
           {status === "error" && (
             <div className="error status-content">
               <i className="pi pi-times-circle" style={{ fontSize: '3rem', color: 'var(--danger-500)' }} />
-              <h1>Oups 😢</h1>
+              <h1>Désabonnement impossible</h1>
               <p>
                 Impossible de vous désabonner. Le lien semble invalide ou a expiré.
               </p>
@@ -102,7 +102,7 @@ export default function Unsubscribe() {
           <div className="unsubscribe-card">
             <div className="loading status-content">
               <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }} />
-              <h1>🍪 Chargement...</h1>
+              <h1>Chargement…</h1>
               <p>Veuillez patienter.</p>
             </div>
           </div>

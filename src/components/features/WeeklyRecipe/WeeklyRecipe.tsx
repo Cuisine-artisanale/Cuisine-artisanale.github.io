@@ -29,7 +29,7 @@ export default function WeeklyRecipe({ recipe }: WeeklyRecipeProps) {
 
 	return (
 		<section className="weekly-recipe">
-			<h2 className="weekly-recipe-title">🥇 Recette de la semaine</h2>
+			<h2 className="weekly-recipe-title home-section-title">Recette de la semaine</h2>
 			<div className="weekly-recipe-card">
 				{featuredRecette.images?.[0] && (
 					<div className="weekly-recipe-image-wrapper">
@@ -59,7 +59,7 @@ export default function WeeklyRecipe({ recipe }: WeeklyRecipeProps) {
 					</div>
 
 					{featuredRecette.position && (
-						<p className="weekly-recipe-content-location">📍 {getDepartementName(featuredRecette.position) || featuredRecette.position}</p>
+						<p className="weekly-recipe-content-location"><i className="pi pi-map-marker" aria-hidden="true"></i> {getDepartementName(featuredRecette.position) || featuredRecette.position}</p>
 					)}
 
 					<div className="weekly-recipe-stats">

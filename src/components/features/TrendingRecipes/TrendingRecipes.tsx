@@ -18,7 +18,7 @@ export default function TrendingRecipes({ recipes }: TrendingRecipesProps) {
 
 	return (
 		<div className="trending-recipes-section">
-			<h2>Recettes populaires cette semaine</h2>
+			<h2 className="home-section-title">Les recettes les plus aimées</h2>
 			<div className="trending-recipes-grid">
 				{recipes.map((recipe) => (
 					<Link

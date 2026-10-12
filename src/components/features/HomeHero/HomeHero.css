@@ -1,0 +1,141 @@
+/* En-tête de l'accueil, et titres de section communs à la page.
+   Les !important neutralisent les styles globaux des boutons, liens et champs (index.css, mobile.css). */
+
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem auto 2rem;
+  padding: 2.5rem 1.5rem;
+  border-radius: 18px;
+  background: var(--surface-section);
+  text-align: center;
+}
+
+.home-hero h1 {
+  max-width: 22ch;
+  margin: 0;
+  font-size: clamp(1.7rem, 1.1rem + 2.6vw, 2.8rem);
+  line-height: 1.15;
+  color: var(--text-color);
+}
+
+.home-hero .home-hero-tagline {
+  max-width: 48ch;
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-color-secondary);
+}
+
+.home-hero-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 36rem;
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.35rem 0.35rem 1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface-card);
+}
+
+.home-hero-search:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: var(--focus-ring);
+}
+
+.home-hero-search > .pi {
+  color: var(--text-color-secondary);
+}
+
+.home-hero .home-hero-search input {
+  flex: 1;
+  min-width: 0;
+  min-height: 0 !important;
+  padding: 0.5rem 0 !important;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-color);
+  font: inherit;
+}
+
+.home-hero .home-hero-search button {
+  flex: none;
+  padding: 0.6rem 1.25rem !important;
+  border: none;
+  border-radius: 999px;
+  background: var(--primary-color) !important;
+  color: var(--text-color-inverted, #fff);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.home-hero .home-hero-search button:hover {
+  background: var(--primary-600, var(--primary-dark)) !important;
+}
+
+.home-hero-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.home-hero .home-hero-shortcuts a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 0;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface-card);
+  color: var(--text-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.home-hero .home-hero-shortcuts a:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* ---- Titres de section de l'accueil : un seul style ---- */
+.Home .home-section-title {
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid var(--surface-section);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.home-posts-heading {
+  max-width: 1400px;
+  margin: 2rem auto 0;
+}
+
+@media (max-width: 600px) {
+  .home-hero {
+    padding: 1.75rem 1rem;
+    border-radius: 14px;
+  }
+
+  /* Le bouton passe sous le champ */
+  .home-hero-search {
+    flex-wrap: wrap;
+    padding: 0.5rem 0.75rem;
+    border-radius: 16px;
+  }
+
+  .home-hero .home-hero-search button {
+    width: 100%;
+  }
+
+  .Home .home-section-title {
+    font-size: 1.3rem;
+  }
+}

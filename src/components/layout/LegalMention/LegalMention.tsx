@@ -1,27 +1,48 @@
 "use client";
-import React, { useEffect } from 'react';
+import React from 'react';
 import './LegalMention.css';
 import LienUtiles from '@/components/layout/LienUtiles/LienUtiles';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+/** Pied de page du site : présentation, navigation, informations légales et contact. */
 const LegalMention: React.FC = () => {
-  const [isAboutPage, setIsAboutPage] = React.useState(false);
-  const pathname = usePathname();
+	const pathname = usePathname();
+	// La page À propos affiche déjà les liens de contact
+	const isAboutPage = pathname === '/about';
 
-  useEffect(() => {
-	setIsAboutPage(pathname === '/about');
-  }, [pathname]);
+	return (
+		<footer className="LegalMention">
+			<div className="site-footer-columns">
+				<div className="site-footer-brand">
+					<p className="site-footer-name">Cuisine Artisanale</p>
+					<p>Les recettes traditionnelles françaises, partagées par des passionnés.</p>
+				</div>
 
-  return (
-	<div className="LegalMention">
-	  <header className="legalMention-header">
-		<Link href="/mentions-legales">Mentions légales / ©Aymeric Sabatier</Link>
-		<Link href="/politique-confidentialite">Politique de confidentialité / ©Aymeric Sabatier</Link>
-		{!isAboutPage && <LienUtiles />}
-	  </header>
-	</div>
-  );
+				<nav aria-label="Navigation du pied de page">
+					<p className="site-footer-heading">Explorer</p>
+					<ul>
+						<li><Link href="/recettes">Toutes les recettes</Link></li>
+						<li><Link href="/map">Recettes par région</Link></li>
+						<li><Link href="/recettes/add-recipe">Proposer une recette</Link></li>
+						<li><Link href="/about">À propos</Link></li>
+					</ul>
+				</nav>
+
+				<nav aria-label="Informations légales">
+					<p className="site-footer-heading">Informations</p>
+					<ul>
+						<li><Link href="/mentions-legales">Mentions légales</Link></li>
+						<li><Link href="/politique-confidentialite">Politique de confidentialité</Link></li>
+					</ul>
+				</nav>
+			</div>
+
+			{!isAboutPage && <LienUtiles />}
+
+			<p className="site-footer-copyright">© {new Date().getFullYear()} Cuisine Artisanale · Aymeric Sabatier</p>
+		</footer>
+	);
 };
 
 export default LegalMention;

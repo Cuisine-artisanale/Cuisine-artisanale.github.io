@@ -301,9 +301,10 @@ export default function RecetteMapClient() {
 						key={index}
 						positions={getDepartementPolygon(departement.properties.nom)}
 						pathOptions={{
-							color: selectedDepartement === departement.properties.code ? '#ff7800' : '#3388ff',
+							color: selectedDepartement === departement.properties.code ? '#8B4513' : '#B98A6B',
 							weight: selectedDepartement === departement.properties.code ? 2 : 1,
-							fillOpacity: 0.2
+							fillColor: selectedDepartement === departement.properties.code ? '#CD853F' : '#E8D5CC',
+							fillOpacity: selectedDepartement === departement.properties.code ? 0.35 : 0.25
 						}}
 					>
 						<Pop>{departement.properties.nom}</Pop>
@@ -413,7 +414,7 @@ export default function RecetteMapClient() {
 										<PolyL
 											positions={[centerCoord, spiderfyCoord]}
 											pathOptions={{
-												color: '#ff7800',
+												color: '#8B4513',
 												weight: 2,
 												opacity: 0.4,
 											}}
