@@ -253,6 +253,12 @@ service cloud.firestore {
                     && request.auth.uid == resource.data.userId;
     }
 
+    // === Compteur d'imports par utilisateur ===
+    // Écrit uniquement par le serveur (Firebase Admin) ; lisible par l'utilisateur concerné et les admins.
+    match /importUsage/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdminUser());
+    }
+
     // === Bloquer tout accès par défaut aux autres collections ===
     match /{document=**} {
       allow read, write: if false;

@@ -16,6 +16,9 @@ interface User {
   lastLogin?: Date;
   displayName?: string;
   photoURL?: string;
+  /** Recettes importées et vidéos analysées (collection "importUsage") */
+  imports: number;
+  analyses: number;
 }
 
 export default function UsersAdminPage() {
@@ -35,7 +38,12 @@ export default function UsersAdminPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const querySnapshot = await getDocs(collection(db, 'users'));
+      // Le compteur d'imports ne doit pas empêcher d'afficher la liste s'il est illisible
+      const [querySnapshot, usageSnapshot] = await Promise.all([
+        getDocs(collection(db, 'users')),
+        getDocs(collection(db, 'importUsage')).catch(() => null),
+      ]);
+      const usage = new Map(usageSnapshot?.docs.map((d) => [d.id, d.data()]) ?? []);
       const usersList = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
@@ -45,7 +53,9 @@ export default function UsersAdminPage() {
           createdAt: data.createdAt?.toDate(),
           lastLogin: data.lastLogin?.toDate(),
           displayName: data.displayName,
-          photoURL: data.photoURL
+          photoURL: data.photoURL,
+          imports: Number(usage.get(doc.id)?.imports) || 0,
+          analyses: Number(usage.get(doc.id)?.analyses) || 0
         } as User;
       });
       setUsers(usersList);
@@ -201,6 +211,7 @@ export default function UsersAdminPage() {
                 <th>Rôle</th>
                 <th>Créé le</th>
                 <th>Dernière connexion</th>
+                <th title="Recettes importées / vidéos analysées">Imports</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -290,6 +301,7 @@ export default function UsersAdminPage() {
                   </td>
                   <td>{formatDate(user.createdAt)}</td>
                   <td>{formatDate(user.lastLogin)}</td>
+                  <td title="Recettes importées / vidéos analysées">{user.imports} / {user.analyses}</td>
                   <td>
                     <button
                       className="btn-action btn-danger"

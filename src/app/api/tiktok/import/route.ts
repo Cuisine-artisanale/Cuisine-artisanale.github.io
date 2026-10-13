@@ -11,6 +11,7 @@ import {
   refreshTikTokAccessToken,
   shouldRefreshToken,
 } from '@/lib/services/tiktok.service';
+import { recordImportUsage } from '@/lib/server/import-usage';
 
 async function getAuthenticatedUid(request: NextRequest) {
   const authorization = request.headers.get('authorization');
@@ -159,6 +160,8 @@ export async function POST(request: NextRequest) {
       },
       { merge: true },
     );
+
+    await recordImportUsage(uid, { imports: importedCount });
 
     return NextResponse.json({
       success: true,

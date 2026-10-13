@@ -11,6 +11,7 @@ import {
   serializeJsonLd,
 } from '@/lib/server/recipes';
 import { getUnits } from '@/lib/server/units';
+import { getRegionByDepartement } from '@/constants/regions';
 import { isOptimizableImage } from '@/lib/utils/image';
 
 // Fiche générée à la première visite puis servie depuis le cache, régénérée au plus toutes les
@@ -83,6 +84,7 @@ export default async function RecipePage({ params }: PageProps) {
 
   const { recipe } = data;
   const canonicalUrl = `${SITE_URL}${canonicalPath(slug, recipe.url)}`;
+  const region = getRegionByDepartement(recipe.position);
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -113,6 +115,7 @@ export default async function RecipePage({ params }: PageProps) {
         initialLikesCount={data.likesCount}
         initialReviews={data.reviews}
         similarRecipes={data.similar}
+        region={region ? { slug: region.slug, nom: region.nom } : null}
       />
     </div>
   );

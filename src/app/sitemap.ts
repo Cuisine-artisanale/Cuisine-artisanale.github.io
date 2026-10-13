@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getFirebaseAdminDb } from '@/lib/config/firebase-admin';
 import { SITE_URL } from '@/lib/server/recipes';
+import { REGIONS } from '@/constants/regions';
 
 // Régénéré au plus toutes les heures : les nouvelles recettes y apparaissent sans redéploiement
 export const revalidate = 3600;
@@ -30,6 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const staticRoutes: MetadataRoute.Sitemap = [
 		{ url: `${SITE_URL}/`, changeFrequency: 'daily', priority: 1.0 },
 		{ url: `${SITE_URL}/recettes`, changeFrequency: 'daily', priority: 0.9 },
+		{ url: `${SITE_URL}/regions`, changeFrequency: 'weekly', priority: 0.8 },
 		{ url: `${SITE_URL}/map`, changeFrequency: 'weekly', priority: 0.7 },
 		{ url: `${SITE_URL}/about`, changeFrequency: 'monthly', priority: 0.5 },
 		{ url: `${SITE_URL}/mentions-legales`, changeFrequency: 'yearly', priority: 0.2 },
@@ -37,8 +39,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	];
 
 	let recipeRoutes: MetadataRoute.Sitemap = [];
+	let regionRoutes: MetadataRoute.Sitemap = [];
 	try {
 		const snapshot = await getFirebaseAdminDb().collection('recipes').get();
+
+		// Seules les régions qui ont au moins une recette sont listées (les autres sont en noindex)
+		const positions = new Set(snapshot.docs.map((doc) => doc.get('position')));
+		regionRoutes = REGIONS.filter((region) => region.departements.some((code) => positions.has(code))).map((region) => ({
+			url: `${SITE_URL}/regions/${region.slug}`,
+			changeFrequency: 'weekly' as const,
+			priority: 0.7,
+		}));
 
 		recipeRoutes = snapshot.docs.map((doc) => {
 			const recipe = doc.data();
@@ -57,5 +68,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		console.error('Erreur lors de la récupération des recettes pour le sitemap:', error);
 	}
 
-	return [...staticRoutes, ...recipeRoutes];
+	return [...staticRoutes, ...regionRoutes, ...recipeRoutes];
 }

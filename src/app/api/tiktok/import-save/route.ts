@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdminAuth } from '@/lib/config/firebase-admin';
+import { recordImportUsage } from '@/lib/server/import-usage';
 import { checkRateLimit } from '@/lib/server/rate-limit';
 import { TikTokImportError, saveTikTokDraft } from '@/lib/server/tiktok-import';
 
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const result = await saveTikTokDraft(uid, body?.draft);
+    await recordImportUsage(uid, { imports: 1 });
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
     if (error instanceof TikTokImportError) {

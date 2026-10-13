@@ -21,7 +21,7 @@ import { confirmDialog, ConfirmDialog } from 'primereact/confirmdialog';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { shareRecipe } from '@/lib/services/share.service';
+import { buildPinterestUrl, shareRecipe } from '@/lib/services/share.service';
 import { exportRecipePDF, printRecipe } from '@/lib/services/export.service';
 import type { Recipe, Ingredient } from '@/types';
 import type { RecipeReview, SimilarRecipe } from '@/lib/server/recipes';
@@ -58,6 +58,8 @@ interface RecetteDescProps {
 	initialLikesCount?: number;
 	initialReviews?: RecipeReview[];
 	similarRecipes?: SimilarRecipe[];
+	/** Région du département d'origine (lien vers /regions/{slug}) */
+	region?: { slug: string; nom: string } | null;
 }
 
 const RecetteDesc: React.FC<RecetteDescProps> = ({
@@ -67,6 +69,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 	initialLikesCount = 0,
 	initialReviews = [],
 	similarRecipes = [],
+	region = null,
 }) => {
 	// Toutes les données d'affichage viennent du serveur : aucun appel Firestore au chargement
 	// pour un visiteur anonyme (le SDK n'est téléchargé qu'à la connexion ou à la première action).
@@ -274,6 +277,22 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				detail: 'Une erreur est survenue lors du like'
 			});
 		}
+	};
+
+	// Ouvre la fenêtre de création d'épingle Pinterest, avec l'image verticale de la recette
+	const handlePin = () => {
+		if (!recette?.title) return;
+		window.open(
+			buildPinterestUrl({
+				pageUrl: window.location.origin + window.location.pathname,
+				origin: window.location.origin,
+				title: recette.title,
+				type: recette.type,
+				images: recette.images,
+			}),
+			'_blank',
+			'noopener,noreferrer,width=750,height=650'
+		);
 	};
 
 	const handleShare = async () => {
@@ -740,7 +759,13 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 							{recette.position && departements.get(recette.position) && (
 								<li>
 									<span className="pi pi-map-marker" aria-hidden="true"></span>
-									<span><small>Origine</small>{departements.get(recette.position)}</span>
+									<span>
+										<small>Origine</small>
+										{departements.get(recette.position)}
+										{region && (
+											<>, <Link href={`/regions/${region.slug}`} className="creator-link">{region.nom}</Link></>
+										)}
+									</span>
 								</li>
 							)}
 						</ul>
@@ -770,6 +795,10 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 							<button type="button" className="recipe-action" onClick={handleShare}>
 								<span className="pi pi-share-alt" aria-hidden="true"></span>
 								Partager
+							</button>
+							<button type="button" className="recipe-action" onClick={handlePin}>
+								<span className="pi pi-pinterest" aria-hidden="true"></span>
+								Épingler
 							</button>
 							<button type="button" className="recipe-action" onClick={handleDownloadPDF} disabled={isExporting}>
 								<span className={`pi ${isExporting ? 'pi-spin pi-spinner' : 'pi-download'}`} aria-hidden="true"></span>

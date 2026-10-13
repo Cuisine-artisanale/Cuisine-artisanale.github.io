@@ -35,6 +35,7 @@ const ROUTE_LABELS: Record<string, string> = {
   "mentions-legales": "Mentions Légales",
   "politique-confidentialite": "Politique de Confidentialité",
   map: "Carte",
+  regions: "Régions",
 };
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({

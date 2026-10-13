@@ -145,6 +145,31 @@ export async function getWeeklyRecipe(): Promise<WeeklyRecipeData | null> {
 /** Première page mise en cache 10 min (partagée entre toutes les requêtes). */
 export const getFirstRecipesPage = unstable_cache(fetchFirstRecipesPage, ['recipes-first-page'], { revalidate: 600 });
 
+/** Recettes d'un ensemble de départements (30 codes au plus : limite de l'opérateur "in"), triées par titre. */
+async function fetchRecipesByDepartements(codes: string[]): Promise<RecipeCardData[]> {
+  if (codes.length === 0) return [];
+  const snapshot = await getFirebaseAdminDb().collection('recipes').where('position', 'in', codes).get();
+  return snapshot.docs
+    .map((d) => toCard(d.id, d.data()))
+    .sort((a, b) => a.title.localeCompare(b.title, 'fr'));
+}
+
+/** Recettes d'une région, en cache 10 min. */
+export const getRecipesByDepartements = unstable_cache(fetchRecipesByDepartements, ['recipes-by-departements'], { revalidate: 600 });
+
+/** Nombre de recettes par code de département (une lecture du seul champ "position"). */
+async function fetchRecipeCountsByDepartement(): Promise<Record<string, number>> {
+  const snapshot = await getFirebaseAdminDb().collection('recipes').select('position').get();
+  const counts: Record<string, number> = {};
+  for (const doc of snapshot.docs) {
+    const position = doc.get('position');
+    if (typeof position === 'string' && position) counts[position] = (counts[position] || 0) + 1;
+  }
+  return counts;
+}
+
+export const getRecipeCountsByDepartement = unstable_cache(fetchRecipeCountsByDepartement, ['recipe-counts-by-departement'], { revalidate: 600 });
+
 /** Slug d'une recette à partir de son id (redirection des anciennes URL /recettes?id=…). */
 export async function getRecipeSlugById(id: string): Promise<string | null> {
   const snap = await getFirebaseAdminDb().collection('recipes').doc(id).get();

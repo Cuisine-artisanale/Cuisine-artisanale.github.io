@@ -23,7 +23,8 @@ const LegalMention: React.FC = () => {
 					<p className="site-footer-heading">Explorer</p>
 					<ul>
 						<li><Link href="/recettes">Toutes les recettes</Link></li>
-						<li><Link href="/map">Recettes par région</Link></li>
+						<li><Link href="/regions">Recettes par région</Link></li>
+						<li><Link href="/map">Carte des recettes</Link></li>
 						<li><Link href="/recettes/add-recipe">Proposer une recette</Link></li>
 						<li><Link href="/about">À propos</Link></li>
 					</ul>

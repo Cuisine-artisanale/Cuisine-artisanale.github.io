@@ -4,8 +4,37 @@
  */
 
 import type { ShareOptions } from '@/types';
+import { isOptimizableImage } from '@/lib/utils/image';
 
 export type { ShareOptions };
+
+interface PinOptions {
+  /** URL canonique de la recette (destination de l'épingle) */
+  pageUrl: string;
+  /** Origine du site, pour l'URL absolue de l'image */
+  origin: string;
+  title: string;
+  type?: string;
+  images?: string[];
+}
+
+/** Image verticale (1000 × 1500) d'une recette, générée par /api/og-image?format=pin. */
+export function buildPinImagePath({ title, type, images }: Pick<PinOptions, 'title' | 'type' | 'images'>): string {
+  const params = new URLSearchParams({ format: 'pin', title, type: type || 'Recette' });
+  const photo = (images || []).find((image) => isOptimizableImage(image));
+  if (photo) params.set('image', photo);
+  return `/api/og-image?${params.toString()}`;
+}
+
+/** Lien « Enregistrer sur Pinterest » : épingle pré-remplie (image verticale, titre, lien vers la recette). */
+export function buildPinterestUrl({ pageUrl, origin, title, type, images }: PinOptions): string {
+  const params = new URLSearchParams({
+    url: pageUrl,
+    media: `${origin}${buildPinImagePath({ title, type, images })}`,
+    description: `${title} : la recette pas à pas sur Cuisine Artisanale`,
+  });
+  return `https://www.pinterest.com/pin/create/button/?${params.toString()}`;
+}
 
 /**
  * Partage la recette via l'API Web Share (natif sur mobile/certains navigateurs)
