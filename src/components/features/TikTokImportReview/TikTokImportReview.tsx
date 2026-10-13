@@ -18,7 +18,8 @@ interface TikTokImportReviewProps {
 	units: UnitDef[];
 	submitting: boolean;
 	onCancel: () => void;
-	onSubmit: (draft: ImportDraft) => void;
+	/** `publish` : proposer aussi la recette à la publication sur le site */
+	onSubmit: (draft: ImportDraft, publish: boolean) => void;
 }
 
 /**
@@ -27,6 +28,7 @@ interface TikTokImportReviewProps {
  */
 const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialDraft, catalog, units, submitting, onCancel, onSubmit }) => {
 	const [draft, setDraft] = useState<ImportDraft>(initialDraft);
+	const [publish, setPublish] = useState(false);
 
 	const update = (changes: Partial<ImportDraft>) => setDraft((current) => ({ ...current, ...changes }));
 
@@ -41,7 +43,7 @@ const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialD
 			title: draft.title.trim(),
 			ingredients: namedIngredients,
 			steps: writtenSteps,
-		});
+		}, publish);
 	};
 
 	return (
@@ -54,11 +56,15 @@ const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialD
 			dismissableMask={false}
 			footer={
 				<div className="tiktok-review-footer">
+					<label className="tiktok-review-publish">
+						<input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} disabled={submitting} />
+						Proposer aussi cette recette à la publication sur le site
+					</label>
 					<Button type="button" label="Annuler" icon="pi pi-times" className="p-button-text" onClick={onCancel} disabled={submitting} />
 					<Button
 						type="button"
-						label={submitting ? 'Envoi…' : 'Envoyer en modération'}
-						icon="pi pi-send"
+						label={submitting ? 'Enregistrement…' : 'Enregistrer dans mon carnet'}
+						icon="pi pi-check"
 						onClick={submit}
 						disabled={submitting || titleMissing}
 						loading={submitting}
@@ -69,8 +75,8 @@ const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialD
 			<div className="tiktok-review">
 				<p className="tiktok-review-intro">
 					{draft.aiUsed
-						? "La recette a été extraite automatiquement de la vidéo. Corrigez ce qui doit l'être avant l'envoi."
-						: "La recette a été lue dans la légende de la vidéo, sans assistance : vérifiez et complétez-la avant l'envoi."}
+						? "La recette a été extraite automatiquement de la vidéo. Corrigez ce qui doit l'être avant de l'enregistrer."
+						: "La recette a été lue dans la légende de la vidéo, sans assistance : vérifiez et complétez-la avant de l'enregistrer."}
 				</p>
 
 				<div className="tiktok-review-source">

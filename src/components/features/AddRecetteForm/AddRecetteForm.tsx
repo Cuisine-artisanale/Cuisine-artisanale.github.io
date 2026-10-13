@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import './AddRecetteForm.css';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
@@ -55,10 +56,16 @@ function toPositiveInt(value: string, max: number): number | null {
 
 const AddRecetteForm: React.FC = () => {
 	const { user } = useAuth();
+	const router = useRouter();
 	const { units: allUnits, reload: reloadUnits } = useUnits();
 
 	// ---- Mode de saisie ----
 	const [mode, setMode] = useState<'manual' | 'tiktok'>('manual');
+
+	// /recettes/add-recipe?mode=tiktok ouvre directement l'import (lien de la page /import-tiktok)
+	useEffect(() => {
+		if (new URLSearchParams(window.location.search).get('mode') === 'tiktok') setMode('tiktok');
+	}, []);
 
 	// ---- La recette ----
 	const [title, setTitle] = useState('');
@@ -289,7 +296,7 @@ const AddRecetteForm: React.FC = () => {
 		}
 	};
 
-	const handleSaveTikTokDraft = async (draft: ImportDraft) => {
+	const handleSaveTikTokDraft = async (draft: ImportDraft, publish: boolean) => {
 		if (!user) return;
 
 		try {
@@ -298,7 +305,7 @@ const AddRecetteForm: React.FC = () => {
 			const response = await fetch('/api/tiktok/import-save', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
-				body: JSON.stringify({ draft }),
+				body: JSON.stringify({ draft, publish }),
 			});
 
 			const data = await response.json();
@@ -307,13 +314,17 @@ const AddRecetteForm: React.FC = () => {
 			}
 
 			if (data.duplicate) {
-				toast.info('Cette vidéo TikTok a déjà été importée.');
+				toast.info('Cette vidéo est déjà dans votre carnet.');
+			} else if (data.recipeRequestId) {
+				toast.success('Recette enregistrée dans votre carnet, et proposée à la publication.');
 			} else {
-				toast.success('Recette envoyée ! Elle sera publiée après vérification.');
+				toast.success('Recette enregistrée dans votre carnet.');
 			}
 			setTiktokDraft(null);
 			setTiktokImportUrl('');
 			setTiktokImportContext('');
+			// La recette est disponible tout de suite : on l'ouvre
+			if (data.carnetId) router.push(`/carnet?id=${encodeURIComponent(data.carnetId)}`);
 		} catch (error) {
 			toast.error(error instanceof Error ? error.message : "Erreur lors de l'enregistrement de la recette.");
 		} finally {
@@ -365,7 +376,7 @@ const AddRecetteForm: React.FC = () => {
 				<section className="recipe-card tiktok-import-panel">
 					<h2>Importer depuis TikTok</h2>
 					<p className="recipe-card-help">
-						Collez le lien d&apos;une vidéo : la recette est extraite de sa légende, puis vous la vérifiez avant l&apos;envoi.
+						Collez le lien d&apos;une vidéo : la recette est extraite de sa légende, vous la vérifiez, puis elle rejoint votre carnet privé.
 					</p>
 					<div className="tiktok-import-controls">
 						<input

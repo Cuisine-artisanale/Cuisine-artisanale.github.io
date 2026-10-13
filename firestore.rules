@@ -51,6 +51,13 @@ service cloud.firestore {
       allow delete: if isSignedIn() && (request.auth.uid == userId || isAdminUser());
     }
 
+    // === Carnet privé ===
+    // Recettes personnelles (imports) : visibles et supprimables par leur propriétaire uniquement.
+    // Écrites par le serveur (Firebase Admin), pour pouvoir y appliquer un quota d'imports.
+    match /users/{userId}/carnet/{recipeId} {
+      allow read, delete: if isSignedIn() && request.auth.uid == userId;
+    }
+
     // === Profils publics ===
     // Copie de la partie publique de /users, écrite uniquement par la Cloud Function syncPublicProfile.
     match /publicProfiles/{userId} {

@@ -84,8 +84,20 @@
 .tiktok-review-footer {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.tiktok-review-publish {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: auto;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {

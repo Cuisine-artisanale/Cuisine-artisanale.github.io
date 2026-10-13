@@ -23,6 +23,11 @@ export default function AccountSectionLayout({ children }: { children: ReactNode
 			icon: 'pi pi-book'
 		},
 		{
+			href: '/account/carnet',
+			label: 'Mon Carnet',
+			icon: 'pi pi-lock'
+		},
+		{
 			href: '/account/mes-favoris',
 			label: 'Mes Favoris',
 			icon: 'pi pi-heart'

@@ -60,6 +60,11 @@ interface RecetteDescProps {
 	similarRecipes?: SimilarRecipe[];
 	/** Région du département d'origine (lien vers /regions/{slug}) et chemin de la page du département */
 	region?: { slug: string; nom: string; departementPath?: string } | null;
+	/**
+	 * Recette du carnet privé de l'utilisateur : pas de like, d'avis, de partage ni de recettes
+	 * similaires ; la liste de courses s'ouvre directement. `onRemove` la retire du carnet.
+	 */
+	notebook?: { onRemove: () => Promise<void> } | null;
 }
 
 const RecetteDesc: React.FC<RecetteDescProps> = ({
@@ -70,11 +75,13 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 	initialReviews = [],
 	similarRecipes = [],
 	region = null,
+	notebook = null,
 }) => {
 	// Toutes les données d'affichage viennent du serveur : aucun appel Firestore au chargement
 	// pour un visiteur anonyme (le SDK n'est téléchargé qu'à la connexion ou à la première action).
 	const recette: Recipe | null = initialRecipe ?? null;
 	const id = recette?.id ?? null;
+	const isPrivate = Boolean(notebook);
 	const router = useRouter();
 	const {role, user} = useAuth();
 	const { showToast } = useToast();
@@ -145,7 +152,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 	// Vérifier si la recette est dans "à faire"
 	useEffect(() => {
 		const checkRecipeInToDo = async () => {
-			if (!userId || !id) {
+			if (!userId || !id || isPrivate) {
 				setIsInToDo(false);
 				return;
 			}
@@ -158,13 +165,13 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 			}
 		};
 		checkRecipeInToDo();
-	}, [userId, id]);
+	}, [userId, id, isPrivate]);
 
 
 	// Le nombre de likes vient du serveur (compteur de la recette). Firestore n'est chargé
 	// que pour un utilisateur connecté, afin de savoir s'il a déjà aimé la recette.
 	useEffect(() => {
-		if (!id || !userId) {
+		if (!id || !userId || isPrivate) {
 			setHasLiked(false);
 			return;
 		}
@@ -179,7 +186,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 			}
 		})();
 		return () => { cancelled = true; };
-	}, [id, userId]);
+	}, [id, userId, isPrivate]);
 
 	useEffect(() => {
 		if (recette?.images && recette.images.length > 1) {
@@ -228,6 +235,36 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				detail: 'Erreur lors de la suppression de la recette'
 			});
 		}
+	};
+
+	const confirmRemoveFromNotebook = () => {
+		confirmDialog({
+			message: 'Retirer cette recette de votre carnet ?',
+			header: 'Retirer du carnet',
+			icon: 'pi pi-exclamation-triangle',
+			acceptLabel: 'Retirer',
+			rejectLabel: 'Annuler',
+			accept: async () => {
+				try {
+					await notebook?.onRemove();
+				} catch (error) {
+					console.error('Erreur lors du retrait du carnet :', error);
+					showToast({
+						severity: 'error',
+						summary: 'Erreur',
+						detail: 'Impossible de retirer la recette du carnet'
+					});
+				}
+			},
+			reject: () => {}
+		});
+	};
+
+	// Recette du carnet : la liste de courses se remplit sans passer par « À faire »
+	const openShoppingDialog = () => {
+		if (!recette) return;
+		setSelectedIngredients(new Set(recette.recipeParts.flatMap((part) => part.ingredients.map((ing) => ing.id))));
+		setShowAddIngredientsDialog(true);
 	};
 
 	const confirmDelete = () => {
@@ -636,7 +673,15 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 					<span className="pi pi-arrow-left" aria-hidden="true"></span>
 					Retour
 				</button>
-				{role === 'admin' && (
+				{isPrivate && (
+					<div className="recipe-admin">
+						<button type="button" className="recipe-action is-danger" onClick={confirmRemoveFromNotebook}>
+							<span className="pi pi-trash" aria-hidden="true"></span>
+							Retirer du carnet
+						</button>
+					</div>
+				)}
+				{!isPrivate && role === 'admin' && (
 					<div className="recipe-admin">
 						<button type="button" className="recipe-action" onClick={() => router.push(`/recettes/edit?id=${id}`)}>
 							<span className="pi pi-pencil" aria-hidden="true"></span>
@@ -721,6 +766,11 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 									Par <Link href={`/profil?id=${recette.createdBy}`} className="creator-link">{authorName}</Link>
 								</span>
 							)}
+							{isPrivate ? (
+								<span>
+									<span className="pi pi-lock" aria-hidden="true"></span> Recette de votre carnet, visible par vous seul
+								</span>
+							) : (
 							<a href="#avis" className="recipe-hero-rating">
 								{averageRating ? (
 									<>
@@ -734,6 +784,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 									</>
 								)}
 							</a>
+							)}
 						</p>
 
 						<ul className="recipe-facts">
@@ -775,6 +826,14 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 						</ul>
 
 						<div className="recipe-actions">
+							{isPrivate && recette.recipeParts.some((p) => p.ingredients.length > 0) && (
+								<button type="button" className="recipe-action" onClick={openShoppingDialog}>
+									<span className="pi pi-shopping-cart" aria-hidden="true"></span>
+									Liste de courses
+								</button>
+							)}
+							{!isPrivate && (
+							<>
 							<button
 								type="button"
 								className={`recipe-action${hasLiked ? ' is-active' : ''}`}
@@ -804,6 +863,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 								<span className="pi pi-pinterest" aria-hidden="true"></span>
 								Épingler
 							</button>
+							</>
+							)}
 							<button type="button" className="recipe-action" onClick={handleDownloadPDF} disabled={isExporting}>
 								<span className={`pi ${isExporting ? 'pi-spin pi-spinner' : 'pi-download'}`} aria-hidden="true"></span>
 								PDF
@@ -927,6 +988,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				</section>
 				)}
 			</div>
+			{!isPrivate && (
+			<>
 			<div className="recette-reviews-section" id="avis">
 				<h2>Avis et commentaires</h2>
 
@@ -1033,6 +1096,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 					</div>
 				)}
 			</div>
+			</>
+			)}
 		</div>
 
 		{cookingMode && recette && (

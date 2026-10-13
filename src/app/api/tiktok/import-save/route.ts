@@ -5,11 +5,12 @@ import { checkRateLimit } from '@/lib/server/rate-limit';
 import { TikTokImportError, saveTikTokDraft } from '@/lib/server/tiktok-import';
 
 /**
- * Enregistre en modération ("recipesRequest") une recette importée de TikTok,
- * après relecture par l'utilisateur. La miniature est copiée dans le stockage du site.
+ * Enregistre dans le carnet privé de l'utilisateur une recette importée de TikTok, après
+ * relecture. Avec `publish`, elle est aussi proposée à la publication ("recipesRequest").
+ * La miniature est copiée dans le stockage du site.
  *
  * Requiert un ID token Firebase (header Authorization: Bearer <token>).
- * Corps : { draft: ImportDraft }
+ * Corps : { draft: ImportDraft, publish?: boolean }
  */
 export async function POST(request: NextRequest) {
   const authorization = request.headers.get('authorization') || '';
@@ -36,8 +37,9 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
 
   try {
-    const result = await saveTikTokDraft(uid, body?.draft);
-    await recordImportUsage(uid, { imports: 1 });
+    const result = await saveTikTokDraft(uid, body?.draft, { publish: body?.publish === true });
+    // Une vidéo déjà présente dans le carnet n'est pas un nouvel import
+    if (!result.duplicate) await recordImportUsage(uid, { imports: 1 });
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
     if (error instanceof TikTokImportError) {

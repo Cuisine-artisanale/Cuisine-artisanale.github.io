@@ -310,3 +310,9 @@
   }
 }
 
+
+/* Liens présentés comme des boutons (carnet) */
+a.create-recipe-btn,
+a.btn-primary {
+  text-decoration: none;
+}

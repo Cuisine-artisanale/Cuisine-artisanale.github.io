@@ -36,9 +36,13 @@ export default function HomeHero() {
 				{RECIPE_TYPES.map(({ label, type }) => (
 					<Link key={type} href={`/recettes?type=${encodeURIComponent(type)}`}>{label}</Link>
 				))}
-				<Link href="/map">
+				<Link href="/regions">
 					<span className="pi pi-map-marker" aria-hidden="true"></span>
 					Par région
+				</Link>
+				<Link href="/import-tiktok">
+					<span className="pi pi-video" aria-hidden="true"></span>
+					Importer depuis TikTok
 				</Link>
 			</nav>
 		</section>

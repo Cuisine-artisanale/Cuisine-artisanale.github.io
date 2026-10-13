@@ -971,12 +971,25 @@ async function copyThumbnailToStorage(videoUrl: string, uid: string, sourceVideo
 }
 
 export interface SaveDraftResult {
+  /** Vrai si la vidéo était déjà dans le carnet de l'utilisateur */
   duplicate: boolean;
+  /** Identifiant de la recette dans le carnet privé ("users/{uid}/carnet") */
+  carnetId: string;
+  /** Renseigné si la recette a aussi été proposée à la publication */
   recipeRequestId?: string;
   imageSaved?: boolean;
 }
 
-export async function saveTikTokDraft(uid: string, raw: unknown): Promise<SaveDraftResult> {
+/** Identifiant de la recette du carnet pour une vidéo : une vidéo n'y figure qu'une fois. */
+function getCarnetId(sourceVideoId: string) {
+  return `tiktok_${sourceVideoId.replace(/[^\w-]/g, '_')}`;
+}
+
+/**
+ * Enregistre la recette relue dans le carnet privé de l'utilisateur, où elle est disponible
+ * aussitôt. Avec `publish`, elle est aussi proposée à la publication sur le site ("recipesRequest").
+ */
+export async function saveTikTokDraft(uid: string, raw: unknown, { publish = false }: { publish?: boolean } = {}): Promise<SaveDraftResult> {
   const input = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
 
   const requestedUrl = normalizeUrl(toText(input.videoUrl, 500));
@@ -1015,14 +1028,9 @@ export async function saveTikTokDraft(uid: string, raw: unknown): Promise<SaveDr
   const sourceVideoId = getSourceVideoId(videoUrl);
   const db = getFirebaseAdminDb();
 
-  const duplicate = await db
-    .collection('recipesRequest')
-    .where('createdBy', '==', uid)
-    .where('source', '==', 'tiktok')
-    .where('sourceVideoId', '==', sourceVideoId)
-    .limit(1)
-    .get();
-  if (!duplicate.empty) return { duplicate: true };
+  const carnetId = getCarnetId(sourceVideoId);
+  const carnetRef = db.doc(`users/${uid}/carnet/${carnetId}`);
+  if ((await carnetRef.get()).exists) return { duplicate: true, carnetId };
 
   const image = await copyThumbnailToStorage(videoUrl, uid, sourceVideoId);
 
@@ -1046,16 +1054,34 @@ export async function saveTikTokDraft(uid: string, raw: unknown): Promise<SaveDr
     createdAt: FieldValue.serverTimestamp(),
   };
 
-  // Création puis ajout du titre, comme le formulaire : c'est le passage d'un titre vide à un
-  // titre renseigné qui déclenche l'email d'alerte à l'admin (Cloud Function sendEmailOnNewRecipeRequest)
-  const requestRef = await db.collection('recipesRequest').add({ ...payload, title: '' });
-  await requestRef.update({ title, id: requestRef.id });
+  await carnetRef.set({ ...payload, title, id: carnetId });
+
+  // Proposition à la publication, sauf si la vidéo a déjà été proposée (imports d'avant le carnet)
+  let recipeRequestId: string | undefined;
+  if (publish) {
+    const alreadyRequested = await db
+      .collection('recipesRequest')
+      .where('createdBy', '==', uid)
+      .where('source', '==', 'tiktok')
+      .where('sourceVideoId', '==', sourceVideoId)
+      .limit(1)
+      .get();
+
+    if (alreadyRequested.empty) {
+      // Création puis ajout du titre, comme le formulaire : c'est le passage d'un titre vide à un
+      // titre renseigné qui déclenche l'email d'alerte à l'admin (Cloud Function sendEmailOnNewRecipeRequest)
+      const requestRef = await db.collection('recipesRequest').add({ ...payload, title: '' });
+      await requestRef.update({ title, id: requestRef.id });
+      recipeRequestId = requestRef.id;
+    }
+  }
 
   await Promise.all([
     db.doc(`tiktokImports/${uid}/videos/${sourceVideoId}`).set({
       source: 'tiktok',
       sourceVideoId,
-      recipeRequestId: requestRef.id,
+      carnetId,
+      ...(recipeRequestId ? { recipeRequestId } : {}),
       importedAt: FieldValue.serverTimestamp(),
       via: 'manual-url',
     }),
@@ -1065,5 +1091,5 @@ export async function saveTikTokDraft(uid: string, raw: unknown): Promise<SaveDr
     ),
   ]);
 
-  return { duplicate: false, recipeRequestId: requestRef.id, imageSaved: Boolean(image) };
+  return { duplicate: false, carnetId, ...(recipeRequestId ? { recipeRequestId } : {}), imageSaved: Boolean(image) };
 }

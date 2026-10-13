@@ -33,6 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		{ url: `${SITE_URL}/recettes`, changeFrequency: 'daily', priority: 0.9 },
 		{ url: `${SITE_URL}/regions`, changeFrequency: 'weekly', priority: 0.8 },
 		{ url: `${SITE_URL}/map`, changeFrequency: 'weekly', priority: 0.7 },
+		{ url: `${SITE_URL}/import-tiktok`, changeFrequency: 'monthly', priority: 0.7 },
 		{ url: `${SITE_URL}/about`, changeFrequency: 'monthly', priority: 0.5 },
 		{ url: `${SITE_URL}/mentions-legales`, changeFrequency: 'yearly', priority: 0.2 },
 		{ url: `${SITE_URL}/politique-confidentialite`, changeFrequency: 'yearly', priority: 0.2 },

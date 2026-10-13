@@ -79,7 +79,8 @@ export async function POST(request: NextRequest) {
       deleteQuery(db, db.collection('shoppingLists').where('userId', '==', uid)),
       anonymizePosts(db, uid),
       deleteQuery(db, db.collection('recipesRequest').where('createdBy', '==', uid)),
-      // Document + sous-collections (jetons TikTok, historique d'import)
+      db.doc(`importUsage/${uid}`).delete(),
+      // Document + sous-collections (carnet privé, jetons TikTok, historique d'import)
       db.recursiveDelete(db.doc(`users/${uid}`)),
       db.recursiveDelete(db.doc(`tiktokImports/${uid}`)),
     ]);

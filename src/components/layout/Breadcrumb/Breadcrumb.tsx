@@ -19,6 +19,7 @@ const ROUTE_LABELS: Record<string, string> = {
   account: "Mon Compte",
   "mes-recettes": "Mes Recettes",
   "mes-favoris": "Mes Favoris",
+  carnet: "Mon Carnet",
 
   recettes: "Recettes",
   "add-recipe": "Ajouter une Recette",
@@ -36,6 +37,7 @@ const ROUTE_LABELS: Record<string, string> = {
   "politique-confidentialite": "Politique de Confidentialité",
   map: "Carte",
   regions: "Régions",
+  "import-tiktok": "Import TikTok",
 };
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({

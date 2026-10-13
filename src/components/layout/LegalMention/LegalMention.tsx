@@ -26,6 +26,7 @@ const LegalMention: React.FC = () => {
 						<li><Link href="/regions">Recettes par région</Link></li>
 						<li><Link href="/map">Carte des recettes</Link></li>
 						<li><Link href="/recettes/add-recipe">Proposer une recette</Link></li>
+						<li><Link href="/import-tiktok">Importer depuis TikTok</Link></li>
 						<li><Link href="/about">À propos</Link></li>
 					</ul>
 				</nav>

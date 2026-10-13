@@ -7,6 +7,7 @@ Allow: /api/og-image
 # Espaces privés et pages techniques
 Disallow: /admin-panel
 Disallow: /account
+Disallow: /carnet
 Disallow: /api/
 Disallow: /login
 Disallow: /reset-password

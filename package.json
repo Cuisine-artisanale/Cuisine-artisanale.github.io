@@ -12,7 +12,8 @@
     "backfill:public-profiles": "node scripts/backfill-public-profiles.mjs",
     "backfill:recipe-counters": "node scripts/backfill-recipe-counters.mjs",
     "seed:units": "node scripts/seed-units.mjs",
-    "import:recipes": "node scripts/import-recipes.mjs"
+    "import:recipes": "node scripts/import-recipes.mjs",
+    "export:pinterest": "node scripts/export-pinterest-csv.mjs"
   },
   "dependencies": {
     "firebase": "^11.3.0",
