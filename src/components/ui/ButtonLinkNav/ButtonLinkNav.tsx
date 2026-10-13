@@ -15,6 +15,7 @@ const ButtonLinkNav: React.FC<ButtonLinkNavProps> = ({ onClick, isMobile = false
   const navItems = [
 	{ path: '/', label: 'Accueil' },
 	{ path: '/recettes', label: 'Recettes' },
+	{ path: '/regions', label: 'Régions' },
 	{ path: '/map', label: 'Carte' },
 	{ path: '/about', label: 'À propos' }
   ];
@@ -28,7 +29,7 @@ const ButtonLinkNav: React.FC<ButtonLinkNavProps> = ({ onClick, isMobile = false
 			  <Link
 				href={item.path}
 				onClick={onClick}
-				className={`nav-link ${pathname === item.path ? 'active' : ''}`}
+				className={`nav-link ${pathname === item.path || (item.path === '/regions' && pathname.startsWith('/regions/')) ? 'active' : ''}`}
 			  >
 				{item.label}
 			  </Link>
