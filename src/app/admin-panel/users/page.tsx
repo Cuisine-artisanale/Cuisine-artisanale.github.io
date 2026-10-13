@@ -19,6 +19,8 @@ interface User {
   /** Recettes importées et vidéos analysées (collection "importUsage") */
   imports: number;
   analyses: number;
+  /** Imports du mois en cours : à comparer à une future limite gratuite (3 à 5 par mois) */
+  importsThisMonth: number;
 }
 
 export default function UsersAdminPage() {
@@ -43,6 +45,7 @@ export default function UsersAdminPage() {
         getDocs(collection(db, 'users')),
         getDocs(collection(db, 'importUsage')).catch(() => null),
       ]);
+      const currentMonth = new Date().toISOString().slice(0, 7);
       const usage = new Map(usageSnapshot?.docs.map((d) => [d.id, d.data()]) ?? []);
       const usersList = querySnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -55,7 +58,8 @@ export default function UsersAdminPage() {
           displayName: data.displayName,
           photoURL: data.photoURL,
           imports: Number(usage.get(doc.id)?.imports) || 0,
-          analyses: Number(usage.get(doc.id)?.analyses) || 0
+          analyses: Number(usage.get(doc.id)?.analyses) || 0,
+          importsThisMonth: Number(usage.get(doc.id)?.months?.[currentMonth]?.imports) || 0
         } as User;
       });
       setUsers(usersList);
@@ -301,7 +305,10 @@ export default function UsersAdminPage() {
                   </td>
                   <td>{formatDate(user.createdAt)}</td>
                   <td>{formatDate(user.lastLogin)}</td>
-                  <td title="Recettes importées / vidéos analysées">{user.imports} / {user.analyses}</td>
+                  <td title="Recettes importées / vidéos analysées">
+                    {user.imports} / {user.analyses}
+                    {user.importsThisMonth > 0 && <small> · {user.importsThisMonth} ce mois-ci</small>}
+                  </td>
                   <td>
                     <button
                       className="btn-action btn-danger"

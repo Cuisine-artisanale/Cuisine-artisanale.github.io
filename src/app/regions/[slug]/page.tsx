@@ -4,8 +4,7 @@ import Link from 'next/link';
 import Recette from '@/components/features/Recette/Recette';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import '@/components/layout/Breadcrumb/Breadcrumb.css';
-import { getDepartementName } from '@/constants/departements';
-import { REGIONS, getRegionBySlug } from '@/constants/regions';
+import { REGIONS, getRegionBySlug, getRegionDepartements } from '@/constants/regions';
 import { getRecipesByDepartements } from '@/lib/server/listings';
 import { SITE_URL, serializeJsonLd } from '@/lib/server/recipes';
 import '../regions.css';
@@ -107,12 +106,13 @@ export default async function RegionPage({ params }: PageProps) {
         <h1>Recettes {region.de}</h1>
         <p>{region.description}</p>
         <ul className="regions-departements" aria-label={`Départements ${region.de}`}>
-          {region.departements.map((code) => (
-            <li key={code}>
-              {withRecipes.has(code) ? (
-                <Link href={`/recettes?position=${code}`}>{getDepartementName(code)}</Link>
+          {/* Seuls les départements qui ont des recettes mènent à leur page (les autres sont en noindex) */}
+          {getRegionDepartements(region).map((departement) => (
+            <li key={departement.code}>
+              {withRecipes.has(departement.code) ? (
+                <Link href={`/regions/${region.slug}/${departement.slug}`}>{departement.nom}</Link>
               ) : (
-                <span>{getDepartementName(code)}</span>
+                <span>{departement.nom}</span>
               )}
             </li>
           ))}

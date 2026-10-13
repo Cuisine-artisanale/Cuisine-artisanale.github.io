@@ -58,8 +58,8 @@ interface RecetteDescProps {
 	initialLikesCount?: number;
 	initialReviews?: RecipeReview[];
 	similarRecipes?: SimilarRecipe[];
-	/** Région du département d'origine (lien vers /regions/{slug}) */
-	region?: { slug: string; nom: string } | null;
+	/** Région du département d'origine (lien vers /regions/{slug}) et chemin de la page du département */
+	region?: { slug: string; nom: string; departementPath?: string } | null;
 }
 
 const RecetteDesc: React.FC<RecetteDescProps> = ({
@@ -761,7 +761,11 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 									<span className="pi pi-map-marker" aria-hidden="true"></span>
 									<span>
 										<small>Origine</small>
-										{departements.get(recette.position)}
+										{region?.departementPath ? (
+											<Link href={region.departementPath} className="creator-link">{departements.get(recette.position)}</Link>
+										) : (
+											departements.get(recette.position)
+										)}
 										{region && (
 											<>, <Link href={`/regions/${region.slug}`} className="creator-link">{region.nom}</Link></>
 										)}
