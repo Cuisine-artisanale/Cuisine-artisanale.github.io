@@ -132,10 +132,13 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 				// Compteurs maintenus par les Cloud Functions : jamais repris d'une demande
 				likesCount: 0,
 				ratingCount: 0,
-				ratingAverage: null
+				ratingAverage: null,
+				viewsCount: 0,
+				popularity: 0
 			});
 
 			if (docRef.id) {
+				revalidateRecipe({ id: docRef.id, url: safeUrl }, { lists: true });
 				await declineRequest(); // Remove from requests after successful addition
 			}
 		} catch (error) {

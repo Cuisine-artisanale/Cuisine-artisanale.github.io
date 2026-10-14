@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { RECIPE_LISTS_TAG } from '@/lib/server/listings';
 import { getFirebaseAdminAuth } from '@/lib/config/firebase-admin';
 import { checkRateLimit } from '@/lib/server/rate-limit';
 
@@ -8,10 +9,11 @@ const SEGMENT_REGEX = /^[A-Za-z0-9_-]{1,200}$/;
 
 /**
  * Invalide le cache de la fiche d'une recette (page /recettes/[slug], en cache 10 min),
- * après un like, un avis, une modification ou une suppression.
+ * après un like, un avis, une modification ou une suppression. Avec `lists`, invalide aussi
+ * les listes de recettes (/recettes, pages régions) : après une publication ou une suppression.
  *
  * Requiert un ID token Firebase (header Authorization: Bearer <token>).
- * Corps : { slugs: string[] } — le slug de la recette et/ou son id (les deux URL existent).
+ * Corps : { slugs: string[], lists?: boolean } — le slug de la recette et/ou son id (les deux URL existent).
  */
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization') || '';
@@ -47,6 +49,10 @@ export async function POST(request: NextRequest) {
 
   for (const slug of new Set(slugs)) {
     revalidatePath(`/recettes/${slug}`);
+  }
+
+  if (body?.lists === true) {
+    revalidateTag(RECIPE_LISTS_TAG);
   }
 
   return NextResponse.json({ success: true });

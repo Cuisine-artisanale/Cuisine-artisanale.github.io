@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CLIENT_EVENTS, isLandingPage, isTrafficSource } from '@/lib/analytics/traffic';
 import { checkRateLimit, getClientIp } from '@/lib/server/rate-limit';
 import { recordTraffic } from '@/lib/server/traffic-stats';
+import { isRecipeId, recordRecipeView } from '@/lib/server/recipe-views';
 
 const BOT_PATTERN = /bot|crawl|spider|slurp|preview|facebookexternalhit|headless|lighthouse/i;
 
 /**
  * Mesure d'audience (src/lib/analytics/track.ts) : arrivée sur le site ou action.
- * Corps : { type: 'visit', source, page } ou { type: 'event', event, source }.
+ * Corps : { type: 'visit', source, page }, { type: 'event', event, source } ou { type: 'view', recipeId }.
  * Valeurs hors des listes prévues ignorées ; réponse toujours 204 (rien à afficher).
  */
 export async function POST(request: NextRequest) {
@@ -15,7 +16,17 @@ export async function POST(request: NextRequest) {
   if (BOT_PATTERN.test(request.headers.get('user-agent') || '')) return noContent;
 
   const body = await request.json().catch(() => null);
-  if (!body || !isTrafficSource(body.source)) return noContent;
+  if (!body) return noContent;
+
+  // Vue d'une fiche recette : compte pour le classement par popularité de la liste
+  if (body.type === 'view') {
+    if (!isRecipeId(body.recipeId)) return noContent;
+    const viewLimit = await checkRateLimit({ action: 'track-view', identifier: getClientIp(request), limit: 120, windowSeconds: 3600 });
+    if (viewLimit.allowed) await recordRecipeView(body.recipeId);
+    return noContent;
+  }
+
+  if (!isTrafficSource(body.source)) return noContent;
 
   // Limite large : un visiteur normal envoie quelques appels par heure
   const rateLimit = await checkRateLimit({ action: 'track', identifier: getClientIp(request), limit: 30, windowSeconds: 3600 });

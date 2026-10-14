@@ -73,6 +73,20 @@ export function trackVisit() {
   send({ type: 'visit', source, page: landingPageOf(window.location.pathname) });
 }
 
+const VIEWED_KEY = 'ca_recipes_viewed';
+
+/** Vue de la fiche d'une recette : une seule fois par recette et par session. */
+export function trackRecipeView(recipeId: string) {
+  try {
+    const viewed: string[] = JSON.parse(sessionStorage.getItem(VIEWED_KEY) || '[]');
+    if (viewed.includes(recipeId)) return;
+    sessionStorage.setItem(VIEWED_KEY, JSON.stringify([...viewed, recipeId].slice(-200)));
+  } catch {
+    // Sans sessionStorage, chaque affichage compte
+  }
+  send({ type: 'view', recipeId });
+}
+
 /** Action à compter, rattachée au canal de la première visite. */
 export function trackEvent(event: 'signup' | 'pin_click') {
   send({ type: 'event', event, source: getFirstSource() });

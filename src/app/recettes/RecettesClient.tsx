@@ -8,9 +8,9 @@ import Recette from '@/components/features/Recette/Recette';
 import AddRecette from '@/components/features/AddRecette/AddRecette';
 import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { useSearchParams } from 'next/navigation';
-import type { RecipesPage } from '@/lib/server/listings';
+import type { RecipesCursor, RecipesPage } from '@/lib/server/listings';
 
-type Cursor = { title: string; id: string } | null;
+type Cursor = RecipesCursor | null;
 
 interface RecetteData {
 	recetteId: string;
@@ -173,6 +173,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 					const constraints = [
 						...(type ? [where("type", "==", type)] : []),
 						...(position ? [where("position", "==", position)] : []),
+						orderBy("popularity", "desc"),
 						orderBy("title"),
 						limit(itemsPerPage * 2)
 					];
@@ -231,12 +232,13 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 				setDisplayedRecettes(recettesData);
 				setHasMore(false); // Pas de pagination infini avec filtres pour l'instant
 			} else {
-				// Pas de filtres: utiliser la pagination Firebase optimisée
+				// Pas de filtres : pagination Firestore, recettes les plus populaires d'abord (même tri que le serveur)
 				const firestoreQuery = query(
 					recettesCollection,
+					orderBy("popularity", "desc"),
 					orderBy("title"),
 					orderBy(documentId()),
-					...(cursorDoc ? [startAfter(cursorDoc.title, cursorDoc.id)] : []),
+					...(cursorDoc ? [startAfter(cursorDoc.popularity, cursorDoc.title, cursorDoc.id)] : []),
 					limit(itemsPerPage + 1) // +1 pour vérifier s'il y a plus d'éléments
 				);
 
@@ -262,7 +264,7 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 				// Vérifier s'il y a plus d'éléments
 				if (querySnapshot.docs.length > itemsPerPage) {
 					const lastDoc = querySnapshot.docs[itemsPerPage - 1];
-					setLastVisible({ title: lastDoc.data().title || '', id: lastDoc.id });
+					setLastVisible({ popularity: Number(lastDoc.data().popularity) || 0, title: lastDoc.data().title || '', id: lastDoc.id });
 					setHasMore(true);
 					recettesData = recettesData.slice(0, itemsPerPage);
 				} else {

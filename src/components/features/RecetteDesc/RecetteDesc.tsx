@@ -22,7 +22,7 @@ import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { buildPinterestUrl, shareRecipe } from '@/lib/services/share.service';
-import { trackEvent } from '@/lib/analytics/track';
+import { trackEvent, trackRecipeView } from '@/lib/analytics/track';
 import { exportRecipePDF, printRecipe } from '@/lib/services/export.service';
 import type { Recipe, Ingredient } from '@/types';
 import type { RecipeReview, SimilarRecipe } from '@/lib/server/recipes';
@@ -169,6 +169,11 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 	}, [userId, id, isPrivate]);
 
 
+	// Vue de la fiche (une par session) : nourrit le classement par popularité de la liste
+	useEffect(() => {
+		if (id && !isPrivate) trackRecipeView(id);
+	}, [id, isPrivate]);
+
 	// Le nombre de likes vient du serveur (compteur de la recette). Firestore n'est chargé
 	// que pour un utilisateur connecté, afin de savoir s'il a déjà aimé la recette.
 	useEffect(() => {
@@ -226,7 +231,8 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				summary: 'Succès',
 				detail: 'Recette supprimée avec succès'
 			});
-			refreshCache();
+			// Recette supprimée : elle doit aussi disparaître des listes en cache
+			revalidateRecipe({ id: recette?.id, url: recette?.url }, { lists: true });
 			router.push('/recettes');
 		} catch (error) {
 			console.error("Erreur lors de la suppression de la recette :", error);

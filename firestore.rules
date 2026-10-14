@@ -30,7 +30,7 @@ service cloud.firestore {
 
     // Les compteurs d'une recette ne sont écrits que par les Cloud Functions
     function hasNoCounters(data) {
-      return !data.keys().hasAny(['likesCount', 'ratingCount', 'ratingAverage']);
+      return !data.keys().hasAny(['likesCount', 'ratingCount', 'ratingAverage', 'viewsCount', 'popularity']);
     }
 
     // === Utilisateurs ===
@@ -102,7 +102,7 @@ service cloud.firestore {
       allow update: if isSignedIn()
                     && (request.auth.uid == resource.data.createdBy || isAdminUser())
                     && !request.resource.data.diff(resource.data).affectedKeys()
-                         .hasAny(['likesCount', 'ratingCount', 'ratingAverage']);
+                         .hasAny(['likesCount', 'ratingCount', 'ratingAverage', 'viewsCount', 'popularity']);
 
       allow delete: if isSignedIn() &&
                     (request.auth.uid == resource.data.createdBy || isAdminUser());

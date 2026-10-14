@@ -21,14 +21,24 @@ export interface RecipeCardData {
   time?: number;
 }
 
+/** Position dans la liste triée par popularité (décroissante), puis titre */
+export interface RecipesCursor {
+  popularity: number;
+  title: string;
+  id: string;
+}
+
 export interface RecipesPage {
   recettes: RecipeCardData[];
   hasMore: boolean;
-  /** Curseur de pagination : titre et id de la dernière recette affichée */
-  cursor: { title: string; id: string } | null;
+  /** Curseur de pagination : popularité, titre et id de la dernière recette affichée */
+  cursor: RecipesCursor | null;
 }
 
 export const RECIPES_PAGE_SIZE = 12;
+
+/** Étiquette des listes de recettes en cache (liste, régions) : invalidée à chaque publication ou suppression. */
+export const RECIPE_LISTS_TAG = 'recipe-lists';
 
 function toCard(id: string, data: FirebaseFirestore.DocumentData): RecipeCardData {
   return {
@@ -44,10 +54,14 @@ function toCard(id: string, data: FirebaseFirestore.DocumentData): RecipeCardDat
   };
 }
 
-/** Première page de la liste des recettes (tri par titre), rendue côté serveur. */
+/**
+ * Première page de la liste des recettes, rendue côté serveur. Tri par popularité
+ * (vues + 10 × likes, voir src/lib/utils/recipe-stats.ts), puis par titre à égalité.
+ */
 async function fetchFirstRecipesPage(): Promise<RecipesPage> {
   const snapshot = await getFirebaseAdminDb()
     .collection('recipes')
+    .orderBy('popularity', 'desc')
     .orderBy('title')
     .orderBy(FieldPath.documentId())
     .limit(RECIPES_PAGE_SIZE + 1)
@@ -59,7 +73,7 @@ async function fetchFirstRecipesPage(): Promise<RecipesPage> {
   return {
     recettes: docs.map((d) => toCard(d.id, d.data())),
     hasMore: snapshot.docs.length > RECIPES_PAGE_SIZE,
-    cursor: last ? { title: last.data().title || '', id: last.id } : null,
+    cursor: last ? { popularity: Number(last.data().popularity) || 0, title: last.data().title || '', id: last.id } : null,
   };
 }
 
@@ -143,7 +157,7 @@ export async function getWeeklyRecipe(): Promise<WeeklyRecipeData | null> {
 }
 
 /** Première page mise en cache 10 min (partagée entre toutes les requêtes). */
-export const getFirstRecipesPage = unstable_cache(fetchFirstRecipesPage, ['recipes-first-page'], { revalidate: 600 });
+export const getFirstRecipesPage = unstable_cache(fetchFirstRecipesPage, ['recipes-first-page'], { revalidate: 600, tags: [RECIPE_LISTS_TAG] });
 
 /** Recettes d'un ensemble de départements (30 codes au plus : limite de l'opérateur "in"), triées par titre. */
 async function fetchRecipesByDepartements(codes: string[]): Promise<RecipeCardData[]> {
@@ -155,7 +169,7 @@ async function fetchRecipesByDepartements(codes: string[]): Promise<RecipeCardDa
 }
 
 /** Recettes d'une région, en cache 10 min. */
-export const getRecipesByDepartements = unstable_cache(fetchRecipesByDepartements, ['recipes-by-departements'], { revalidate: 600 });
+export const getRecipesByDepartements = unstable_cache(fetchRecipesByDepartements, ['recipes-by-departements'], { revalidate: 600, tags: [RECIPE_LISTS_TAG] });
 
 /** Nombre de recettes par code de département (une lecture du seul champ "position"). */
 async function fetchRecipeCountsByDepartement(): Promise<Record<string, number>> {
@@ -168,7 +182,7 @@ async function fetchRecipeCountsByDepartement(): Promise<Record<string, number>>
   return counts;
 }
 
-export const getRecipeCountsByDepartement = unstable_cache(fetchRecipeCountsByDepartement, ['recipe-counts-by-departement'], { revalidate: 600 });
+export const getRecipeCountsByDepartement = unstable_cache(fetchRecipeCountsByDepartement, ['recipe-counts-by-departement'], { revalidate: 600, tags: [RECIPE_LISTS_TAG] });
 
 /** Slug d'une recette à partir de son id (redirection des anciennes URL /recettes?id=…). */
 export async function getRecipeSlugById(id: string): Promise<string | null> {

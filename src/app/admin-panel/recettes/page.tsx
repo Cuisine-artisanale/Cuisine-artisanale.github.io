@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './recettes-admin.css';
 import { db } from '@/lib/config/firebase';
+import { revalidateRecipe } from '@/lib/utils/revalidate-recipe';
 import { collection, onSnapshot, orderBy, query, deleteDoc, doc, getDoc, addDoc, updateDoc, limit } from 'firebase/firestore';
 import { toastMessages } from '@/lib/utils/toast';
 import { syncRecipeIngredientsWithCatalog } from '@/lib/services/ingredient-catalog.service';
@@ -146,11 +147,15 @@ export default function RecettesAdminPage() {
         // Compteurs maintenus par les Cloud Functions : jamais repris d'une demande
         likesCount: 0,
         ratingCount: 0,
-        ratingAverage: null
+        ratingAverage: null,
+        viewsCount: 0,
+        popularity: 0
       });
 
       const id = recipeRef.id;
       await updateDoc(recipeRef, { id });
+      // La liste des recettes et les pages régions sont en cache : la nouvelle recette y apparaît tout de suite
+      revalidateRecipe({ id, url: recetteData.url }, { lists: true });
 
       await deleteDoc(recetteRef);
 

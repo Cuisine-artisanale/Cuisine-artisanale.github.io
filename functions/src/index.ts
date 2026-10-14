@@ -325,13 +325,23 @@ export const syncPublicProfile = onDocumentWritten("users/{uid}", async (event) 
 // Chaque recette porte likesCount, ratingCount et ratingAverage, pour que les listes
 // n'aient pas à lire tous les likes et avis. Recalcul par agrégation (idempotent :
 // un événement reçu deux fois ne fausse pas le compteur).
+
+// Popularité (tri de la liste des recettes) : vues + LIKE_WEIGHT × likes.
+// Même valeur que src/lib/utils/recipe-stats.ts côté site.
+const LIKE_WEIGHT = 10;
+
 async function refreshLikesCount(recipeId: string) {
 	const agg = await db.collection("likes").where("recetteId", "==", recipeId).count().get();
-	await db.collection("recipes").doc(recipeId).update({ likesCount: agg.data().count })
-		.catch((error: { code?: number }) => {
-			// Recette supprimée entre-temps : rien à mettre à jour
-			if (error?.code !== 5) throw error;
-		});
+	const likesCount = agg.data().count;
+	const recipeRef: FirebaseFirestore.DocumentReference = db.collection("recipes").doc(recipeId);
+	// Transaction : une vue comptée pendant le recalcul n'est pas perdue
+	await db.runTransaction(async (transaction: FirebaseFirestore.Transaction) => {
+		const snapshot = await transaction.get(recipeRef);
+		// Recette supprimée entre-temps : rien à mettre à jour
+		if (!snapshot.exists) return;
+		const viewsCount = Number(snapshot.get("viewsCount")) || 0;
+		transaction.update(recipeRef, { likesCount, popularity: viewsCount + LIKE_WEIGHT * likesCount });
+	});
 }
 
 async function refreshRatingStats(recipeId: string) {

@@ -19,3 +19,14 @@ export function getRecipeStats(data: Record<string, unknown> | undefined | null)
     ratingAverage: Number.isFinite(ratingAverage) && ratingAverage > 0 ? ratingAverage : null,
   };
 }
+
+/**
+ * Popularité d'une recette, qui ordonne la liste des recettes : vues + LIKE_WEIGHT × likes.
+ * Un like pèse autant que 10 vues : il est bien plus rare et dit davantage que la recette plaît.
+ * Même valeur dans functions/src/index.ts (recalcul à chaque like) et scripts/backfill-recipe-counters.mjs.
+ */
+export const LIKE_WEIGHT = 10;
+
+export function popularityOf(viewsCount: number, likesCount: number): number {
+  return (Number(viewsCount) || 0) + LIKE_WEIGHT * (Number(likesCount) || 0);
+}

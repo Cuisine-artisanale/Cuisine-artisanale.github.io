@@ -255,8 +255,8 @@ function EditRecetteContent() {
 					.map((url) => deleteObject(ref(storage, url)).catch((error) => console.error('Photo non supprimée du stockage :', error)))
 			);
 
-			// La fiche publique est en cache : on la fait régénérer avec les nouvelles données
-			revalidateRecipe({ id, url: recette.url });
+			// La fiche et les listes (liste des recettes, régions) sont en cache : on les fait régénérer
+			revalidateRecipe({ id, url: recette.url }, { lists: true });
 			toast.success(created.length > 0 ? `Recette enregistrée. Ajouté au catalogue : ${created.join(', ')}` : 'Recette enregistrée');
 			router.back();
 		} catch (error) {

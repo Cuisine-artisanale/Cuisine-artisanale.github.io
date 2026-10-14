@@ -1,7 +1,11 @@
 /**
- * Calcule likesCount, ratingCount et ratingAverage pour toutes les recettes existantes.
+ * Calcule likesCount, ratingCount, ratingAverage et popularity pour toutes les recettes existantes.
  * À lancer une fois après le déploiement des Cloud Functions syncRecipeLikesCount /
- * syncRecipeRatingStats (qui maintiennent ensuite ces compteurs). Peut être relancé sans risque.
+ * syncRecipeRatingStats (qui maintiennent ensuite ces compteurs). Peut être relancé sans risque :
+ * les vues déjà comptées (viewsCount) sont conservées.
+ *
+ * popularity = vues + LIKE_WEIGHT × likes : elle ordonne la liste des recettes, et une recette
+ * sans ce champ n'y apparaît pas.
  *
  *   npm run backfill:recipe-counters
  *
@@ -28,7 +32,7 @@ initializeApp({ credential: cert(serviceAccount), projectId: serviceAccount.proj
 const db = getFirestore();
 
 const [recipes, likes, reviews] = await Promise.all([
-  db.collection('recipes').select().get(),
+  db.collection('recipes').select('viewsCount').get(),
   db.collection('likes').select('recetteId').get(),
   db.collection('reviews').select('recipeId', 'rating').get(),
 ]);
@@ -51,10 +55,17 @@ for (const review of reviews.docs) {
 let batch = db.batch();
 let pending = 0;
 
+// Même valeur que src/lib/utils/recipe-stats.ts et functions/src/index.ts
+const LIKE_WEIGHT = 10;
+
 for (const recipe of recipes.docs) {
   const ratings = ratingsByRecipe.get(recipe.id);
+  const likesCount = likesByRecipe.get(recipe.id) || 0;
+  const viewsCount = Number(recipe.get('viewsCount')) || 0;
   batch.update(recipe.ref, {
-    likesCount: likesByRecipe.get(recipe.id) || 0,
+    likesCount,
+    viewsCount,
+    popularity: viewsCount + LIKE_WEIGHT * likesCount,
     ratingCount: ratings?.count || 0,
     ratingAverage: ratings ? Math.round((ratings.sum / ratings.count) * 10) / 10 : null,
   });
