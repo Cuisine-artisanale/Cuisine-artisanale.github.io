@@ -28,8 +28,12 @@ export function buildPinImagePath({ title, type, images }: Pick<PinOptions, 'tit
 
 /** Lien « Enregistrer sur Pinterest » : épingle pré-remplie (image verticale, titre, lien vers la recette). */
 export function buildPinterestUrl({ pageUrl, origin, title, type, images }: PinOptions): string {
+  // Paramètres UTM : les visites venues de l'épingle sont attribuées à Pinterest
+  const link = new URL(pageUrl);
+  link.searchParams.set('utm_source', 'pinterest');
+  link.searchParams.set('utm_medium', 'pin');
   const params = new URLSearchParams({
-    url: pageUrl,
+    url: link.toString(),
     media: `${origin}${buildPinImagePath({ title, type, images })}`,
     description: `${title} : la recette pas à pas sur Cuisine Artisanale`,
   });

@@ -2,14 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdminAuth } from '@/lib/config/firebase-admin';
 import { recordImportUsage } from '@/lib/server/import-usage';
 import { checkRateLimit } from '@/lib/server/rate-limit';
+import { recordTraffic } from '@/lib/server/traffic-stats';
+import { isTrafficSource } from '@/lib/analytics/traffic';
 import { TikTokImportError, analyzeTikTokVideo } from '@/lib/server/tiktok-import';
 
 /**
  * Analyse une vidéo TikTok et renvoie un brouillon de recette à faire relire par l'utilisateur.
- * Rien n'est enregistré : l'envoi en modération passe par /api/tiktok/import-save.
+ * Rien n'est enregistré : l'enregistrement dans le carnet passe par /api/tiktok/import-save.
  *
  * Requiert un ID token Firebase (header Authorization: Bearer <token>).
- * Corps : { videoUrl: string, supplementalText?: string }
+ * Corps : { videoUrl: string, supplementalText?: string, source?: canal de première visite }
  */
 export async function POST(request: NextRequest) {
   const authorization = request.headers.get('authorization') || '';
@@ -40,7 +42,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const { aiError, ...draft } = await analyzeTikTokVideo(videoUrl, supplementalText);
-    await recordImportUsage(uid, { analyses: 1 });
+    await Promise.all([
+      recordImportUsage(uid, { analyses: 1 }),
+      recordTraffic({ type: 'event', event: 'import_analyzed', source: isTrafficSource(body?.source) ? body.source : 'direct' }),
+    ]);
     return NextResponse.json({
       success: true,
       draft,

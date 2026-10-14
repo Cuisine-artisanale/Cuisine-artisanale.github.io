@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdminAuth } from '@/lib/config/firebase-admin';
 import { recordImportUsage } from '@/lib/server/import-usage';
 import { checkRateLimit } from '@/lib/server/rate-limit';
+import { recordTraffic } from '@/lib/server/traffic-stats';
+import { isTrafficSource } from '@/lib/analytics/traffic';
 import { TikTokImportError, saveTikTokDraft } from '@/lib/server/tiktok-import';
 
 /**
@@ -10,7 +12,7 @@ import { TikTokImportError, saveTikTokDraft } from '@/lib/server/tiktok-import';
  * La miniature est copiée dans le stockage du site.
  *
  * Requiert un ID token Firebase (header Authorization: Bearer <token>).
- * Corps : { draft: ImportDraft, publish?: boolean }
+ * Corps : { draft: ImportDraft, publish?: boolean, source?: canal de première visite }
  */
 export async function POST(request: NextRequest) {
   const authorization = request.headers.get('authorization') || '';
@@ -39,7 +41,12 @@ export async function POST(request: NextRequest) {
   try {
     const result = await saveTikTokDraft(uid, body?.draft, { publish: body?.publish === true });
     // Une vidéo déjà présente dans le carnet n'est pas un nouvel import
-    if (!result.duplicate) await recordImportUsage(uid, { imports: 1 });
+    if (!result.duplicate) {
+      await Promise.all([
+        recordImportUsage(uid, { imports: 1 }),
+        recordTraffic({ type: 'event', event: 'import_saved', source: isTrafficSource(body?.source) ? body.source : 'direct' }),
+      ]);
+    }
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
     if (error instanceof TikTokImportError) {

@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 const NewsletterPopup = dynamic(() => import('@/components/ui/NewsletterPopup/NewsletterPopup'), { ssr: false });
 const CookieConsent = dynamic(() => import('@/components/ui/CookiesConsent/CookiesConsent'), { ssr: false });
 const ThirdPartyScripts = dynamic(() => import('@/components/ui/ThirdPartyScripts/ThirdPartyScripts'), { ssr: false });
+const TrafficTracker = dynamic(() => import('@/components/ui/TrafficTracker/TrafficTracker'), { ssr: false });
 
 export default function DeferredWidgets() {
 	return (
@@ -13,6 +14,7 @@ export default function DeferredWidgets() {
 			<NewsletterPopup />
 			<CookieConsent />
 			<ThirdPartyScripts />
+			<TrafficTracker />
 		</>
 	);
 }

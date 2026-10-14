@@ -266,6 +266,12 @@ service cloud.firestore {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAdminUser());
     }
 
+    // === Statistiques d'audience (totaux par jour) ===
+    // Écrites uniquement par le serveur (/api/track, routes d'import) ; lecture admin.
+    match /trafficStats/{day} {
+      allow read: if isAdminUser();
+    }
+
     // === Bloquer tout accès par défaut aux autres collections ===
     match /{document=**} {
       allow read, write: if false;

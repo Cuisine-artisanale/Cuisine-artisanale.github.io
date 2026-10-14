@@ -22,6 +22,7 @@ import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { Rating } from 'primereact/rating';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { buildPinterestUrl, shareRecipe } from '@/lib/services/share.service';
+import { trackEvent } from '@/lib/analytics/track';
 import { exportRecipePDF, printRecipe } from '@/lib/services/export.service';
 import type { Recipe, Ingredient } from '@/types';
 import type { RecipeReview, SimilarRecipe } from '@/lib/server/recipes';
@@ -319,6 +320,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 	// Ouvre la fenêtre de création d'épingle Pinterest, avec l'image verticale de la recette
 	const handlePin = () => {
 		if (!recette?.title) return;
+		trackEvent('pin_click');
 		window.open(
 			buildPinterestUrl({
 				pageUrl: window.location.origin + window.location.pathname,

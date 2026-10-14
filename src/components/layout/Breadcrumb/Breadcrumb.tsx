@@ -28,6 +28,7 @@ const ROUTE_LABELS: Record<string, string> = {
   "admin-panel": "Administration",
   dashboard: "Tableau de bord",
   users: "Utilisateurs",
+  trafic: "Trafic",
   posts: "Posts",
   ingredients: "Ingrédients",
   units: "Unités",

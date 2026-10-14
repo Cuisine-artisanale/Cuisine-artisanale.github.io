@@ -1,0 +1,33 @@
+/* Page admin « Trafic » */
+.trafic-periods {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.admin-content .trafic-period {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface-card);
+  color: var(--text-color);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-content .trafic-period.is-active {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.trafic-help {
+  margin: 0 0 0.75rem;
+  max-width: 75ch;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+.admin-dashboard .table-container td:not(:first-child),
+.admin-dashboard .table-container th:not(:first-child) {
+  text-align: right;
+  white-space: nowrap;
+}

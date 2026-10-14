@@ -11,6 +11,7 @@ const NAV_ITEMS = [
 	{ href: "/admin-panel/units", label: "Unités", icon: "pi-calculator" },
 	{ href: "/admin-panel/posts", label: "Posts", icon: "pi-comments" },
 	{ href: "/admin-panel/users", label: "Utilisateurs", icon: "pi-users" },
+	{ href: "/admin-panel/trafic", label: "Trafic", icon: "pi-chart-bar" },
 ];
 
 /** Menu de l'administration : colonne à gauche sur ordinateur, bandeau défilant sur téléphone. */

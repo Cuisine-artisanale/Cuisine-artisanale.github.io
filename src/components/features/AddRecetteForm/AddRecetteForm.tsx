@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getFirstSource } from '@/lib/analytics/track';
 import Link from 'next/link';
 import './AddRecetteForm.css';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
@@ -280,7 +281,7 @@ const AddRecetteForm: React.FC = () => {
 			const response = await fetch('/api/tiktok/import-url', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
-				body: JSON.stringify({ videoUrl: trimmedUrl, supplementalText: tiktokImportContext.trim() }),
+				body: JSON.stringify({ videoUrl: trimmedUrl, supplementalText: tiktokImportContext.trim(), source: getFirstSource() }),
 			});
 
 			const data = await response.json();
@@ -305,7 +306,7 @@ const AddRecetteForm: React.FC = () => {
 			const response = await fetch('/api/tiktok/import-save', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
-				body: JSON.stringify({ draft, publish }),
+				body: JSON.stringify({ draft, publish, source: getFirstSource() }),
 			});
 
 			const data = await response.json();

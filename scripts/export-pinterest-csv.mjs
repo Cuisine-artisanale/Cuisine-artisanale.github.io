@@ -96,7 +96,8 @@ for (const doc of snapshot.docs) {
     pinImageUrl(recipe),
     board,
     description.slice(0, 500),
-    `${SITE_URL}/recettes/${encodeURIComponent(recipe.url || doc.id)}`,
+    // Paramètres UTM : les visites venues des épingles sont attribuées à Pinterest (page admin Trafic)
+    `${SITE_URL}/recettes/${encodeURIComponent(recipe.url || doc.id)}?utm_source=pinterest&utm_medium=pin`,
     ['recette', recipe.type, region?.nom, 'cuisine française', 'fait maison'].filter(Boolean).join(', '),
   ]);
 }

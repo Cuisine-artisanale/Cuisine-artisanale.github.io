@@ -69,6 +69,13 @@ export default function Page() {
 					Le site utilise des cookies nécessaires à son bon fonctionnement et à la mesure d'audience.
 					Vous pouvez gérer vos préférences via le bandeau de consentement affiché lors de votre première visite.
 				</p>
+				<p>
+					Indépendamment de ce choix, le site mesure sa fréquentation de façon anonyme, sans cookie :
+					seuls le type de site d'où vous venez (moteur de recherche, réseau social…) et le type de page
+					consultée sont comptés, sous forme de totaux par jour. Votre navigateur retient le canal de votre
+					première visite pendant 13 mois au plus ; aucune donnée ne permet de vous identifier ni de vous
+					suivre sur d'autres sites.
+				</p>
 			</section>
 		</div>
 	);

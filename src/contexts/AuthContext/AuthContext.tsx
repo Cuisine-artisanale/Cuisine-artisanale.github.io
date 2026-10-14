@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/lib/config/firebase-app";
 import { loadFirestore } from "@/lib/config/firestore-lazy";
+import { trackEvent } from "@/lib/analytics/track";
 import {
   User,
   onAuthStateChanged,
@@ -163,6 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		  // Les utilisateurs Google ont leur email vérifié automatiquement
 		  await createUserInFirestore(result.user.uid, result.user.email || "", result.user.displayName || "", true);
 		  setRole("user");
+		  trackEvent("signup");
 		}
 	  }
 	} catch (err) {
@@ -200,6 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 	  // Create user account
 	  const result = await createUserWithEmailAndPassword(auth, email, password);
+	  trackEvent("signup");
 
 	  // Update profile with display name
 	  await updateProfile(result.user, {
