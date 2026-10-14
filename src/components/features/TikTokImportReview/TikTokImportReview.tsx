@@ -28,7 +28,7 @@ interface TikTokImportReviewProps {
  */
 const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialDraft, catalog, units, submitting, onCancel, onSubmit }) => {
 	const [draft, setDraft] = useState<ImportDraft>(initialDraft);
-	const [publish, setPublish] = useState(false);
+	const [publish, setPublish] = useState(true);
 
 	const update = (changes: Partial<ImportDraft>) => setDraft((current) => ({ ...current, ...changes }));
 

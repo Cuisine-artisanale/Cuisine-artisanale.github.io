@@ -64,7 +64,7 @@ const FAQ = [
 	{
 		question: 'Ma recette est-elle rendue publique ?',
 		answer:
-			"Non, elle reste dans votre carnet privé. Vous pouvez, si vous le souhaitez, la proposer à la publication : elle est alors vérifiée avant d'apparaître sur le site.",
+			"Elle est d'abord rangée dans votre carnet privé. Au moment de l'enregistrer, une case (cochée par défaut) la propose aussi à la publication : décochez-la pour la garder pour vous. Une recette proposée est vérifiée avant d'apparaître sur le site.",
 	},
 ];
 
