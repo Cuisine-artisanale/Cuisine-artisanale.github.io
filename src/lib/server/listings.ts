@@ -1,7 +1,7 @@
 import { unstable_cache } from 'next/cache';
-import { FieldPath } from 'firebase-admin/firestore';
 import { getFirebaseAdminDb } from '@/lib/config/firebase-admin';
-import { getRecipeStats, type RecipeStats } from '@/lib/utils/recipe-stats';
+import { getRecipeStats, popularityOf, type RecipeStats } from '@/lib/utils/recipe-stats';
+import { weightedShuffle } from '@/lib/utils/weighted-shuffle';
 import { toPostCard, type PostCardData } from '@/lib/utils/post-card';
 
 export type { PostCardData };
@@ -21,19 +21,23 @@ export interface RecipeCardData {
   time?: number;
 }
 
-/** Position dans la liste triée par popularité (décroissante), puis titre */
-export interface RecipesCursor {
-  popularity: number;
-  title: string;
-  id: string;
-}
-
 export interface RecipesPage {
   recettes: RecipeCardData[];
   hasMore: boolean;
-  /** Curseur de pagination : popularité, titre et id de la dernière recette affichée */
-  cursor: RecipesCursor | null;
+  /** Graine du mélange : les pages suivantes la réutilisent pour prolonger le même ordre */
+  seed: number;
 }
+
+/** Carte recette avec ce qu'il faut pour le mélange et le bandeau « Nouveautés » */
+interface ListedRecipe extends RecipeCardData {
+  popularity: number;
+  /** Date de publication, en millisecondes (0 si inconnue) */
+  createdAt: number;
+}
+
+/** Bandeau « Nouveautés » : recettes publiées depuis moins de NEW_RECIPES_DAYS jours, NEW_RECIPES_MAX au plus */
+const NEW_RECIPES_DAYS = 30;
+const NEW_RECIPES_MAX = 4;
 
 export const RECIPES_PAGE_SIZE = 12;
 
@@ -54,26 +58,85 @@ function toCard(id: string, data: FirebaseFirestore.DocumentData): RecipeCardDat
   };
 }
 
-/**
- * Première page de la liste des recettes, rendue côté serveur. Tri par popularité
- * (vues + 10 × likes, voir src/lib/utils/recipe-stats.ts), puis par titre à égalité.
- */
-async function fetchFirstRecipesPage(): Promise<RecipesPage> {
+function toMillis(value: unknown): number {
+  if (value && typeof (value as { toMillis?: () => number }).toMillis === 'function') {
+    return (value as { toMillis: () => number }).toMillis();
+  }
+  const parsed = value ? new Date(value as string).getTime() : NaN;
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+/** Toutes les recettes, avec les seuls champs utiles aux cartes (lu une fois toutes les 10 min au plus). */
+async function fetchListedRecipes(): Promise<ListedRecipe[]> {
   const snapshot = await getFirebaseAdminDb()
     .collection('recipes')
-    .orderBy('popularity', 'desc')
-    .orderBy('title')
-    .orderBy(FieldPath.documentId())
-    .limit(RECIPES_PAGE_SIZE + 1)
+    .select('title', 'type', 'position', 'images', 'url', 'cookingTime', 'preparationTime',
+      'likesCount', 'ratingCount', 'ratingAverage', 'viewsCount', 'popularity', 'createdAt')
     .get();
+  return snapshot.docs.map((d) => {
+    const data = d.data();
+    return {
+      ...toCard(d.id, data),
+      // Recette sans score calculé : on le déduit des compteurs
+      popularity: Number(data.popularity) || popularityOf(data.viewsCount, data.likesCount),
+      createdAt: toMillis(data.createdAt),
+    };
+  });
+}
 
-  const docs = snapshot.docs.slice(0, RECIPES_PAGE_SIZE);
-  const last = docs[docs.length - 1];
+const getListedRecipes = unstable_cache(fetchListedRecipes, ['listed-recipes'], { revalidate: 600, tags: [RECIPE_LISTS_TAG] });
+
+/** Carte seule (sans les champs internes), pour l'envoyer au navigateur */
+function toPublicCard(recipe: ListedRecipe): RecipeCardData {
+  const card: RecipeCardData & Partial<Pick<ListedRecipe, 'popularity' | 'createdAt'>> = { ...recipe };
+  delete card.popularity;
+  delete card.createdAt;
+  return card;
+}
+
+function pickNewRecipes(recipes: ListedRecipe[]): ListedRecipe[] {
+  const since = Date.now() - NEW_RECIPES_DAYS * 24 * 60 * 60 * 1000;
+  return recipes
+    .filter((recipe) => recipe.createdAt >= since)
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, NEW_RECIPES_MAX);
+}
+
+/** Bandeau « Nouveautés » de la liste des recettes : les dernières publiées, de la plus récente à la plus ancienne. */
+export async function getNewRecipes(): Promise<RecipeCardData[]> {
+  return pickNewRecipes(await getListedRecipes()).map(toPublicCard);
+}
+
+/**
+ * Une page de la liste des recettes, en mélange aléatoire pondéré : tout est mélangé, mais une
+ * recette populaire a plus de chances d'arriver en haut. Poids = 1 + √(popularité), popularité =
+ * vues + 10 × likes : la racine carrée évite que les recettes les plus vues occupent toujours
+ * le haut de la liste, et le « 1 + » laisse sa chance à une recette encore sans vue.
+ *
+ * Sans filtre, les recettes du bandeau « Nouveautés » sont retirées du mélange (déjà affichées).
+ */
+export async function getShuffledRecipesPage({
+  seed,
+  page = 0,
+  type = '',
+  position = '',
+}: { seed: number; page?: number; type?: string; position?: string }): Promise<RecipesPage> {
+  const recipes = await getListedRecipes();
+  const shownAsNew = type || position ? new Set<string>() : new Set(pickNewRecipes(recipes).map((r) => r.recetteId));
+
+  const candidates = recipes.filter(
+    (recipe) =>
+      !shownAsNew.has(recipe.recetteId) &&
+      (!type || recipe.type === type) &&
+      (!position || recipe.position === position)
+  );
+  const shuffled = weightedShuffle(candidates, (recipe) => 1 + Math.sqrt(recipe.popularity), seed);
+  const start = page * RECIPES_PAGE_SIZE;
 
   return {
-    recettes: docs.map((d) => toCard(d.id, d.data())),
-    hasMore: snapshot.docs.length > RECIPES_PAGE_SIZE,
-    cursor: last ? { popularity: Number(last.data().popularity) || 0, title: last.data().title || '', id: last.id } : null,
+    recettes: shuffled.slice(start, start + RECIPES_PAGE_SIZE).map(toPublicCard),
+    hasMore: shuffled.length > start + RECIPES_PAGE_SIZE,
+    seed,
   };
 }
 
@@ -155,9 +218,6 @@ export async function getWeeklyRecipe(): Promise<WeeklyRecipeData | null> {
     averageRating: ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null,
   };
 }
-
-/** Première page mise en cache 10 min (partagée entre toutes les requêtes). */
-export const getFirstRecipesPage = unstable_cache(fetchFirstRecipesPage, ['recipes-first-page'], { revalidate: 600, tags: [RECIPE_LISTS_TAG] });
 
 /** Recettes d'un ensemble de départements (30 codes au plus : limite de l'opérateur "in"), triées par titre. */
 async function fetchRecipesByDepartements(codes: string[]): Promise<RecipeCardData[]> {

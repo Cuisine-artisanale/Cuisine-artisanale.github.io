@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import RecettesWrapper from "./RecettesWrapper";
 import { permanentRedirect } from "next/navigation";
-import { getFirstRecipesPage, getRecipeSlugById } from "@/lib/server/listings";
+import { cookies } from "next/headers";
+import { getNewRecipes, getRecipeSlugById, getShuffledRecipesPage } from "@/lib/server/listings";
+import { SHUFFLE_SEED_COOKIE, newShuffleSeed, parseShuffleSeed } from "@/lib/utils/weighted-shuffle";
 import "./recettes-page.css";
 
 export const metadata: Metadata = {
@@ -20,7 +22,8 @@ interface PageProps {
 	searchParams: Promise<{ id?: string; type?: string; position?: string; keywords?: string }>;
 }
 
-// Rendu à chaque requête (les filtres sont dans l'URL) ; la première page de recettes est en cache 10 min.
+// Rendu à chaque requête : mélange pondéré, le même pendant toute la visite (graine gardée dans un
+// cookie de session, posé par RecettesClient) ; les recettes elles-mêmes sont en cache 10 min.
 export default async function Page({ searchParams }: PageProps) {
 	const { id, type, position, keywords } = await searchParams;
 
@@ -31,18 +34,19 @@ export default async function Page({ searchParams }: PageProps) {
 	}
 
 	const hasFilters = Boolean(type || position || keywords);
-	const initialPage = hasFilters
-		? undefined
-		: await getFirstRecipesPage().catch((error) => {
+	const seed = parseShuffleSeed((await cookies()).get(SHUFFLE_SEED_COOKIE)?.value) ?? newShuffleSeed();
+	const [initialPage, newRecipes] = hasFilters
+		? [undefined, []]
+		: await Promise.all([getShuffledRecipesPage({ seed }), getNewRecipes()]).catch((error) => {
 				console.error('Liste des recettes indisponible côté serveur :', error);
-				return undefined;
+				return [undefined, []] as const;
 			});
 
 	return (
 		<>
 		<h1 className="sr-only">Toutes les recettes artisanales françaises</h1>
 		<Suspense fallback={<div style={{ padding: "2rem", textAlign: "center" }}>Chargement...</div>}>
-			<RecettesWrapper initialPage={initialPage} />
+			<RecettesWrapper initialPage={initialPage} newRecipes={[...newRecipes]} seed={seed} />
 		</Suspense>
 		</>
 	);

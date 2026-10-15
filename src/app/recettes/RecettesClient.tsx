@@ -8,9 +8,8 @@ import Recette from '@/components/features/Recette/Recette';
 import AddRecette from '@/components/features/AddRecette/AddRecette';
 import { loadFirestore } from '@/lib/config/firestore-lazy';
 import { useSearchParams } from 'next/navigation';
-import type { RecipesCursor, RecipesPage } from '@/lib/server/listings';
-
-type Cursor = RecipesCursor | null;
+import type { RecipeCardData, RecipesPage } from '@/lib/server/listings';
+import { SHUFFLE_SEED_COOKIE } from '@/lib/utils/weighted-shuffle';
 
 interface RecetteData {
 	recetteId: string;
@@ -28,19 +27,30 @@ interface RecetteData {
 interface RecettesClientProps {
 	/** Première page (sans filtre) rendue côté serveur */
 	initialPage?: RecipesPage;
+	/** Bandeau « Nouveautés » (liste sans filtre) */
+	newRecipes?: RecipeCardData[];
+	/** Graine du mélange pondéré, tirée par le serveur à chaque affichage de la page */
+	seed: number;
 }
 
-export default function RecettesClient({ initialPage }: RecettesClientProps) {
+export default function RecettesClient({ initialPage, newRecipes = [], seed }: RecettesClientProps) {
 	const [displayedRecettes, setDisplayedRecettes] = useState<RecetteData[]>(initialPage?.recettes ?? []);
 	// Évite de recharger la première page déjà fournie par le serveur
 	const skipInitialFetch = useRef(!!initialPage);
+
+	// Même mélange pendant toute la visite : la graine est gardée dans un cookie de session
+	// (sans date d'expiration : effacé à la fermeture du navigateur), relu par le serveur.
+	useEffect(() => {
+		document.cookie = `${SHUFFLE_SEED_COOKIE}=${seed}; path=/recettes; SameSite=Lax`;
+	}, [seed]);
 	const searchParams = useSearchParams();
 	const departements = DEPARTEMENT_NAMES;
 	const [itemsPerPage] = useState(12);
 	const observerTarget = useRef<HTMLDivElement>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(initialPage ? initialPage.hasMore : true);
-	const [lastVisible, setLastVisible] = useState<Cursor>(initialPage?.cursor ?? null);
+	// Prochaine page à demander à /api/recipes/list (la page 0 vient du serveur)
+	const [nextPage, setNextPage] = useState(initialPage ? 1 : 0);
 	const [currentFilters, setCurrentFilters] = useState({ type: '', position: '', keywords: '' });
 
 	useEffect(() => {
@@ -55,9 +65,9 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 		}
 
 		setDisplayedRecettes([]);
-		setLastVisible(null);
+		setNextPage(0);
 		setHasMore(true);
-		fetchRecettes(null, { type, position, keywords });
+		fetchRecettes(0, { type, position, keywords });
 	}, [searchParams.toString()]);
 
 	function generateWordVariants(word: string): string[] {
@@ -101,15 +111,34 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 		return 1 - levenshtein(a.toLowerCase(), b.toLowerCase()) / maxLen;
 	}
 
-	const fetchRecettes = async (cursorDoc: Cursor, filters: { type: string; position: string; keywords: string }) => {
+	/**
+	 * Recherche par mots-clés : Firestore + similarité des titres, sans pagination.
+	 * Sans mot-clé (avec ou sans filtre type / département) : mélange aléatoire pondéré
+	 * par la popularité, page par page, via /api/recipes/list (même graine que la page 0).
+	 */
+	const fetchRecettes = async (pageIndex: number, filters: { type: string; position: string; keywords: string }) => {
 		try {
 			setIsLoading(true);
-			// Firestore n'est chargé qu'au premier besoin (filtre ou page suivante)
-			const { db, collection, getDocs, query, where, limit, startAfter, orderBy, documentId } = await loadFirestore();
-			const recettesCollection = collection(db, "recipes");
 			const { keywords, type, position } = filters;
 
-			if (keywords || type || position) {
+			if (!keywords) {
+				const params = new URLSearchParams({ seed: String(seed), page: String(pageIndex) });
+				if (type) params.set('type', type);
+				if (position) params.set('position', position);
+				const response = await fetch(`/api/recipes/list?${params.toString()}`);
+				if (!response.ok) throw new Error(`Liste des recettes indisponible (${response.status})`);
+				const data: RecipesPage = await response.json();
+				setDisplayedRecettes((prev) => (pageIndex === 0 ? data.recettes : [...prev, ...data.recettes]));
+				setHasMore(data.hasMore);
+				setNextPage(pageIndex + 1);
+				return;
+			}
+
+			// Firestore n'est chargé qu'au premier besoin (recherche par mots-clés)
+			const { db, collection, getDocs, query, where, limit, orderBy } = await loadFirestore();
+			const recettesCollection = collection(db, "recipes");
+
+			{
 				const allRecettesMap = new Map<string, RecetteData>();
 
 				if (keywords) {
@@ -169,30 +198,6 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 							});
 						});
 					}
-				} else {
-					const constraints = [
-						...(type ? [where("type", "==", type)] : []),
-						...(position ? [where("position", "==", position)] : []),
-						orderBy("popularity", "desc"),
-						orderBy("title"),
-						limit(itemsPerPage * 2)
-					];
-
-					const baseQuery = query(recettesCollection, ...constraints);
-					const querySnapshot = await getDocs(baseQuery);
-					querySnapshot.forEach((doc) => {
-						const data = doc.data();
-						allRecettesMap.set(doc.id, {
-							title: data.title,
-							type: data.type,
-							position: data.position,
-							recetteId: doc.id,
-							images: data.images ?? [],
-							url: data.url,
-								stats: getRecipeStats(data),
-								time: (Number(data.preparationTime) || 0) + (Number(data.cookingTime) || 0) || undefined,
-						});
-					});
 				}
 
 				let recettesData = Array.from(allRecettesMap.values());
@@ -231,53 +236,6 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 
 				setDisplayedRecettes(recettesData);
 				setHasMore(false); // Pas de pagination infini avec filtres pour l'instant
-			} else {
-				// Pas de filtres : pagination Firestore, recettes les plus populaires d'abord (même tri que le serveur)
-				const firestoreQuery = query(
-					recettesCollection,
-					orderBy("popularity", "desc"),
-					orderBy("title"),
-					orderBy(documentId()),
-					...(cursorDoc ? [startAfter(cursorDoc.popularity, cursorDoc.title, cursorDoc.id)] : []),
-					limit(itemsPerPage + 1) // +1 pour vérifier s'il y a plus d'éléments
-				);
-
-				const querySnapshot = await getDocs(firestoreQuery);
-				const allRecettesMap = new Map<string, RecetteData>();
-
-				querySnapshot.forEach((doc) => {
-					const data = doc.data();
-					allRecettesMap.set(doc.id, {
-						title: data.title,
-						type: data.type,
-						position: data.position,
-						recetteId: doc.id,
-						images: data.images ?? [],
-						url: data.url,
-								stats: getRecipeStats(data),
-								time: (Number(data.preparationTime) || 0) + (Number(data.cookingTime) || 0) || undefined,
-					});
-				});
-
-				let recettesData = Array.from(allRecettesMap.values());
-
-				// Vérifier s'il y a plus d'éléments
-				if (querySnapshot.docs.length > itemsPerPage) {
-					const lastDoc = querySnapshot.docs[itemsPerPage - 1];
-					setLastVisible({ popularity: Number(lastDoc.data().popularity) || 0, title: lastDoc.data().title || '', id: lastDoc.id });
-					setHasMore(true);
-					recettesData = recettesData.slice(0, itemsPerPage);
-				} else {
-					setHasMore(false);
-				}
-
-				if (cursorDoc) {
-					// Ajouter aux résultats existants
-					setDisplayedRecettes((prev) => [...prev, ...recettesData]);
-				} else {
-					// Première page
-					setDisplayedRecettes(recettesData);
-				}
 			}
 		} catch (error) {
 			console.error("Error getting recettes: ", error);
@@ -288,9 +246,9 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 
 	// Charger plus de recettes au scroll
 	const loadMoreRecettes = useCallback(() => {
-		if (isLoading || !hasMore || !lastVisible) return;
-		fetchRecettes(lastVisible, currentFilters);
-	}, [isLoading, hasMore, lastVisible, currentFilters]);
+		if (isLoading || !hasMore || currentFilters.keywords) return;
+		fetchRecettes(nextPage, currentFilters);
+	}, [isLoading, hasMore, nextPage, currentFilters]);
 
 	// Intersection Observer pour le infinite scroll
 	useEffect(() => {
@@ -314,6 +272,9 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 		};
 	}, [loadMoreRecettes, isLoading, hasMore]);
 
+	const showNewRecipes =
+		newRecipes.length > 0 && !currentFilters.type && !currentFilters.position && !currentFilters.keywords;
+
 	return (
 		<div className="Recettes">
 			<section className='filter_section'>
@@ -321,6 +282,29 @@ export default function RecettesClient({ initialPage }: RecettesClientProps) {
 				<AddRecette />
 			</section>
 			<section className='recettes_section'>
+				{showNewRecipes && (
+					<>
+						<h2 className="recettes-heading">
+							<span className="pi pi-sparkles" aria-hidden="true"></span>
+							Nouveautés
+						</h2>
+						{newRecipes.map((recette) => (
+							<Recette
+								key={`new-${recette.recetteId}`}
+								recetteId={recette.recetteId}
+								url={recette.url}
+								stats={recette.stats}
+								title={recette.title}
+								type={recette.type}
+								images={recette.images}
+								position={departements.get(recette.position) || ''}
+								time={recette.time}
+							/>
+						))}
+						<h2 className="recettes-heading">Toutes les recettes</h2>
+					</>
+				)}
+
 				{displayedRecettes.length === 0 && !isLoading && (
 					Array.from({ length: 6 }).map((_, i) => (
 						<div key={i} className="recipe-card-skeleton">
