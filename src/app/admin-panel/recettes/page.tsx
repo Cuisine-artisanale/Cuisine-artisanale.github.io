@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import './recettes-admin.css';
 import { db } from '@/lib/config/firebase';
 import { revalidateRecipe } from '@/lib/utils/revalidate-recipe';
@@ -413,6 +414,13 @@ export default function RecettesAdminPage() {
                     )}
                   </div>
                   <div className="recipe-actions">
+                    <Link
+                      href={`/recettes/edit?id=${encodeURIComponent(recette.recetteId)}&source=demande`}
+                      className="btn-action"
+                      title="Modifier avant publication"
+                    >
+                      <i className="pi pi-pencil"></i>
+                    </Link>
                     <button
                       className="btn-action btn-success"
                       onClick={() => confirmAccept(recette)}

@@ -56,6 +56,12 @@ service cloud.firestore {
     // Écrites par le serveur (Firebase Admin), pour pouvoir y appliquer un quota d'imports.
     match /users/{userId}/carnet/{recipeId} {
       allow read, delete: if isSignedIn() && request.auth.uid == userId;
+
+      // Correction du contenu par son propriétaire (page /recettes/edit?source=carnet) ;
+      // la création reste réservée au serveur (quota d'imports)
+      allow update: if isSignedIn() && request.auth.uid == userId
+                    && onlyChanges(['title', 'type', 'preparationTime', 'cookingTime', 'servings', 'position',
+                                    'video', 'images', 'imageCredit', 'recipeParts', 'titleKeywords', 'updatedAt']);
     }
 
     // === Profils publics ===

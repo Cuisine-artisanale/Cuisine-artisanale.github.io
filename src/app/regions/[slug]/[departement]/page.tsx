@@ -5,6 +5,7 @@ import Recette from '@/components/features/Recette/Recette';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import '@/components/layout/Breadcrumb/Breadcrumb.css';
 import { getRegionBySlug, getRegionDepartements } from '@/constants/regions';
+import { DEPARTEMENT_TEXTES } from '@/constants/departement-textes';
 import { getRecipesByDepartements } from '@/lib/server/listings';
 import { SITE_URL, serializeJsonLd } from '@/lib/server/recipes';
 import '../../regions.css';
@@ -41,7 +42,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { region, departement } = found;
   const recettes = await getRecipesByDepartements([departement.code]).catch(() => []);
   const title = `Spécialités ${departement.de} : recettes traditionnelles`;
-  const description = `Les recettes et spécialités ${departement.de} (${departement.code}), en région ${region.nom} : plats du terroir expliqués pas à pas.`;
+  // Texte propre au département s'il existe (première phrase), sinon une description générique
+  const text = DEPARTEMENT_TEXTES[departement.code];
+  const description = text
+    ? `Spécialités ${departement.de} (${departement.code}). ${text.split(/(?<=\.) /)[0]}`
+    : `Les recettes et spécialités ${departement.de} (${departement.code}), en région ${region.nom} : plats du terroir expliqués pas à pas.`;
   const path = `/regions/${region.slug}/${departement.slug}`;
   const ogImage = `/api/og-image?title=${encodeURIComponent(`Spécialités ${departement.de}`)}&type=${encodeURIComponent(region.nom)}`;
 
@@ -114,9 +119,11 @@ export default async function DepartementPage({ params }: PageProps) {
 
       <header className="regions-header">
         <h1>Spécialités {departement.de}</h1>
+        {/* Texte propre au département ; à défaut, celui de la région */}
+        <p>{DEPARTEMENT_TEXTES[departement.code] ?? region.description}</p>
         <p>
           Les recettes traditionnelles {departement.de} ({departement.code}), un département de la région{' '}
-          <Link href={`/regions/${region.slug}`}>{region.nom}</Link>. {region.description}
+          <Link href={`/regions/${region.slug}`}>{region.nom}</Link>.
         </p>
       </header>
 

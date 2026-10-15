@@ -547,3 +547,8 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+
+/* Lien « Modifier » présenté comme les autres boutons d’action */
+a.btn-action {
+  text-decoration: none;
+}

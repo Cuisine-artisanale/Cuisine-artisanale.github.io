@@ -20,6 +20,7 @@ import { syncRecipeIngredientsWithCatalog } from '@/lib/services/ingredient-cata
 import { useUnits } from '@/hooks/useUnits';
 import { revalidateRecipe } from '@/lib/utils/revalidate-recipe';
 import type { UnitDef } from '@/lib/utils/units';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
 // Même mise en page que le formulaire « Proposer une recette »
 import '@/components/features/AddRecetteForm/AddRecetteForm.css';
 
@@ -43,10 +44,36 @@ function toPositiveInt(value: string, max: number): number | null {
 	return value.trim() !== '' && Number.isFinite(n) && n >= 0 ? Math.min(max, n) : null;
 }
 
+/**
+ * Recette modifiée, selon le paramètre ?source= :
+ *  - (absent) recette publiée, collection "recipes" (auteur ou admin) ;
+ *  - carnet : recette du carnet privé de l'utilisateur connecté ;
+ *  - demande : recette en attente de validation, "recipesRequest" (admin, avant publication).
+ */
+type EditSource = 'recette' | 'carnet' | 'demande';
+
+const SUBTITLES: Record<EditSource, string> = {
+	recette: "Les changements sont visibles sur le site dès l'enregistrement.",
+	carnet: 'Recette de votre carnet privé : les changements ne sont visibles que par vous.',
+	demande: "Recette en attente de validation : corrigez-la avant de la publier depuis l'administration.",
+};
+
 function EditRecetteContent() {
 	const router = useRouter();
-	const id = useSearchParams()?.get('id');
+	const searchParams = useSearchParams();
+	const id = searchParams?.get('id');
+	const sourceParam = searchParams?.get('source');
+	const source: EditSource = sourceParam === 'carnet' || sourceParam === 'demande' ? sourceParam : 'recette';
+	const { user, loading: authLoading } = useAuth();
+	const uid = user?.uid;
 	const { units: allUnits, reload: reloadUnits } = useUnits();
+
+	/** Document modifié (null tant que l'utilisateur n'est pas connu, pour le carnet) */
+	const recipeDoc = () => {
+		if (!id) return null;
+		if (source === 'carnet') return uid ? doc(db, 'users', uid, 'carnet', id) : null;
+		return doc(db, source === 'demande' ? 'recipesRequest' : 'recipes', id);
+	};
 
 	const [recette, setRecette] = useState<Recipe | null>(null);
 	const [status, setStatus] = useState<'loading' | 'ready' | 'missing'>('loading');
@@ -71,7 +98,9 @@ function EditRecetteContent() {
 	const [saving, setSaving] = useState(false);
 
 	useEffect(() => {
-		if (!id) {
+		if (authLoading) return;
+		const target = recipeDoc();
+		if (!target) {
 			setStatus('missing');
 			return;
 		}
@@ -79,7 +108,7 @@ function EditRecetteContent() {
 
 		(async () => {
 			const [snapshot, ingredients] = await Promise.all([
-				getDoc(doc(db, 'recipes', id)),
+				getDoc(target),
 				getDocs(collection(db, 'ingredients')).catch(() => null),
 			]);
 			if (cancelled) return;
@@ -130,7 +159,8 @@ function EditRecetteContent() {
 		});
 
 		return () => { cancelled = true; };
-	}, [id]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- recipeDoc ne dépend que de id, source et uid
+	}, [id, source, uid, authLoading]);
 
 	const updatePart = (partIndex: number, changes: Partial<RecipePartForm>) =>
 		setParts((current) => current.map((part, i) => (i === partIndex ? { ...part, ...changes } : part)));
@@ -196,7 +226,8 @@ function EditRecetteContent() {
 
 	const handleSubmit = async (event: React.FormEvent) => {
 		event.preventDefault();
-		if (!id || !recette || saving || uploading) return;
+		const target = recipeDoc();
+		if (!id || !target || !recette || saving || uploading) return;
 
 		if (missing.length > 0) {
 			toast.error(`Il manque : ${missing.join(', ')}.`);
@@ -229,10 +260,13 @@ function EditRecetteContent() {
 
 		setSaving(true);
 		try {
-			// La recette est déjà publiée : les ingrédients nouveaux reçoivent tout de suite leur fiche
-			const { recipeParts, created } = await syncRecipeIngredientsWithCatalog(draftParts);
+			// Recette publiée : les ingrédients nouveaux reçoivent tout de suite leur fiche.
+			// Carnet et demande en attente : le catalogue n'est complété qu'à la publication.
+			const { recipeParts, created } = source === 'recette'
+				? await syncRecipeIngredientsWithCatalog(draftParts)
+				: { recipeParts: draftParts, created: [] as string[] };
 
-			await updateDoc(doc(db, 'recipes', id), {
+			await updateDoc(target, {
 				title: recipeTitle,
 				type,
 				preparationTime: preparationTime ?? 0,
@@ -255,10 +289,16 @@ function EditRecetteContent() {
 					.map((url) => deleteObject(ref(storage, url)).catch((error) => console.error('Photo non supprimée du stockage :', error)))
 			);
 
-			// La fiche et les listes (liste des recettes, régions) sont en cache : on les fait régénérer
-			revalidateRecipe({ id, url: recette.url }, { lists: true });
 			toast.success(created.length > 0 ? `Recette enregistrée. Ajouté au catalogue : ${created.join(', ')}` : 'Recette enregistrée');
-			router.back();
+			if (source === 'carnet') {
+				router.push(`/carnet?id=${encodeURIComponent(id)}`);
+			} else if (source === 'demande') {
+				router.push('/admin-panel/recettes');
+			} else {
+				// La fiche et les listes (liste des recettes, régions) sont en cache : on les fait régénérer
+				revalidateRecipe({ id, url: recette.url }, { lists: true });
+				router.back();
+			}
 		} catch (error) {
 			console.error('Enregistrement de la recette impossible :', error);
 			toast.error("La recette n'a pas pu être enregistrée. Réessayez.");
@@ -290,7 +330,7 @@ function EditRecetteContent() {
 			<Breadcrumb />
 			<header className="add-recipe-header">
 				<h1>Modifier la recette</h1>
-				<p className="subtitle">Les changements sont visibles sur le site dès l&apos;enregistrement.</p>
+				<p className="subtitle">{SUBTITLES[source]}</p>
 			</header>
 
 			<form onSubmit={handleSubmit} className="recipe-form" noValidate>

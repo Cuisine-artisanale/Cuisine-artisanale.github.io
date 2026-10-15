@@ -683,6 +683,10 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 				</button>
 				{isPrivate && (
 					<div className="recipe-admin">
+						<button type="button" className="recipe-action" onClick={() => router.push(`/recettes/edit?id=${encodeURIComponent(id ?? '')}&source=carnet`)}>
+							<span className="pi pi-pencil" aria-hidden="true"></span>
+							Modifier
+						</button>
 						<button type="button" className="recipe-action is-danger" onClick={confirmRemoveFromNotebook}>
 							<span className="pi pi-trash" aria-hidden="true"></span>
 							Retirer du carnet
