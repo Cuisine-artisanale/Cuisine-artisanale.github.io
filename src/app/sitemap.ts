@@ -44,6 +44,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	try {
 		const snapshot = await getFirebaseAdminDb().collection('recipes').get();
 
+		// Date de la dernière recette publiée ou modifiée, par département et pour tout le site :
+		// elle indique aux moteurs que les pages de liste ont changé et méritent d'être relues
+		const latestByPosition = new Map<string, Date>();
+		let latest: Date | undefined;
+		for (const doc of snapshot.docs) {
+			const date = toDate(doc.get('updatedAt')) || toDate(doc.get('createdAt'));
+			if (!date) continue;
+			const position = doc.get('position');
+			if (typeof position === 'string' && (latestByPosition.get(position)?.getTime() ?? 0) < date.getTime()) {
+				latestByPosition.set(position, date);
+			}
+			if (!latest || latest < date) latest = date;
+		}
+		const latestOf = (codes: string[]) =>
+			codes.map((code) => latestByPosition.get(code)).reduce<Date | undefined>((a, b) => (b && (!a || a < b) ? b : a), undefined);
+
+		if (latest) {
+			for (const route of staticRoutes) {
+				if (/\/(recettes|regions)?$/.test(route.url)) route.lastModified = latest;
+			}
+		}
+
 		// Seuls les régions et départements qui ont au moins une recette sont listés (les autres sont en noindex)
 		const positions = new Set(snapshot.docs.map((doc) => doc.get('position')));
 		regionRoutes = REGIONS.flatMap((region) => {
@@ -51,9 +73,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			if (departements.length === 0) return [];
 			const regionUrl = `${SITE_URL}/regions/${region.slug}`;
 			return [
-				{ url: regionUrl, changeFrequency: 'weekly' as const, priority: 0.7 },
+				{ url: regionUrl, lastModified: latestOf(region.departements), changeFrequency: 'weekly' as const, priority: 0.7 },
 				...departements.map((d) => ({
 					url: `${regionUrl}/${d.slug}`,
+					lastModified: latestOf([d.code]),
 					changeFrequency: 'weekly' as const,
 					priority: 0.6,
 				})),
