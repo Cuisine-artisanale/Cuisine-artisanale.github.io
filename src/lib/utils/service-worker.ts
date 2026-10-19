@@ -1,57 +1,86 @@
 /**
  * ENREGISTREMENT DU SERVICE WORKER
  *
- * Ce fichier gère l'enregistrement du Service Worker pour la PWA
+ * Une nouvelle version du service worker reste « en attente » : la bannière de mise à jour
+ * (UpdateBanner) la signale et ne l'active qu'à la demande, puis la page se recharge.
  */
+
+let waitingWorker: ServiceWorker | null = null;
+const listeners = new Set<() => void>();
+// Rechargement seulement après un clic sur « Mettre à jour » (jamais en pleine saisie)
+let reloadOnControllerChange = false;
+
+function setWaitingWorker(worker: ServiceWorker | null) {
+  waitingWorker = worker;
+  listeners.forEach((listener) => listener());
+}
+
+export function getWaitingWorker() {
+  return waitingWorker;
+}
+
+export function subscribeWaitingWorker(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+	listeners.delete(listener);
+  };
+}
+
+/** Active la version en attente ; la page se recharge quand elle prend le contrôle. */
+export function applyUpdate() {
+  if (!waitingWorker) return;
+  reloadOnControllerChange = true;
+  waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+}
+
+function watchInstalling(registration: ServiceWorkerRegistration) {
+  const worker = registration.installing;
+  if (!worker) return;
+  worker.addEventListener('statechange', () => {
+	// Sans contrôleur, c'est la toute première installation : rien à proposer
+	if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+	  setWaitingWorker(worker);
+	}
+  });
+}
 
 export function registerServiceWorker() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
 	return;
   }
 
-  window.addEventListener('load', () => {
-	const swUrl = `/sw.js`;
-
+  const register = () => {
 	navigator.serviceWorker
-	  .register(swUrl)
+	  .register('/sw.js')
 	  .then((registration) => {
+		// Version déjà téléchargée lors d'une visite précédente
+		if (registration.waiting && navigator.serviceWorker.controller) {
+		  setWaitingWorker(registration.waiting);
+		}
+		registration.addEventListener('updatefound', () => watchInstalling(registration));
 
 		// Vérifier les mises à jour toutes les heures
 		setInterval(() => {
-		  registration.update();
+		  registration.update().catch(() => {});
 		}, 60 * 60 * 1000);
-
-		// Écouter les mises à jour du SW
-		registration.addEventListener('updatefound', () => {
-		  const newWorker = registration.installing;
-
-		  if (newWorker) {
-			newWorker.addEventListener('statechange', () => {
-			  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-
-				// Optionnel: Afficher une notification à l'utilisateur
-				if (confirm('Une nouvelle version est disponible. Recharger la page ?')) {
-				  newWorker.postMessage({ type: 'SKIP_WAITING' });
-				  window.location.reload();
-				}
-			  }
-			});
-		  }
-		});
 	  })
 	  .catch((error) => {
 		console.error('[SW] Erreur lors de l\'enregistrement du Service Worker:', error);
 	  });
 
-	// Recharger la page quand un nouveau SW prend le contrôle
-	let refreshing = false;
 	navigator.serviceWorker.addEventListener('controllerchange', () => {
-	  if (!refreshing) {
-		refreshing = true;
-		window.location.reload();
-	  }
+	  if (!reloadOnControllerChange) return;
+	  reloadOnControllerChange = false;
+	  window.location.reload();
 	});
-  });
+  };
+
+  // L'hydratation peut survenir après l'événement load : enregistrer tout de suite dans ce cas
+  if (document.readyState === 'complete') {
+	register();
+  } else {
+	window.addEventListener('load', register, { once: true });
+  }
 }
 
 /**
@@ -71,4 +100,3 @@ export async function unregisterServiceWorker() {
 	}
   }
 }
-

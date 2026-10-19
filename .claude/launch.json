@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm.cmd",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "next-prod",
+      "runtimeExecutable": "npx.cmd",
+      "runtimeArgs": ["next", "start", "-p", "3001"],
+      "port": 3001
     }
   ]
 }
