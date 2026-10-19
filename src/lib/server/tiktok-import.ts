@@ -762,6 +762,8 @@ function splitListItems(block: string): string[] {
     .replace(/\s*[•●▪◦✔✅➡→]\s*/g, '\n')
     .replace(/(^|\s)(\d{1,2})[.)]\s+(?=\S)/g, '\n')
     .replace(/(^|\n)\s*[-–*]\s+/g, '\n')
+    // Légende sur une seule ligne (page TikTok) : « … : - 2 œufs - 150 g de farine »
+    .replace(/\s+[-–]\s+/g, '\n')
     .split('\n')
     .map((item) => stripDecorations(item))
     .filter(Boolean);
