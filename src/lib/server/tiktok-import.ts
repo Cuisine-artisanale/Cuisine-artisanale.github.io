@@ -638,16 +638,51 @@ function buildStepsFromCaption(caption: string) {
   return [clean, FALLBACK_STEP];
 }
 
-async function fetchTikTokOEmbed(videoUrl: string): Promise<TikTokOEmbedResponse | null> {
+const BROWSER_USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36';
+
+/**
+ * Légende, auteur et miniature lus dans la page de la vidéo (JSON __UNIVERSAL_DATA_FOR_REHYDRATION__).
+ * Depuis octobre 2026, l'oEmbed de TikTok ne renvoie plus title, author_name ni thumbnail_url.
+ */
+async function fetchTikTokPageData(videoUrl: string): Promise<TikTokOEmbedResponse | null> {
   try {
-    const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(videoUrl)}`;
-    const response = await fetch(oembedUrl);
+    const response = await fetch(videoUrl, { headers: { 'User-Agent': BROWSER_USER_AGENT } });
     if (!response.ok) return null;
-    const data = (await response.json()) as TikTokOEmbedResponse;
-    return data;
+    const html = await response.text();
+    const match = html.match(/<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!match) return null;
+    const item = JSON.parse(match[1])?.__DEFAULT_SCOPE__?.['webapp.video-detail']?.itemInfo?.itemStruct;
+    if (!item) return null;
+    return {
+      title: typeof item.desc === 'string' ? item.desc : undefined,
+      author_name: item.author?.nickname || item.author?.uniqueId || undefined,
+      thumbnail_url: item.video?.cover || item.video?.originCover || undefined,
+    };
   } catch {
     return null;
   }
+}
+
+async function fetchTikTokOEmbed(videoUrl: string): Promise<TikTokOEmbedResponse | null> {
+  let data: TikTokOEmbedResponse | null = null;
+  try {
+    const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(videoUrl)}`;
+    const response = await fetch(oembedUrl);
+    if (response.ok) data = (await response.json()) as TikTokOEmbedResponse;
+  } catch {
+    data = null;
+  }
+  if (data?.title && data.thumbnail_url) return data;
+
+  // oEmbed incomplet : on complète avec la page de la vidéo
+  const page = await fetchTikTokPageData(videoUrl);
+  if (!page) return data;
+  return {
+    title: data?.title || page.title,
+    author_name: data?.author_name || page.author_name,
+    thumbnail_url: data?.thumbnail_url || page.thumbnail_url,
+  };
 }
 
 
