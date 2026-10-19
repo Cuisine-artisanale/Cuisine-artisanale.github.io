@@ -45,6 +45,29 @@ const Navbar: React.FC = () => {
 	setIsMounted(true);
   }, []);
 
+  // Menu mobile ouvert : la page dessous ne défile plus, Échap le referme
+  useEffect(() => {
+	if (!isMobileMenuOpen) return;
+	const root = document.documentElement;
+	const previousOverflow = root.style.overflow;
+	root.style.overflow = 'hidden';
+	const handleKeyDown = (event: KeyboardEvent) => {
+	  if (event.key === 'Escape') setIsMobileMenuOpen(false);
+	};
+	// Passage en largeur bureau : le menu mobile n'a plus lieu d'être
+	const desktop = window.matchMedia('(min-width: 769px)');
+	const handleDesktop = () => {
+	  if (desktop.matches) setIsMobileMenuOpen(false);
+	};
+	window.addEventListener('keydown', handleKeyDown);
+	desktop.addEventListener('change', handleDesktop);
+	return () => {
+	  root.style.overflow = previousOverflow;
+	  window.removeEventListener('keydown', handleKeyDown);
+	  desktop.removeEventListener('change', handleDesktop);
+	};
+  }, [isMobileMenuOpen]);
+
   const handleProfileClick = () => {
 	overlayPanelRef.current?.hide();
 	router.push('/account');
@@ -177,13 +200,15 @@ const Navbar: React.FC = () => {
 			  className="mobile-menu-toggle"
 			  onClick={handleMobileMenuToggle}
 			  aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+			  aria-expanded={isMobileMenuOpen}
+			  aria-controls="mobile-menu"
 			/>
 		  </div>
 		</div>
 	  </nav>
 
 	  {/* Mobile Menu Overlay */}
-	  <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'show' : ''}`}>
+	  <div id="mobile-menu" className={`mobile-menu-overlay ${isMobileMenuOpen ? 'show' : ''}`}>
 		<div className="mobile-menu-content">
 		  <ButtonLinkNav isMobile onClick={handleMobileMenuClose} />
 		  {user ? (

@@ -233,6 +233,8 @@
   flex-direction: column;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  /* Le défilement du menu ne se propage pas à la page */
+  overscroll-behavior: contain;
 }
 
 .mobile-menu-overlay.show {
@@ -318,13 +320,22 @@
 
 /* Mobile Responsive - Design optimisé */
 @media screen and (max-width: 768px) {
+  :root {
+    /* Hauteur commune à la barre et au menu déroulant */
+    --navbar-height: 3.25rem;
+  }
+
   /* Navbar container mobile */
   .navbar-container {
-    padding: 1rem;
+    padding: 0 0.75rem;
+  }
+
+  .navbar-actions {
+    gap: 0.5rem;
   }
 
   .navbar {
-    height: 3.5rem;
+    height: var(--navbar-height);
     position: sticky !important;
     top: 0 !important;
     transform: translateY(0) !important;
@@ -352,15 +363,33 @@
     border-right-width: 1px;
   }
 
-  /* Theme toggle optimisé mobile */
-  .theme-toggle {
-    width: 44px !important; /* Touch target */
-    height: 44px !important;
+  /* Boutons ronds de 40 px : la barre reste basse, la zone de tap suffisante */
+  .theme-toggle,
+  .mobile-menu-toggle {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    border-color: transparent !important;
+  }
+
+  .navbar .p-button-icon {
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    font-size: 1.15rem;
   }
 
   /* Afficher le menu burger */
   .mobile-menu-toggle {
     display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-menu-overlay {
+    top: var(--navbar-height);
+    height: calc(100dvh - var(--navbar-height));
   }
 
   /* User menu trigger mobile (si utilisé) */
@@ -475,7 +504,12 @@
 
     .navbar {
       padding-top: env(safe-area-inset-top);
-      height: calc(4rem + env(safe-area-inset-top));
+      height: calc(var(--navbar-height) + env(safe-area-inset-top));
+    }
+
+    .mobile-menu-overlay {
+      top: calc(var(--navbar-height) + env(safe-area-inset-top));
+      height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-top));
     }
   }
 }

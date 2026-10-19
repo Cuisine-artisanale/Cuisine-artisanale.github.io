@@ -69,9 +69,13 @@ button {
   color: var(--button-text);
 }
 
-button:hover, .p-button:hover {
-  background-color: var(--button-hover-bg) !important;
-  color: var(--button-hover-text);
+/* Souris uniquement : sur écran tactile le survol reste « collé » après un tap
+   (un bouton transparent devenait plein, son icône invisible) */
+@media (hover: hover) {
+  button:hover, .p-button:hover {
+    background-color: var(--button-hover-bg) !important;
+    color: var(--button-hover-text);
+  }
 }
 
 button:focus,

@@ -46,7 +46,30 @@
   width: 100%;
 }
 
+.ButtonLinkNav.mobile .menu {
+  gap: 0.25rem;
+}
+
 .ButtonLinkNav.mobile .nav-link {
-  padding: 1rem;
-  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  justify-content: flex-start;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.ButtonLinkNav.mobile .nav-link .pi {
+  width: 1.25rem;
+  color: var(--text-color-secondary);
+  font-size: 1.15rem;
+}
+
+.ButtonLinkNav.mobile .nav-link.active {
+  background: var(--surface-100);
+}
+
+.ButtonLinkNav.mobile .nav-link.active .pi {
+  color: var(--primary-color);
 }
