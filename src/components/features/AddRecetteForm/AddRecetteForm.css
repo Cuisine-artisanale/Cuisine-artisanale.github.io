@@ -380,6 +380,28 @@
   flex: 1;
 }
 
+.tiktok-paste-button {
+  justify-content: center;
+  min-height: 3rem;
+}
+
+/* « Analyser » passe au second plan quand le bouton Coller est proposé */
+.tiktok-import-controls .p-button.p-button-outlined {
+  background: transparent !important;
+  color: var(--primary-color) !important;
+  border: 1px solid var(--primary-color) !important;
+}
+
+.tiktok-import-context summary {
+  cursor: pointer;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+.tiktok-import-context[open] summary {
+  margin-bottom: 0.75rem;
+}
+
 /* ---- Écrans étroits ---- */
 @media (max-width: 800px) {
   .recipe-part-columns {

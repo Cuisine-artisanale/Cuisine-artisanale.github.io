@@ -62,7 +62,13 @@ self.addEventListener('fetch', (event) => {
 
   // Jamais de cache pour les API, les données de navigation (RSC) et les images redimensionnées :
   // réponses personnelles ou très nombreuses, qui feraient grossir le cache sans limite
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/image') || url.searchParams.has('_rsc')) {
+  // (ni pour l'ajout de recette : chaque partage TikTok y arrive avec une URL différente)
+  if (
+	url.pathname.startsWith('/api/') ||
+	url.pathname.startsWith('/_next/image') ||
+	url.pathname.startsWith('/recettes/add-recipe') ||
+	url.searchParams.has('_rsc')
+  ) {
 	return;
   }
 

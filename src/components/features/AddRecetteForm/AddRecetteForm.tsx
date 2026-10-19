@@ -18,7 +18,9 @@ import { DEPARTEMENTS } from '@/constants/departements';
 import { useUnits } from '@/hooks/useUnits';
 import type { UnitDef } from '@/lib/utils/units';
 import type { ImportDraft } from '@/types/import.types';
+import { extractTikTokUrl, isValidTikTokUrl } from '@/lib/utils/tiktok-link';
 import TikTokImportReview from '@/components/features/TikTokImportReview/TikTokImportReview';
+import TikTokShareHint from '@/components/features/TikTokShareHint/TikTokShareHint';
 import IngredientListEditor, { type CatalogIngredient, type EditableIngredient } from '@/components/features/IngredientListEditor/IngredientListEditor';
 import StepListEditor from '@/components/features/StepListEditor/StepListEditor';
 import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
@@ -45,10 +47,6 @@ function isValidVideoUrl(url: string) {
 	return /^(https?:\/\/)?(www\.)?(tiktok\.com|vm\.tiktok\.com|instagram\.com|youtu\.be|youtube\.com|facebook\.com)\/.+$/i.test(url);
 }
 
-function isValidTikTokUrl(url: string) {
-	return /^(https?:\/\/)?(www\.)?(tiktok\.com|vm\.tiktok\.com|vt\.tiktok\.com)\/.+$/i.test(url);
-}
-
 /** Durée ou nombre saisi dans un champ numérique : entier positif, ou null si vide. */
 function toPositiveInt(value: string, max: number): number | null {
 	const n = Math.round(Number(value));
@@ -56,17 +54,16 @@ function toPositiveInt(value: string, max: number): number | null {
 }
 
 const AddRecetteForm: React.FC = () => {
-	const { user } = useAuth();
+	const { user, loading: authLoading } = useAuth();
 	const router = useRouter();
 	const { units: allUnits, reload: reloadUnits } = useUnits();
 
 	// ---- Mode de saisie ----
 	const [mode, setMode] = useState<'manual' | 'tiktok'>('manual');
-
-	// /recettes/add-recipe?mode=tiktok ouvre directement l'import (lien de la page /import-tiktok)
-	useEffect(() => {
-		if (new URLSearchParams(window.location.search).get('mode') === 'tiktok') setMode('tiktok');
-	}, []);
+	// Lien reçu par le partage Android (share_target du manifest), analysé dès que l'utilisateur est connu
+	const pendingSharedUrl = useRef<string | null>(null);
+	const [loginHref, setLoginHref] = useState('/login');
+	const [canPaste, setCanPaste] = useState(false);
 
 	// ---- La recette ----
 	const [title, setTitle] = useState('');
@@ -97,6 +94,39 @@ const AddRecetteForm: React.FC = () => {
 	const [tiktokImporting, setTiktokImporting] = useState(false);
 	const [tiktokDraft, setTiktokDraft] = useState<ImportDraft | null>(null);
 	const [tiktokSaving, setTiktokSaving] = useState(false);
+
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		// Partage depuis l'app TikTok : le lien arrive dans `url` ou, le plus souvent, au milieu de `text`
+		const shared = ['url', 'text', 'title'].map((key) => params.get(key) || '').join(' ');
+		const sharedUrl = extractTikTokUrl(shared);
+		setCanPaste(typeof navigator.clipboard?.readText === 'function');
+
+		if (sharedUrl) {
+			setMode('tiktok');
+			setTiktokImportUrl(sharedUrl);
+			pendingSharedUrl.current = sharedUrl;
+			// Adresse réduite au lien : c'est elle qui sert de retour après connexion
+			window.history.replaceState(null, '', `/recettes/add-recipe?mode=tiktok&url=${encodeURIComponent(sharedUrl)}`);
+		} else if (shared.trim()) {
+			setMode('tiktok');
+			toast.error('Ce partage ne contient pas de lien de vidéo TikTok.');
+		} else if (params.get('mode') === 'tiktok' || window.matchMedia('(max-width: 768px)').matches) {
+			// ?mode=tiktok (lien de la page /import-tiktok), et sur téléphone l'import est proposé d'abord
+			setMode('tiktok');
+		}
+		setLoginHref(`/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+	}, []);
+
+	useEffect(() => {
+		const sharedUrl = pendingSharedUrl.current;
+		if (!sharedUrl || authLoading || !user) return;
+		pendingSharedUrl.current = null;
+		// Un rechargement de la page ne relance pas l'analyse (payante)
+		window.history.replaceState(null, '', '/recettes/add-recipe?mode=tiktok');
+		void analyzeTikTokUrl(sharedUrl);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- analyse lancée une seule fois, dès que l'utilisateur est connu
+	}, [user, authLoading]);
 
 	useEffect(() => {
 		// Ingrédients déjà connus du site, proposés pendant la saisie
@@ -263,17 +293,19 @@ const AddRecetteForm: React.FC = () => {
 	};
 
 	// ---- Import TikTok : analyse de la vidéo, puis relecture (TikTokImportReview) ----
-	const handleImportTikTokByUrl = async () => {
+	const analyzeTikTokUrl = async (rawUrl: string) => {
 		if (!user) {
 			toast.error('Connectez-vous pour importer une vidéo TikTok.');
 			return;
 		}
 
-		const trimmedUrl = tiktokImportUrl.trim();
+		// Texte collé autour du lien (« Regarde cette vidéo ! https://… ») : on ne garde que le lien
+		const trimmedUrl = extractTikTokUrl(rawUrl) ?? rawUrl.trim();
 		if (!trimmedUrl || !isValidTikTokUrl(trimmedUrl)) {
 			toast.error('Saisissez un lien TikTok valide.');
 			return;
 		}
+		setTiktokImportUrl(trimmedUrl);
 
 		try {
 			setTiktokImporting(true);
@@ -295,6 +327,23 @@ const AddRecetteForm: React.FC = () => {
 		} finally {
 			setTiktokImporting(false);
 		}
+	};
+
+	// Dans TikTok : Partager, puis Copier le lien ; ici un seul geste colle et lance l'analyse
+	const handlePasteTikTokUrl = async () => {
+		let text = '';
+		try {
+			text = await navigator.clipboard.readText();
+		} catch {
+			toast.error('Accès au presse-papiers refusé : collez le lien dans le champ.');
+			return;
+		}
+		const url = extractTikTokUrl(text);
+		if (!url) {
+			toast.error('Aucun lien TikTok copié. Dans TikTok : Partager, puis Copier le lien.');
+			return;
+		}
+		await analyzeTikTokUrl(url);
 	};
 
 	const handleSaveTikTokDraft = async (draft: ImportDraft, publish: boolean) => {
@@ -346,7 +395,7 @@ const AddRecetteForm: React.FC = () => {
 			{!user && (
 				<p className="add-recipe-login" role="status">
 					<span className="pi pi-info-circle" aria-hidden="true"></span>
-					<span><Link href="/login">Connectez-vous</Link> pour envoyer votre recette.</span>
+					<span><Link href={loginHref}>Connectez-vous</Link> pour envoyer votre recette.</span>
 				</p>
 			)}
 
@@ -379,12 +428,27 @@ const AddRecetteForm: React.FC = () => {
 					<p className="recipe-card-help">
 						Collez le lien d&apos;une vidéo : la recette est extraite de sa légende, vous la vérifiez, puis elle rejoint votre carnet privé.
 					</p>
+					{canPaste && (
+						<Button
+							type="button"
+							className="tiktok-paste-button"
+							label={tiktokImporting ? 'Analyse de la vidéo…' : 'Coller le lien et analyser'}
+							icon="pi pi-clipboard"
+							loading={tiktokImporting}
+							onClick={handlePasteTikTokUrl}
+							disabled={tiktokImporting}
+						/>
+					)}
 					<div className="tiktok-import-controls">
 						<input
 							type="url"
+							inputMode="url"
 							className="recipe-input"
 							value={tiktokImportUrl}
 							onChange={(e) => setTiktokImportUrl(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') void analyzeTikTokUrl(tiktokImportUrl);
+							}}
 							placeholder="https://www.tiktok.com/@compte/video/…"
 							aria-label="Lien de la vidéo TikTok"
 							disabled={tiktokImporting}
@@ -394,25 +458,30 @@ const AddRecetteForm: React.FC = () => {
 							label={tiktokImporting ? 'Analyse…' : 'Analyser la vidéo'}
 							icon="pi pi-search"
 							loading={tiktokImporting}
-							onClick={handleImportTikTokByUrl}
+							onClick={() => analyzeTikTokUrl(tiktokImportUrl)}
 							disabled={tiktokImporting}
+							outlined={canPaste}
 						/>
 					</div>
-					<label className="recipe-field">
-						<span>Texte de la recette (facultatif)</span>
-						<textarea
-							className="recipe-input"
-							value={tiktokImportContext}
-							onChange={(e) => setTiktokImportContext(e.target.value)}
-							placeholder={"Ingrédients :\n- 2 œufs\n- 150 g de farine\nPréparation :\n1. Mélanger…"}
-							rows={4}
-							disabled={tiktokImporting}
-							maxLength={3000}
-						/>
-						<small>
-							À remplir si la recette n&apos;est pas écrite dans la légende de la vidéo (recette dictée, ou en commentaire).
-						</small>
-					</label>
+					<details className="tiktok-import-context" open={Boolean(tiktokImportContext)}>
+						<summary>La recette n&apos;est pas écrite dans la légende ?</summary>
+						<label className="recipe-field">
+							<span>Texte de la recette (facultatif)</span>
+							<textarea
+								className="recipe-input"
+								value={tiktokImportContext}
+								onChange={(e) => setTiktokImportContext(e.target.value)}
+								placeholder={"Ingrédients :\n- 2 œufs\n- 150 g de farine\nPréparation :\n1. Mélanger…"}
+								rows={4}
+								disabled={tiktokImporting}
+								maxLength={3000}
+							/>
+							<small>
+								Recette dictée dans la vidéo, ou écrite en commentaire : collez-la ici avant l&apos;analyse.
+							</small>
+						</label>
+					</details>
+					<TikTokShareHint />
 				</section>
 			)}
 

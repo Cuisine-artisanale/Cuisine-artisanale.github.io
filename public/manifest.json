@@ -32,7 +32,28 @@
   "lang": "fr-FR",
   "dir": "ltr",
   "prefer_related_applications": false,
+  "share_target": {
+	"action": "/recettes/add-recipe",
+	"method": "GET",
+	"params": {
+	  "title": "title",
+	  "text": "text",
+	  "url": "url"
+	}
+  },
   "shortcuts": [
+	{
+	  "name": "Importer une vidéo TikTok",
+	  "short_name": "Import TikTok",
+	  "description": "Transformer une vidéo TikTok en recette",
+	  "url": "/recettes/add-recipe?mode=tiktok",
+	  "icons": [
+		{
+		  "src": "/icon.png",
+		  "sizes": "192x192"
+		}
+	  ]
+	},
 	{
 	  "name": "Recettes",
 	  "short_name": "Recettes",

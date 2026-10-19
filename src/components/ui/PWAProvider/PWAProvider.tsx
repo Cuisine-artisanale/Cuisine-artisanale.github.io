@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { registerServiceWorker } from '@/lib/utils/service-worker';
+import { setInstallPrompt, type InstallPromptEvent } from '@/lib/utils/install-prompt';
 
 /**
  * PWA PROVIDER
@@ -16,27 +17,20 @@ export default function PWAProvider() {
 	  registerServiceWorker();
 	}
 
-	// Gérer l'événement "beforeinstallprompt" (bouton d'installation)
-	let deferredPrompt: any;
-
+	// Invite d'installation gardée pour le bouton « Installer » de l'import TikTok
+	// (l'app installée apparaît dans le menu Partager de TikTok sur Android)
 	const handleBeforeInstallPrompt = (e: Event) => {
-	  // Empêcher l'affichage automatique
 	  e.preventDefault();
-	  deferredPrompt = e;
-
-	  // Optionnel: Afficher un bouton d'installation personnalisé
-	  // Pour l'instant, on laisse le navigateur gérer
+	  setInstallPrompt(e as InstallPromptEvent);
 	};
+	const handleAppInstalled = () => setInstallPrompt(null);
 
 	window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-	// Détecter quand l'app est installée
-	window.addEventListener('appinstalled', () => {
-	  deferredPrompt = null;
-	});
+	window.addEventListener('appinstalled', handleAppInstalled);
 
 	return () => {
 	  window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+	  window.removeEventListener('appinstalled', handleAppInstalled);
 	};
   }, []);
 
