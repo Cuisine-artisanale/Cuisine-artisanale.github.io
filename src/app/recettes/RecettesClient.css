@@ -131,12 +131,13 @@
   .Recettes {
     padding: 1rem;
     flex-direction: column;
+    gap: 1rem;
   }
 
   .filter_section {
     width: 100%;
     position: relative;
-    margin-bottom: 2rem;
+    margin-bottom: 0;
   }
 
   .recettes_section {
@@ -151,12 +152,6 @@
   .Recettes {
     padding: 0.75rem;
     flex-direction: column;
-  }
-
-  .filter_section {
-    width: 100%;
-    position: relative;
-    margin-bottom: 2rem;
   }
 
   .recettes_section {

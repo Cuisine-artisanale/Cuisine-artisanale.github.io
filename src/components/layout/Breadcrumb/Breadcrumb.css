@@ -103,9 +103,15 @@
    ============================================ */
 
 @media (max-width: 640px) {
-  .breadcrumb-component {
-    padding: 10px 12px;
-    margin-bottom: 15px;
+  .breadcrumb-component,
+  .breadcrumb-component.p-breadcrumb {
+    padding: 2px 12px;
+    margin-bottom: 4px;
+  }
+
+  .breadcrumb-component .p-breadcrumb-home a {
+    min-width: 36px;
+    min-height: 36px;
   }
 
   .breadcrumb-component .p-breadcrumb-list {

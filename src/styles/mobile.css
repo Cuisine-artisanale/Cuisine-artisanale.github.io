@@ -18,16 +18,15 @@
    TOUCH TARGETS GLOBAUX
    ================================================ */
 
-/* Tous les boutons doivent avoir minimum 44px × 44px */
+/* Boutons : 44 px minimum par défaut. Sélecteurs d'élément, sans !important :
+   un composant qui fixe sa propre taille (navbar, pastilles…) garde la main.
+   Les liens ne sont pas forcés : un lien dans une phrase doit rester dans la phrase. */
 @media (max-width: 768px) {
   button,
-  .p-button,
-  a.button,
   input[type="button"],
   input[type="submit"] {
-	min-height: 44px !important;
-	min-width: 44px !important;
-	padding: 0.75rem 1rem !important;
+	min-height: 44px;
+	min-width: 44px;
   }
 
   /* Touch feedback - États actifs */
@@ -37,27 +36,6 @@
 	transform: scale(0.98) !important;
 	opacity: 0.9 !important;
 	transition: transform 0.1s ease, opacity 0.1s ease !important;
-  }
-
-  /* Links et zones cliquables */
-  a,
-  [role="button"],
-  [onclick] {
-	min-height: 44px;
-	display: inline-flex;
-	align-items: center;
-	padding: 0.5rem;
-  }
-
-  /* Icônes cliquables */
-  button > i,
-  a > i {
-	padding: 0.5rem;
-	min-width: 44px;
-	min-height: 44px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
   }
 }
 
@@ -138,9 +116,8 @@
 	margin: 0.5rem;
   }
 
-  /* Labels cliquables */
+  /* Labels cliquables (sans padding imposé : il décalait tous les formulaires) */
   label {
-	padding: 0.5rem;
 	cursor: pointer;
 	user-select: none;
 	-webkit-user-select: none;
@@ -293,23 +270,6 @@
 }
 
 /* ================================================
-   PERFORMANCE - GPU Acceleration
-   ================================================ */
-
-@media (max-width: 768px) {
-  /* Accélération GPU pour animations fluides */
-  .recipe-card,
-  .Post,
-  button,
-  .p-button,
-  .p-dialog {
-	will-change: transform;
-	transform: translateZ(0);
-	-webkit-transform: translateZ(0);
-  }
-}
-
-/* ================================================
    ACCESSIBILITY - Focus Visible
    ================================================ */
 
@@ -360,21 +320,5 @@
   /* Éviter le pull-to-refresh du navigateur */
   body {
 	overscroll-behavior-y: contain;
-  }
-}
-
-/* ================================================
-   LIENS AU FIL DU TEXTE
-   ================================================ */
-
-@media (max-width: 768px) {
-  /* La règle « zones cliquables » ci-dessus transforme chaque lien en bloc de 44 px :
-     dans un paragraphe ou une page de texte, le lien doit rester dans la phrase. */
-  p a,
-  .LegalMentions-container li a,
-  .PolitiquesConfidentiel-container li a {
-	display: inline;
-	min-height: 0;
-	padding: 0;
   }
 }

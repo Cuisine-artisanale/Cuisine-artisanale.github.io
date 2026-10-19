@@ -159,12 +159,13 @@
   .Recettes {
 	padding: 1rem;
 	flex-direction: column;
+	gap: 1rem;
   }
 
   .filter_section {
 	width: 100%;
 	position: relative;
-	margin-bottom: 2rem;
+	margin-bottom: 0;
   }
 
   .recettes_section {
@@ -176,6 +177,7 @@
 
   .Filtre {
 	padding: 1rem;
+	margin: 0;
   }
 
   /* Bottom sheet style pour mobile */
@@ -234,12 +236,6 @@
 	flex-direction: column;
   }
 
-  .filter_section {
-	width: 100%;
-	position: relative;
-	margin-bottom: 2rem;
-  }
-
   .recettes_section {
 	grid-template-columns: 1fr;
 	padding: 0.75rem;
@@ -256,10 +252,6 @@
 @media screen and (max-width: 768px) {
   .Filtre > h2 {
 	display: none;
-  }
-
-  .filter_section {
-	margin-bottom: 1rem;
   }
 
   .filtre-toggle {
@@ -290,5 +282,10 @@
   .Filtre:not(.is-open) .filtre_input > div:not(:first-child),
   .Filtre:not(.is-open) .filtre_buttons {
 	display: none;
+  }
+
+  /* Filtres repliés : pas de marge réservée aux boutons masqués */
+  .Filtre:not(.is-open) .filtre_input {
+	margin-bottom: 0;
   }
 }
