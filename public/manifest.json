@@ -1,7 +1,8 @@
 {
+  "id": "/",
   "name": "Cuisine Artisanale",
   "short_name": "Cuisine Artisanale",
-  "description": "Recettes, actualités et cartes pour la cuisine artisanale",
+  "description": "Recettes traditionnelles faites maison, carnet de recettes et import de vidéos TikTok",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,22 +11,22 @@
   "theme_color": "#8B4513",
   "icons": [
 	{
-	  "src": "/icon.png",
+	  "src": "/pwa/icon-192.png",
 	  "sizes": "192x192",
 	  "type": "image/png",
-	  "purpose": "any maskable"
+	  "purpose": "any"
 	},
 	{
-	  "src": "/icon.png",
+	  "src": "/pwa/icon-512.png",
 	  "sizes": "512x512",
 	  "type": "image/png",
-	  "purpose": "any maskable"
+	  "purpose": "any"
 	},
 	{
-	  "src": "/icon.png",
-	  "sizes": "180x180",
+	  "src": "/pwa/icon-maskable-512.png",
+	  "sizes": "512x512",
 	  "type": "image/png",
-	  "purpose": "any"
+	  "purpose": "maskable"
 	}
   ],
   "categories": ["food", "lifestyle"],
@@ -35,6 +36,7 @@
   "share_target": {
 	"action": "/recettes/add-recipe",
 	"method": "GET",
+	"enctype": "application/x-www-form-urlencoded",
 	"params": {
 	  "title": "title",
 	  "text": "text",
@@ -47,63 +49,65 @@
 	  "short_name": "Import TikTok",
 	  "description": "Transformer une vidéo TikTok en recette",
 	  "url": "/recettes/add-recipe?mode=tiktok",
-	  "icons": [
-		{
-		  "src": "/icon.png",
-		  "sizes": "192x192"
-		}
-	  ]
+	  "icons": [{ "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" }]
 	},
 	{
 	  "name": "Recettes",
 	  "short_name": "Recettes",
 	  "description": "Voir toutes les recettes",
 	  "url": "/recettes",
-	  "icons": [
-		{
-		  "src": "/icon.png",
-		  "sizes": "192x192"
-		}
-	  ]
+	  "icons": [{ "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" }]
 	},
 	{
 	  "name": "Carte",
 	  "short_name": "Carte",
 	  "description": "Carte des recettes par département",
 	  "url": "/map",
-	  "icons": [
-		{
-		  "src": "/icon.png",
-		  "sizes": "192x192"
-		}
-	  ]
+	  "icons": [{ "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" }]
 	},
 	{
 	  "name": "Mon Compte",
 	  "short_name": "Compte",
 	  "description": "Accéder à mon compte",
 	  "url": "/account",
-	  "icons": [
-		{
-		  "src": "/icon.png",
-		  "sizes": "192x192"
-		}
-	  ]
+	  "icons": [{ "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" }]
 	}
   ],
   "screenshots": [
 	{
-	  "src": "/screenshot-wide.png",
-	  "sizes": "1280x720",
-	  "type": "image/png",
-	  "form_factor": "wide"
+	  "src": "/pwa/screenshot-mobile-home.webp",
+	  "sizes": "824x1830",
+	  "type": "image/webp",
+	  "form_factor": "narrow",
+	  "label": "Les recettes traditionnelles, faites maison"
 	},
 	{
-	  "src": "/screenshot-mobile.png",
-	  "sizes": "750x1334",
-	  "type": "image/png",
-	  "form_factor": "narrow"
+	  "src": "/pwa/screenshot-mobile-import.webp",
+	  "sizes": "824x1830",
+	  "type": "image/webp",
+	  "form_factor": "narrow",
+	  "label": "Une vidéo TikTok devient une recette au propre"
+	},
+	{
+	  "src": "/pwa/screenshot-mobile-recettes.webp",
+	  "sizes": "824x1830",
+	  "type": "image/webp",
+	  "form_factor": "narrow",
+	  "label": "Toutes les recettes, filtrées par type et département"
+	},
+	{
+	  "src": "/pwa/screenshot-wide-home.webp",
+	  "sizes": "1280x800",
+	  "type": "image/webp",
+	  "form_factor": "wide",
+	  "label": "Les recettes traditionnelles, faites maison"
+	},
+	{
+	  "src": "/pwa/screenshot-wide-recettes.webp",
+	  "sizes": "1280x800",
+	  "type": "image/webp",
+	  "form_factor": "wide",
+	  "label": "Toutes les recettes, filtrées par type et département"
 	}
   ]
 }
-
