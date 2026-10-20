@@ -35,7 +35,6 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-width: 0;
   max-width: 100%;
 }
 
@@ -193,10 +192,8 @@
     padding-bottom: 0.5rem;
   }
 
-  /* 2 colonnes qui rétrécissent avec l'écran : un minimum fixe (140 px) élargissait
-     toute la page compte au-delà de l'écran */
   .personalized-recipes-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
     gap: 0.75rem;
   }
 
