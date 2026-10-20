@@ -101,7 +101,7 @@ const UserStats: React.FC<UserStatsProps> = ({ userId, isPublicProfile = false }
 		  <i className="pi pi-book stat-icon"></i>
 		  <div className="stat-info">
 			{loading ? (
-			  <Skeleton height="2rem" width="100px" />
+			  <Skeleton height="2rem" width="4rem" />
 			) : (
 			  <>
 				<h3>{stats?.recipesCount || 0}</h3>
@@ -117,7 +117,7 @@ const UserStats: React.FC<UserStatsProps> = ({ userId, isPublicProfile = false }
 		  <i className="pi pi-heart stat-icon"></i>
 		  <div className="stat-info">
 			{loading ? (
-			  <Skeleton height="2rem" width="100px" />
+			  <Skeleton height="2rem" width="4rem" />
 			) : (
 			  <>
 				<h3>{stats?.totalLikes || 0}</h3>
@@ -133,7 +133,7 @@ const UserStats: React.FC<UserStatsProps> = ({ userId, isPublicProfile = false }
 		  <i className="pi pi-star stat-icon"></i>
 		  <div className="stat-info">
 			{loading ? (
-			  <Skeleton height="2rem" width="100px" />
+			  <Skeleton height="2rem" width="4rem" />
 			) : (
 			  <>
 				<h3>{stats?.averageRating?.toFixed(1) || 'N/A'}/5</h3>
@@ -149,7 +149,7 @@ const UserStats: React.FC<UserStatsProps> = ({ userId, isPublicProfile = false }
 		  <i className="pi pi-comments stat-icon"></i>
 		  <div className="stat-info">
 			{loading ? (
-			  <Skeleton height="2rem" width="100px" />
+			  <Skeleton height="2rem" width="4rem" />
 			) : (
 			  <>
 				<h3>{stats?.totalReviews || 0}</h3>
@@ -166,7 +166,7 @@ const UserStats: React.FC<UserStatsProps> = ({ userId, isPublicProfile = false }
 			<i className="pi pi-bookmark stat-icon"></i>
 			<div className="stat-info">
 			  {loading ? (
-				<Skeleton height="2rem" width="100px" />
+				<Skeleton height="2rem" width="4rem" />
 			  ) : (
 				<>
 				  <h3>{stats?.favoriteRecipesCount || 0}</h3>
@@ -183,7 +183,7 @@ const UserStats: React.FC<UserStatsProps> = ({ userId, isPublicProfile = false }
 		  <i className="pi pi-comment stat-icon"></i>
 		  <div className="stat-info">
 			{loading ? (
-			  <Skeleton height="2rem" width="100px" />
+			  <Skeleton height="2rem" width="4rem" />
 			) : (
 			  <>
 				<h3>{stats?.postsCount || 0}</h3>

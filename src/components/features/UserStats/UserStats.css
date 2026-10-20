@@ -7,6 +7,8 @@
 }
 
 .stat-card {
+  /* Sans min-width: 0, le contenu (squelette de chargement) élargit la colonne et la grille déborde */
+  min-width: 0;
   display: flex;
   align-items: center;
   padding: 20px !important;
@@ -36,6 +38,15 @@
   flex-shrink: 0;
 }
 
+.stat-info {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stat-info .p-skeleton {
+  max-width: 100%;
+}
+
 .stat-info h3 {
   margin: 0;
   font-size: 28px;
@@ -51,42 +62,56 @@
   white-space: nowrap;
 }
 
-/* Responsive */
+/* Téléphone : une ligne par chiffre (icône et libellé à gauche, valeur à droite) */
 @media (max-width: 768px) {
   .user-stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    margin-bottom: 0;
   }
 
   .stat-card {
-    padding: 15px !important;
+    padding: 0.75rem 1rem !important;
+  }
+
+  .stat-card .p-card-body {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .stat-card .p-card-content {
+    padding: 0;
   }
 
   .stat-content {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
+    gap: 0.75rem;
   }
 
   .stat-icon {
-    font-size: 24px;
+    width: 1.5rem;
+    font-size: 1.15rem;
+    text-align: center;
   }
 
+  /* Ordre du DOM : chiffre puis libellé ; affichés libellé à gauche, chiffre à droite */
   .stat-info {
+    flex: 1;
     display: flex;
-    flex-direction: column;
+    flex-direction: row-reverse;
     align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
   }
 
   .stat-info h3 {
-    font-size: 20px;
+    font-size: 1.15rem;
   }
 
   .stat-info p {
-    margin: 4px 0 0 0;
-    font-size: 12px;
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-color);
     white-space: normal;
-    word-wrap: break-word;
   }
 }
