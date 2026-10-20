@@ -1,17 +1,17 @@
 {
-  "version": "0.0.1",
-  "configurations": [
-    {
-      "name": "next-dev",
-      "runtimeExecutable": "npm.cmd",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
-    },
-    {
-      "name": "next-prod",
-      "runtimeExecutable": "npx.cmd",
-      "runtimeArgs": ["next", "start", "-p", "3001"],
-      "port": 3001
-    }
-  ]
+	"version": "0.0.1",
+	"configurations": [
+		{
+			"name": "next-dev",
+			"runtimeExecutable": "npm.cmd",
+			"runtimeArgs": ["run", "dev"],
+			"port": 3000
+		},
+		{
+			"name": "next-prod",
+			"runtimeExecutable": "npx.cmd",
+			"runtimeArgs": ["next", "start", "-p", "3001"],
+			"port": 3001
+		}
+	]
 }

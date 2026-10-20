@@ -12,182 +12,182 @@ import { useToast } from '@/contexts/ToastContext/ToastContext';
 import type { Recipe } from '@/types';
 
 interface RecetteToDoInterface {
-  recetteId: string;
-  stats?: RecipeStats;
-  title: string;
-  type: string;
-  images?: string[];
-  position: string;
-  url?: string;
-  addedAt?: Date;
+	recetteId: string;
+	stats?: RecipeStats;
+	title: string;
+	type: string;
+	images?: string[];
+	position: string;
+	url?: string;
+	addedAt?: Date;
 }
 
 export default function AFairePage() {
-  const [recettes, setRecettes] = useState<RecetteToDoInterface[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
-  const { showToast } = useToast();
+	const [recettes, setRecettes] = useState<RecetteToDoInterface[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+	const { user } = useAuth();
+	const { showToast } = useToast();
 
-  useEffect(() => {
-    if (user) {
-      fetchRecettesToDo();
-    }
-  }, [user]);
+	useEffect(() => {
+		if (user) {
+			fetchRecettesToDo();
+		}
+	}, [user]);
 
-  const fetchRecettesToDo = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+	const fetchRecettesToDo = async () => {
+		try {
+			setLoading(true);
+			setError(null);
 
-      if (!user) {
-        setError("Utilisateur non connecté");
-        return;
-      }
+			if (!user) {
+				setError("Utilisateur non connecté");
+				return;
+			}
 
-      // Récupérer les IDs des recettes "à faire"
-      const recipesToDo = await getUserRecipesToDo(user.uid);
+			// Récupérer les IDs des recettes "à faire"
+			const recipesToDo = await getUserRecipesToDo(user.uid);
 
-      if (recipesToDo.length === 0) {
-        setRecettes([]);
-        setLoading(false);
-        return;
-      }
+			if (recipesToDo.length === 0) {
+				setRecettes([]);
+				setLoading(false);
+				return;
+			}
 
-      // Récupérer les détails de chaque recette
-      const recettesPromises = recipesToDo.map(async (item) => {
-        try {
-          const recipeRef = doc(db, "recipes", item.recipeId);
-          const recipeSnap = await getDoc(recipeRef);
+			// Récupérer les détails de chaque recette
+			const recettesPromises = recipesToDo.map(async (item) => {
+				try {
+					const recipeRef = doc(db, "recipes", item.recipeId);
+					const recipeSnap = await getDoc(recipeRef);
 
-          if (recipeSnap.exists()) {
-            const recipeData = recipeSnap.data() as Recipe;
-            return {
-              recetteId: item.recipeId,
-              title: recipeData.title,
-              type: recipeData.type,
-              images: recipeData.images,
-              stats: getRecipeStats(recipeData as unknown as Record<string, unknown>),
-              position: recipeData.position,
-              url: recipeData.url,
-              addedAt: item.addedAt?.toDate ? item.addedAt.toDate() : item.addedAt
-            } as RecetteToDoInterface;
-          }
-          return null;
-        } catch (error) {
-          console.error(`Error fetching recipe ${item.recipeId}:`, error);
-          return null;
-        }
-      });
+					if (recipeSnap.exists()) {
+						const recipeData = recipeSnap.data() as Recipe;
+						return {
+							recetteId: item.recipeId,
+							title: recipeData.title,
+							type: recipeData.type,
+							images: recipeData.images,
+							stats: getRecipeStats(recipeData as unknown as Record<string, unknown>),
+							position: recipeData.position,
+							url: recipeData.url,
+							addedAt: item.addedAt?.toDate ? item.addedAt.toDate() : item.addedAt
+						} as RecetteToDoInterface;
+					}
+					return null;
+				} catch (error) {
+					console.error(`Error fetching recipe ${item.recipeId}:`, error);
+					return null;
+				}
+			});
 
-      const recettesData = await Promise.all(recettesPromises);
-      const validRecettes = recettesData.filter((r): r is RecetteToDoInterface => r !== null);
+			const recettesData = await Promise.all(recettesPromises);
+			const validRecettes = recettesData.filter((r): r is RecetteToDoInterface => r !== null);
 
-      // Trier par date d'ajout (plus récent en premier)
-      validRecettes.sort((a, b) => {
-        if (!a.addedAt || !b.addedAt) return 0;
-        return b.addedAt.getTime() - a.addedAt.getTime();
-      });
+			// Trier par date d'ajout (plus récent en premier)
+			validRecettes.sort((a, b) => {
+				if (!a.addedAt || !b.addedAt) return 0;
+				return b.addedAt.getTime() - a.addedAt.getTime();
+			});
 
-      setRecettes(validRecettes);
-    } catch (error) {
-      console.error("Error fetching recipes to do:", error);
-      setError("Erreur lors du chargement des recettes à faire");
-      showToast({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Impossible de charger vos recettes à faire'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+			setRecettes(validRecettes);
+		} catch (error) {
+			console.error("Error fetching recipes to do:", error);
+			setError("Erreur lors du chargement des recettes à faire");
+			showToast({
+				severity: 'error',
+				summary: 'Erreur',
+				detail: 'Impossible de charger vos recettes à faire'
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  const handleRemoveFromToDo = async (recipeId: string) => {
-    if (!user) return;
+	const handleRemoveFromToDo = async (recipeId: string) => {
+		if (!user) return;
 
-    try {
-      await removeRecipeToDo(user.uid, recipeId);
-      // Retirer de la liste locale
-      setRecettes(recettes.filter(r => r.recetteId !== recipeId));
-      showToast({
-        severity: 'success',
-        summary: 'Retiré',
-        detail: 'Recette retirée de "à faire"'
-      });
-    } catch (error) {
-      console.error("Error removing recipe from to do:", error);
-      showToast({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Impossible de retirer la recette'
-      });
-    }
-  };
+		try {
+			await removeRecipeToDo(user.uid, recipeId);
+			// Retirer de la liste locale
+			setRecettes(recettes.filter(r => r.recetteId !== recipeId));
+			showToast({
+				severity: 'success',
+				summary: 'Retiré',
+				detail: 'Recette retirée de "à faire"'
+			});
+		} catch (error) {
+			console.error("Error removing recipe from to do:", error);
+			showToast({
+				severity: 'error',
+				summary: 'Erreur',
+				detail: 'Impossible de retirer la recette'
+			});
+		}
+	};
 
-  if (loading) {
-    return (
-      <RequireEmailVerification>
-        <div className="recipes-loading">
-          <div className="spinner"></div>
-          <p>Chargement de vos recettes à faire...</p>
-        </div>
-      </RequireEmailVerification>
-    );
-  }
+	if (loading) {
+		return (
+			<RequireEmailVerification>
+				<div className="recipes-loading">
+					<div className="spinner"></div>
+					<p>Chargement de vos recettes à faire...</p>
+				</div>
+			</RequireEmailVerification>
+		);
+	}
 
-  return (
-    <RequireEmailVerification>
-      <div className="a-faire-page">
-        <div className="recipes-header">
-          <h2>Mes Recettes à Faire</h2>
-          {recettes.length > 0 && (
-            <p className="recipes-count">{recettes.length} recette{recettes.length > 1 ? 's' : ''}</p>
-          )}
-        </div>
+	return (
+		<RequireEmailVerification>
+			<div className="a-faire-page">
+				<div className="recipes-header">
+					<h2>Mes Recettes à Faire</h2>
+					{recettes.length > 0 && (
+						<p className="recipes-count">{recettes.length} recette{recettes.length > 1 ? 's' : ''}</p>
+					)}
+				</div>
 
-        {error && (
-          <div className="error-message">
-            <i className="pi pi-exclamation-triangle"></i>
-            <span>{error}</span>
-          </div>
-        )}
+				{error && (
+					<div className="error-message">
+						<i className="pi pi-exclamation-triangle"></i>
+						<span>{error}</span>
+					</div>
+				)}
 
-        {!error && recettes.length === 0 ? (
-          <div className="empty-state">
-            <i className="pi pi-bookmark empty-icon"></i>
-            <h3>Vous n'avez pas encore de recettes à faire</h3>
-            <p>Ajoutez des recettes à "à faire" depuis les pages de recettes pour les retrouver ici</p>
-          </div>
-        ) : (
-          <div className="recipes-grid">
-            {recettes.map((recette) => (
-              <div key={recette.recetteId} className="recipe-card-wrapper">
-                <Recette
-                  recetteId={recette.recetteId}
-                  title={recette.title}
-                  type={recette.type}
-                  images={recette.images}
-                  position={recette.position}
-                  url={recette.url}
-                  stats={recette.stats}
-                />
-                {recette.addedAt && (
-                  <div className="recipe-added-date">
-                    <i className="pi pi-calendar"></i>
-                    Ajoutée le {recette.addedAt.toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </RequireEmailVerification>
-  );
+				{!error && recettes.length === 0 ? (
+					<div className="empty-state">
+						<i className="pi pi-bookmark empty-icon"></i>
+						<h3>Vous n'avez pas encore de recettes à faire</h3>
+						<p>Ajoutez des recettes à "à faire" depuis les pages de recettes pour les retrouver ici</p>
+					</div>
+				) : (
+					<div className="recipes-grid">
+						{recettes.map((recette) => (
+							<div key={recette.recetteId} className="recipe-card-wrapper">
+								<Recette
+									recetteId={recette.recetteId}
+									title={recette.title}
+									type={recette.type}
+									images={recette.images}
+									position={recette.position}
+									url={recette.url}
+									stats={recette.stats}
+								/>
+								{recette.addedAt && (
+									<div className="recipe-added-date">
+										<i className="pi pi-calendar"></i>
+										Ajoutée le {recette.addedAt.toLocaleDateString('fr-FR', {
+											day: 'numeric',
+											month: 'long',
+											year: 'numeric'
+										})}
+									</div>
+								)}
+							</div>
+						))}
+					</div>
+				)}
+			</div>
+		</RequireEmailVerification>
+	);
 }
 

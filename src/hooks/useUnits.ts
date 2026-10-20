@@ -7,23 +7,23 @@ import { buildUnitIndex, mergeUnits, type UnitDef } from '@/lib/utils/units';
  * `initialUnits` (fourni par le serveur) évite un affichage différent avant chargement.
  */
 export function useUnits(initialUnits?: UnitDef[]) {
-  const [units, setUnits] = useState<UnitDef[]>(() => initialUnits ?? mergeUnits([]));
+	const [units, setUnits] = useState<UnitDef[]>(() => initialUnits ?? mergeUnits([]));
 
-  useEffect(() => {
-    let cancelled = false;
-    if (!initialUnits) {
-      loadUnits().then((u) => { if (!cancelled) setUnits(u); });
-    }
-    return () => { cancelled = true; };
-  }, [initialUnits]);
+	useEffect(() => {
+		let cancelled = false;
+		if (!initialUnits) {
+			loadUnits().then((u) => { if (!cancelled) setUnits(u); });
+		}
+		return () => { cancelled = true; };
+	}, [initialUnits]);
 
-  const index = useMemo(() => buildUnitIndex(units), [units]);
+	const index = useMemo(() => buildUnitIndex(units), [units]);
 
-  const reload = async () => {
-    const u = await loadUnits(true);
-    setUnits(u);
-    return u;
-  };
+	const reload = async () => {
+		const u = await loadUnits(true);
+		setUnits(u);
+		return u;
+	};
 
-  return { units, index, reload };
+	return { units, index, reload };
 }

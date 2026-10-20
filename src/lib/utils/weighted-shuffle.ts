@@ -8,30 +8,30 @@
 
 /** Générateur pseudo-aléatoire déterministe (mulberry32), valeurs dans ]0, 1[. */
 function seededRandom(seed: number): () => number {
-  let state = seed >>> 0;
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return (((t ^ (t >>> 14)) >>> 0) + 1) / 4294967297;
-  };
+	let state = seed >>> 0;
+	return () => {
+		state = (state + 0x6d2b79f5) >>> 0;
+		let t = state;
+		t = Math.imul(t ^ (t >>> 15), t | 1);
+		t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+		return (((t ^ (t >>> 14)) >>> 0) + 1) / 4294967297;
+	};
 }
 
 export function weightedShuffle<T>(items: T[], weightOf: (item: T) => number, seed: number): T[] {
-  const random = seededRandom(seed);
-  return items
-    .map((item) => {
-      const weight = Math.max(weightOf(item), 1e-6);
-      return { item, key: Math.pow(random(), 1 / weight) };
-    })
-    .sort((a, b) => b.key - a.key)
-    .map(({ item }) => item);
+	const random = seededRandom(seed);
+	return items
+		.map((item) => {
+			const weight = Math.max(weightOf(item), 1e-6);
+			return { item, key: Math.pow(random(), 1 / weight) };
+		})
+		.sort((a, b) => b.key - a.key)
+		.map(({ item }) => item);
 }
 
 /** Nouvelle graine de mélange (entier positif) */
 export function newShuffleSeed(): number {
-  return Math.floor(Math.random() * 2 ** 31);
+	return Math.floor(Math.random() * 2 ** 31);
 }
 
 /**
@@ -42,6 +42,6 @@ export const SHUFFLE_SEED_COOKIE = 'ca_shuffle_seed';
 
 /** Graine lue dans le cookie, ou null si absente ou invalide */
 export function parseShuffleSeed(value: string | undefined): number | null {
-  const n = Number(value);
-  return value && Number.isInteger(n) && n >= 0 && n < 2 ** 31 ? n : null;
+	const n = Number(value);
+	return value && Number.isInteger(n) && n >= 0 && n < 2 ** 31 ? n : null;
 }

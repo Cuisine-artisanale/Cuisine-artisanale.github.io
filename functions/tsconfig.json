@@ -1,5 +1,5 @@
 {
-  "compilerOptions": {
+	"compilerOptions": {
 	"module": "NodeNext",
 	"esModuleInterop": true,
 	"moduleResolution": "nodenext",
@@ -9,9 +9,9 @@
 	"sourceMap": true,
 	"strict": true,
 	"target": "es2017"
-  },
-  "compileOnSave": true,
-  "include": [
+	},
+	"compileOnSave": true,
+	"include": [
 	"src"
-  ]
+	]
 }

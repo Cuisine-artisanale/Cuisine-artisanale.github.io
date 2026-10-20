@@ -5,9 +5,9 @@ import { Button } from 'primereact/button';
 import AddIngredientForm from '@/components/features/AddIngredientForm/AddIngredientForm';
 
 const AddIngredient: React.FC = () => {
-  const [dialogVisible, setDialogVisible] = useState(false);
+	const [dialogVisible, setDialogVisible] = useState(false);
 
-  return (
+	return (
 	<div className="add-ingredient">
 	  <Button
 		label="Ajouter un ingrédient"
@@ -21,7 +21,7 @@ const AddIngredient: React.FC = () => {
 		onHide={() => setDialogVisible(false)}
 	  />
 	</div>
-  );
+	);
 };
 
 export default AddIngredient;

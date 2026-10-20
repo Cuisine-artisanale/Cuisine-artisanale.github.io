@@ -1,183 +1,183 @@
 .AddUnitForm {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #00000080;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #00000080;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
 }
 
 .form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
 }
 
 .form-container h3 {
-  margin: 0;
-  color: var(--text-color);
-  font-weight: 600;
-  font-size: 1.5rem;
+	margin: 0;
+	color: var(--text-color);
+	font-weight: 600;
+	font-size: 1.5rem;
 }
 
 .required-field-note {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 0.875rem;
+	margin: 0;
+	color: var(--text-color-secondary);
+	font-size: 0.875rem;
 }
 
 .form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 }
 
 .form-field label {
-  color: var(--text-color);
-  font-weight: 500;
+	color: var(--text-color);
+	font-weight: 500;
 }
 
 .form-field .required {
-  color: var(--red-500);
-  margin-left: 0.25rem;
+	color: var(--red-500);
+	margin-left: 0.25rem;
 }
 
 .form-field .p-input-icon-right {
-  width: 100%;
+	width: 100%;
 }
 
 .form-field .p-input-icon-right i {
-  right: 0.75rem;
-  margin-top: -0.5rem;
+	right: 0.75rem;
+	margin-top: -0.5rem;
 }
 
 .form-field .p-inputtext {
-  width: 100%;
-  background: var(--surface-card);
-  border: 1px solid var(--surface-border);
-  transition: all 0.2s;
+	width: 100%;
+	background: var(--surface-card);
+	border: 1px solid var(--surface-border);
+	transition: all 0.2s;
 }
 
 .form-field .p-inputtext:hover {
-  border-color: var(--primary-color);
+	border-color: var(--primary-color);
 }
 
 .form-field .p-inputtext:focus {
-  box-shadow: 0 0 0 2px var(--primary-50);
+	box-shadow: 0 0 0 2px var(--primary-50);
 }
 
 .form-field .p-inputtext.p-invalid {
-  border-color: var(--red-500);
+	border-color: var(--red-500);
 }
 
 .form-field .p-error {
-  color: var(--red-500);
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+	color: var(--red-500);
+	font-size: 0.875rem;
+	margin-top: 0.25rem;
 }
 
 .form-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
+	display: flex;
+	gap: 1rem;
+	justify-content: flex-end;
 }
 
 .form-actions .p-button {
-  min-width: 120px;
+	min-width: 120px;
 }
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
 
-  .form-container {
+	.form-container {
 	gap: 1rem;
-  }
+	}
 
-  .form-actions {
+	.form-actions {
 	flex-direction: column;
-  }
+	}
 
-  .form-actions .p-button {
+	.form-actions .p-button {
 	width: 100%;
-  }
+	}
 }
 
 /* Dark Theme Support */
 
 [data-theme="dark"] .form-field .p-inputtext {
-  background: var(--surface-card);
+	background: var(--surface-card);
 }
 
 [data-theme="dark"] .form-field .p-inputtext:hover {
-  border-color: var(--primary-400);
+	border-color: var(--primary-400);
 }
 
 [data-theme="dark"] .form-field .p-inputtext:focus {
-  box-shadow: 0 0 0 2px var(--primary-900);
+	box-shadow: 0 0 0 2px var(--primary-900);
 }
 
 .add-unit-dialog {
-  max-width: 500px;
+	max-width: 500px;
 }
 
 /* Dialog overlay background */
 .p-dialog-mask.p-component-overlay {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(2px);
-  transition: background-color 0.2s;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(2px);
+	transition: background-color 0.2s;
 }
 
 /* Dialog background and shadow */
 .add-unit-dialog .p-dialog-content,
 .add-unit-dialog .p-dialog-header,
 .add-unit-dialog .p-dialog-footer {
-  background: var(--surface-card);
+	background: var(--surface-card);
 }
 
 .add-unit-dialog .p-dialog-header {
-  border-top-left-radius: var(--border-radius);
-  border-top-right-radius: var(--border-radius);
-  padding: 1.5rem;
+	border-top-left-radius: var(--border-radius);
+	border-top-right-radius: var(--border-radius);
+	padding: 1.5rem;
 }
 
 .add-unit-dialog .p-dialog-footer {
-  border-bottom-left-radius: var(--border-radius);
-  border-bottom-right-radius: var(--border-radius);
-  padding: 1.5rem;
+	border-bottom-left-radius: var(--border-radius);
+	border-bottom-right-radius: var(--border-radius);
+	padding: 1.5rem;
 }
 
 .add-unit-dialog .p-dialog-content {
-  padding: 0 1.5rem 1.5rem 1.5rem;
+	padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
-  .add-unit-dialog {
+	.add-unit-dialog {
 	width: 90vw;
-  }
+	}
 
-  .form-actions {
+	.form-actions {
 	flex-direction: column-reverse;
-  }
+	}
 
-  .form-actions .p-button {
+	.form-actions .p-button {
 	width: 100%;
-  }
+	}
 }
 
 /* Dark Theme Support */
 [data-theme="dark"] .form-field .p-inputtext {
-  background: var(--surface-card);
+	background: var(--surface-card);
 }
 
 [data-theme="dark"] .form-field .p-inputtext:hover {
-  border-color: var(--primary-400);
+	border-color: var(--primary-400);
 }
 
 [data-theme="dark"] .form-field .p-inputtext:focus {
-  box-shadow: 0 0 0 2px var(--primary-900);
+	box-shadow: 0 0 0 2px var(--primary-900);
 }

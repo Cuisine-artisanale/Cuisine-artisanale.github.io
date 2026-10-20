@@ -12,17 +12,17 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useScroll } from '@/hooks/useScroll';
 
 const Navbar: React.FC = () => {
-  const { user, logout, role, displayName } = useAuth();
-  const { theme, toggleTheme } = useContext(ThemeContext);
-  const pathname = usePathname();
-  const router = useRouter();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isNavbarVisible, setIsNavbarVisible] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
-  const overlayPanelRef = useRef<OverlayPanel>(null);
+	const { user, logout, role, displayName } = useAuth();
+	const { theme, toggleTheme } = useContext(ThemeContext);
+	const pathname = usePathname();
+	const router = useRouter();
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [isNavbarVisible, setIsNavbarVisible] = useState(true);
+	const [isMounted, setIsMounted] = useState(false);
+	const overlayPanelRef = useRef<OverlayPanel>(null);
 
-  // Utiliser le hook useScroll
-  const { isScrolled, direction } = useScroll({
+	// Utiliser le hook useScroll
+	const { isScrolled, direction } = useScroll({
 	threshold: 20,
 	onScroll: (currentScrollY) => {
 	  const isMobile = window.innerWidth <= 768;
@@ -35,18 +35,18 @@ const Navbar: React.FC = () => {
 		}
 	  }
 	}
-  });
+	});
 
-  useEffect(() => {
+	useEffect(() => {
 	setIsMobileMenuOpen(false);
-  }, [pathname]);
+	}, [pathname]);
 
-  useEffect(() => {
+	useEffect(() => {
 	setIsMounted(true);
-  }, []);
+	}, []);
 
-  // Menu mobile ouvert : la page dessous ne défile plus, Échap le referme
-  useEffect(() => {
+	// Menu mobile ouvert : la page dessous ne défile plus, Échap le referme
+	useEffect(() => {
 	if (!isMobileMenuOpen) return;
 	const root = document.documentElement;
 	const previousOverflow = root.style.overflow;
@@ -66,24 +66,24 @@ const Navbar: React.FC = () => {
 	  window.removeEventListener('keydown', handleKeyDown);
 	  desktop.removeEventListener('change', handleDesktop);
 	};
-  }, [isMobileMenuOpen]);
+	}, [isMobileMenuOpen]);
 
-  const handleProfileClick = () => {
+	const handleProfileClick = () => {
 	overlayPanelRef.current?.hide();
 	router.push('/account');
-  };
+	};
 
-  const handleMyRecipesClick = () => {
+	const handleMyRecipesClick = () => {
 	overlayPanelRef.current?.hide();
 	router.push('/account/mes-recettes');
-  };
+	};
 
-  const handleAdminClick = () => {
+	const handleAdminClick = () => {
 	overlayPanelRef.current?.hide();
 	router.push('/admin-panel');
-  };
+	};
 
-  const handleLogout = async () => {
+	const handleLogout = async () => {
 	try {
 	  overlayPanelRef.current?.hide();
 	  await logout();
@@ -91,9 +91,9 @@ const Navbar: React.FC = () => {
 	} catch (error) {
 	  console.error('Erreur lors de la déconnexion:', error);
 	}
-  };
+	};
 
-  const menuItems = [
+	const menuItems = [
 	{ label: 'Mon Profil', icon: 'pi pi-user', onClick: handleProfileClick },
 	{ label: 'Mes Recettes', icon: 'pi pi-book', onClick: handleMyRecipesClick },
 	...(role === 'admin' ? [
@@ -101,24 +101,24 @@ const Navbar: React.FC = () => {
 	] : []),
 	{ type: 'separator' },
 	{ label: 'Déconnexion', icon: 'pi pi-power-off', onClick: handleLogout }
-  ];
+	];
 
-  const handleLogin = () => {
+	const handleLogin = () => {
 	// Get current path to redirect back after login
 	const currentPath = pathname || '/';
 	const redirectUrl = encodeURIComponent(currentPath);
 	router.push(`/login?redirect=${redirectUrl}`);
-  };
+	};
 
-  const handleMobileMenuToggle = () => {
+	const handleMobileMenuToggle = () => {
 	setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+	};
 
-  const handleMobileMenuClose = () => {
+	const handleMobileMenuClose = () => {
 	setIsMobileMenuOpen(false);
-  };
+	};
 
-  return (
+	return (
 	<>
 	  <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''} ${!isNavbarVisible ? 'navbar-hidden' : ''}`}>
 		<div className="navbar-container">
@@ -249,7 +249,7 @@ const Navbar: React.FC = () => {
 		</div>
 	  </div>
 	</>
-  );
+	);
 };
 
 export default Navbar;

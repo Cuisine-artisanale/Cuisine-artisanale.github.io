@@ -10,31 +10,31 @@ import { toastMessages } from '@/lib/utils/toast';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 
 interface PostProps {
-  postId: string;
-  title: string;
-  content: string;
-  createdAt: string;
-  userName: string;
-  fromRequest?: boolean;
-  visible?: boolean;
-  /** ids des utilisateurs ayant liké (chargés avec le post, sans écoute temps réel) */
-  likes?: string[];
-  /** Appelé après suppression, pour retirer le post de la liste */
-  onDeleted?: (postId: string) => void;
+	postId: string;
+	title: string;
+	content: string;
+	createdAt: string;
+	userName: string;
+	fromRequest?: boolean;
+	visible?: boolean;
+	/** ids des utilisateurs ayant liké (chargés avec le post, sans écoute temps réel) */
+	likes?: string[];
+	/** Appelé après suppression, pour retirer le post de la liste */
+	onDeleted?: (postId: string) => void;
 }
 
 const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequest = false, visible = true, userName, likes: initialLikes = [], onDeleted }) => {
-  const { user, role } = useAuth();
-  const [likes, setLikes] = useState<string[]>(initialLikes);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState(visible);
-  const userId = user?.uid;
-  const { showToast } = useToast();
-  const { confirm, visible: dialogVisible, dialogState, handleAccept, handleReject } = useConfirmDialog();
+	const { user, role } = useAuth();
+	const [likes, setLikes] = useState<string[]>(initialLikes);
+	const [isLoading, setIsLoading] = useState(false);
+	const [isVisible, setIsVisible] = useState(visible);
+	const userId = user?.uid;
+	const { showToast } = useToast();
+	const { confirm, visible: dialogVisible, dialogState, handleAccept, handleReject } = useConfirmDialog();
 
-  const hasLiked = userId ? likes.includes(userId) : false;
+	const hasLiked = userId ? likes.includes(userId) : false;
 
-  const handleLike = async () => {
+	const handleLike = async () => {
 	if (!userId) {
 	  showToast({
 		severity: 'warn',
@@ -63,9 +63,9 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 	  });
 	}
 	setIsLoading(false);
-  };
+	};
 
-  const handleVisibilityToggle = async () => {
+	const handleVisibilityToggle = async () => {
 	setIsLoading(true);
 	try {
 	  const { db, doc, updateDoc } = await loadFirestore();
@@ -87,9 +87,9 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 	  });
 	}
 	setIsLoading(false);
-  };
+	};
 
-  const confirmDelete = () => {
+	const confirmDelete = () => {
 	confirm({
 	  message: 'Êtes-vous sûr de vouloir supprimer ce post ?',
 	  header: 'Confirmation de suppression',
@@ -98,9 +98,9 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 	  rejectLabel: 'Non',
 	  onAccept: handleDelete
 	});
-  };
+	};
 
-  const handleDelete = async () => {
+	const handleDelete = async () => {
 	setIsLoading(true);
 	try {
 	  const { db, doc, deleteDoc } = await loadFirestore();
@@ -120,9 +120,9 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 	  });
 	}
 	setIsLoading(false);
-  };
+	};
 
-  return (
+	return (
 	<>
 	  {dialogState && (
 		<ConfirmDialog
@@ -177,7 +177,7 @@ const Post: React.FC<PostProps> = ({ postId, title, content, createdAt, fromRequ
 		</section>
 	  </div>
 	</>
-  );
+	);
 };
 
 export default Post;

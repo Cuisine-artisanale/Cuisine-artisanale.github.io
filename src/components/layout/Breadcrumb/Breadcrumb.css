@@ -1,138 +1,138 @@
 /* ============================================
-   BREADCRUMB STYLES
-   ============================================ */
+	 BREADCRUMB STYLES
+	 ============================================ */
 
 .breadcrumb-component {
-  padding: 12px 16px;
-  background-color: var(--background-secondary, #f5f5f5);
-  border-bottom: 1px solid var(--border-color, #e0e0e0);
-  margin-bottom: 20px;
-  border-radius: 4px;
+	padding: 12px 16px;
+	background-color: var(--background-secondary, #f5f5f5);
+	border-bottom: 1px solid var(--border-color, #e0e0e0);
+	margin-bottom: 20px;
+	border-radius: 4px;
 }
 
 .breadcrumb-component.p-breadcrumb {
-  background: transparent;
-  border: none;
-  padding: 12px 0;
+	background: transparent;
+	border: none;
+	padding: 12px 0;
 }
 
 .breadcrumb-component .p-breadcrumb-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
 }
 
 .breadcrumb-component .p-breadcrumb-item {
-  font-size: 14px;
+	font-size: 14px;
 }
 
 .breadcrumb-component .p-breadcrumb-item a {
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: color 0.2s ease;
-  font-weight: 500;
+	color: var(--primary-color);
+	text-decoration: none;
+	transition: color 0.2s ease;
+	font-weight: 500;
 }
 
 .breadcrumb-component .p-breadcrumb-item a:hover {
-  color: var(--primary-color-dark, #6b3410);
-  text-decoration: underline;
+	color: var(--primary-color-dark, #6b3410);
+	text-decoration: underline;
 }
 
 .breadcrumb-component .p-breadcrumb-item a:focus,
 .breadcrumb-component .p-breadcrumb-item a:focus-visible {
-  outline: 3px solid var(--primary-color);
-  outline-offset: 2px;
-  border-radius: 2px;
+	outline: 3px solid var(--primary-color);
+	outline-offset: 2px;
+	border-radius: 2px;
 }
 
 .breadcrumb-component .p-breadcrumb-item.p-breadcrumb-item-active {
-  color: var(--text-color, #333);
-  font-weight: 600;
+	color: var(--text-color, #333);
+	font-weight: 600;
 }
 
 .breadcrumb-component .p-breadcrumb-item-separator {
-  color: var(--text-secondary, #999);
-  margin: 0 4px;
+	color: var(--text-secondary, #999);
+	margin: 0 4px;
 }
 
 .breadcrumb-component .p-breadcrumb-home {
-  margin-right: 8px;
+	margin-right: 8px;
 }
 
 .breadcrumb-component .p-breadcrumb-home a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 44px;
+	padding: 0;
 }
 
 .breadcrumb-component .p-breadcrumb-home a:focus,
 .breadcrumb-component .p-breadcrumb-home a:focus-visible {
-  outline: 3px solid var(--primary-color);
-  outline-offset: 2px;
-  border-radius: 4px;
+	outline: 3px solid var(--primary-color);
+	outline-offset: 2px;
+	border-radius: 4px;
 }
 
 /* ============================================
-   DARK MODE SUPPORT
-   ============================================ */
+	 DARK MODE SUPPORT
+	 ============================================ */
 
 @media (prefers-color-scheme: dark) {
-  .breadcrumb-component {
-    background-color: var(--background-secondary, #1a1a1a);
-    border-bottom-color: var(--border-color, #333);
-  }
+	.breadcrumb-component {
+		background-color: var(--background-secondary, #1a1a1a);
+		border-bottom-color: var(--border-color, #333);
+	}
 
-  .breadcrumb-component .p-breadcrumb-item a {
-    color: var(--primary-color);
-  }
+	.breadcrumb-component .p-breadcrumb-item a {
+		color: var(--primary-color);
+	}
 
-  .breadcrumb-component .p-breadcrumb-item a:hover {
-    color: var(--primary-color-light, #c5683a);
-  }
+	.breadcrumb-component .p-breadcrumb-item a:hover {
+		color: var(--primary-color-light, #c5683a);
+	}
 
-  .breadcrumb-component .p-breadcrumb-item.p-breadcrumb-item-active {
-    color: var(--text-color, #f0f0f0);
-  }
+	.breadcrumb-component .p-breadcrumb-item.p-breadcrumb-item-active {
+		color: var(--text-color, #f0f0f0);
+	}
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
-   ============================================ */
+	 RESPONSIVE DESIGN
+	 ============================================ */
 
 @media (max-width: 640px) {
-  .breadcrumb-component,
-  .breadcrumb-component.p-breadcrumb {
-    padding: 2px 12px;
-    margin-bottom: 4px;
-  }
+	.breadcrumb-component,
+	.breadcrumb-component.p-breadcrumb {
+		padding: 2px 12px;
+		margin-bottom: 4px;
+	}
 
-  .breadcrumb-component .p-breadcrumb-home a {
-    min-width: 36px;
-    min-height: 36px;
-  }
+	.breadcrumb-component .p-breadcrumb-home a {
+		min-width: 36px;
+		min-height: 36px;
+	}
 
-  .breadcrumb-component .p-breadcrumb-list {
-    gap: 4px;
-  }
+	.breadcrumb-component .p-breadcrumb-list {
+		gap: 4px;
+	}
 
-  .breadcrumb-component .p-breadcrumb-item {
-    font-size: 13px;
-  }
+	.breadcrumb-component .p-breadcrumb-item {
+		font-size: 13px;
+	}
 
-  .breadcrumb-component .p-breadcrumb-item-separator {
-    margin: 0 2px;
-  }
+	.breadcrumb-component .p-breadcrumb-item-separator {
+		margin: 0 2px;
+	}
 }
 
 /* ============================================
-   PRINT SUPPORT
-   ============================================ */
+	 PRINT SUPPORT
+	 ============================================ */
 
 @media print {
-  .breadcrumb-component {
-    display: none;
-  }
+	.breadcrumb-component {
+		display: none;
+	}
 }

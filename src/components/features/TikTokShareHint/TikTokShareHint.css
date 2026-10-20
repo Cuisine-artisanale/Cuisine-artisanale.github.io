@@ -1,42 +1,42 @@
 .tiktok-share-hint {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  margin: 0;
-  padding: 0.75rem 1rem;
-  border-radius: var(--border-radius, 8px);
-  background: var(--surface-100, #f5f0eb);
-  color: var(--text-color);
-  font-size: 0.9rem;
-  line-height: 1.4;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.6rem;
+	margin: 0;
+	padding: 0.75rem 1rem;
+	border-radius: var(--border-radius, 8px);
+	background: var(--surface-100, #f5f0eb);
+	color: var(--text-color);
+	font-size: 0.9rem;
+	line-height: 1.4;
 }
 
 .tiktok-share-hint > .pi {
-  margin-top: 0.15rem;
-  color: var(--primary-color);
+	margin-top: 0.15rem;
+	color: var(--primary-color);
 }
 
 .tiktok-share-hint p {
-  margin: 0;
+	margin: 0;
 }
 
 .tiktok-share-hint-install {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem 0.9rem;
-  border: 1px solid var(--primary-color);
-  border-radius: var(--border-radius, 8px);
-  background: transparent;
-  color: var(--primary-color);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin-top: 0.5rem;
+	padding: 0.5rem 0.9rem;
+	border: 1px solid var(--primary-color);
+	border-radius: var(--border-radius, 8px);
+	background: transparent;
+	color: var(--primary-color);
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
 }
 
 .tiktok-share-hint-manual {
-  margin-top: 0.35rem !important;
-  color: var(--text-color-secondary);
-  font-size: 0.85rem;
+	margin-top: 0.35rem !important;
+	color: var(--text-color-secondary);
+	font-size: 0.85rem;
 }

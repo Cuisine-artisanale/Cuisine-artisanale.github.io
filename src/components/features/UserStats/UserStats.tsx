@@ -7,30 +7,30 @@ import { Card } from 'primereact/card';
 import { Skeleton } from 'primereact/skeleton';
 
 interface UserStatsData {
-  recipesCount: number;
-  totalLikes: number;
-  averageRating: number;
-  totalReviews: number;
-  favoriteRecipesCount: number;
-  postsCount: number;
+	recipesCount: number;
+	totalLikes: number;
+	averageRating: number;
+	totalReviews: number;
+	favoriteRecipesCount: number;
+	postsCount: number;
 }
 
 interface UserStatsProps {
-  userId: string;
-  isPublicProfile?: boolean;
+	userId: string;
+	isPublicProfile?: boolean;
 }
 
 const UserStats: React.FC<UserStatsProps> = ({ userId, isPublicProfile = false }) => {
-  const [stats, setStats] = useState<UserStatsData | null>(null);
-  const [loading, setLoading] = useState(true);
+	const [stats, setStats] = useState<UserStatsData | null>(null);
+	const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+	useEffect(() => {
 	if (userId) {
 	  fetchUserStats();
 	}
-  }, [userId]);
+	}, [userId]);
 
-  const fetchUserStats = async () => {
+	const fetchUserStats = async () => {
 	if (!userId) return;
 
 	try {
@@ -92,9 +92,9 @@ const UserStats: React.FC<UserStatsProps> = ({ userId, isPublicProfile = false }
 	} finally {
 	  setLoading(false);
 	}
-  };
+	};
 
-  return (
+	return (
 	<div className="user-stats-grid">
 	  <Card className="stat-card">
 		<div className="stat-content">
@@ -194,7 +194,7 @@ const UserStats: React.FC<UserStatsProps> = ({ userId, isPublicProfile = false }
 		</div>
 	  </Card>
 	</div>
-  );
+	);
 };
 
 export default UserStats;

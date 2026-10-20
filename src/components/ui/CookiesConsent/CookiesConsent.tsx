@@ -8,9 +8,9 @@ import { COOKIE_CONSENT_EVENT } from '@/components/ui/ThirdPartyScripts/ThirdPar
 
 
 interface CookieChoice {
-  functional: boolean;
-  analytics: boolean;
-  ads: boolean;
+	functional: boolean;
+	analytics: boolean;
+	ads: boolean;
 }
 
 const CookieConsent: React.FC = () => {
@@ -29,7 +29,7 @@ const CookieConsent: React.FC = () => {
 	}, []);
 
 
-  const saveConsent = async (finalChoices: CookieChoice) => {
+	const saveConsent = async (finalChoices: CookieChoice) => {
 	localStorage.setItem('cookieConsent', JSON.stringify(finalChoices));
 	setShowBanner(false);
 	// Prévient ThirdPartyScripts pour charger (ou non) Hotjar / AdSense
@@ -55,24 +55,24 @@ const CookieConsent: React.FC = () => {
 	} catch (err) {
 	console.error('Erreur Firebase:', err);
 	}
-  };
+	};
 
-  const handleAcceptAll = () => {
+	const handleAcceptAll = () => {
 	saveConsent({ functional: true, analytics: true, ads: true });
-  };
+	};
 
-  const handleDeclineAll = () => {
+	const handleDeclineAll = () => {
 	saveConsent({ functional: true, analytics: false, ads: false });
-  };
+	};
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 	const { name, checked } = e.target;
 	setChoices(prev => ({ ...prev, [name]: checked }));
-  };
+	};
 
-  if (!showBanner) return null;
+	if (!showBanner) return null;
 
-  return (
+	return (
 	<div className={`cookie-banner banner-show ${expanded ? 'expanded' : ''}`}>
 	  <p>
 		Nous utilisons des cookies pour améliorer votre expérience et analyser la navigation.
@@ -101,7 +101,7 @@ const CookieConsent: React.FC = () => {
 		</div>
 	  )}
 	</div>
-  );
+	);
 };
 
 export default CookieConsent;

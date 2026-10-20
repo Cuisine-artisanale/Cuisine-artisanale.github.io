@@ -1,5 +1,5 @@
 {
-  "compilerOptions": {
+	"compilerOptions": {
 	"target": "ES2017",
 	"lib": [
 	  "dom",
@@ -35,16 +35,16 @@
 	  "@/styles/*": ["src/styles/*"],
 	  "@/app/*": ["src/app/*"]
 	}
-  },
-  "include": [
+	},
+	"include": [
 	"next-env.d.ts",
 	".next/types/**/*.ts",
 	"src/**/*.ts",
 	"src/**/*.tsx",
 	"src/app/**/*.ts",
 	"src/app/**/*.tsx"
-  ],
-  "exclude": [
+	],
+	"exclude": [
 	"node_modules"
-  ]
+	]
 }

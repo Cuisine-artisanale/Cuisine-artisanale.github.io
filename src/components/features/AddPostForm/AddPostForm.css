@@ -1,120 +1,120 @@
 .AddPostForm {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  animation: fadeIn 0.2s ease;
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	animation: fadeIn 0.2s ease;
 }
 
 .formPost {
-  width: 100%;
-  max-width: 500px;
-  background: var(--surface-card);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  position: relative;
-  animation: fadeIn 0.2s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  transform: translateZ(0);
+	width: 100%;
+	max-width: 500px;
+	background: var(--surface-card);
+	border-radius: var(--border-radius);
+	padding: 1.5rem;
+	position: relative;
+	animation: fadeIn 0.2s ease;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	transform: translateZ(0);
 }
 
 .formPost h3 {
-  color: var(--text-color);
-  font-size: 1.25rem;
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--primary-color);
+	color: var(--text-color);
+	font-size: 1.25rem;
+	margin: 0 0 1rem 0;
+	padding-bottom: 0.75rem;
+	border-bottom: 2px solid var(--primary-color);
 }
 
 .formPost > div {
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 }
 
 .formPost label {
-  display: block;
-  color: var(--text-color-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+	display: block;
+	color: var(--text-color-secondary);
+	font-size: 0.875rem;
+	font-weight: 500;
+	margin-bottom: 0.5rem;
 }
 
 .formPost .p-inputtext,
 .formPost .p-inputtextarea {
-  width: 100%;
-  margin-bottom: 0.5rem;
+	width: 100%;
+	margin-bottom: 0.5rem;
 }
 
 .formPost .p-inputtextarea {
-  min-height: 100px;
+	min-height: 100px;
 }
 
 .buttons-form {
-  display: flex;
-  flex-direction: row;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--surface-border);
+	display: flex;
+	flex-direction: row;
+	gap: 0.75rem;
+	margin-top: 1.5rem;
+	padding-top: 1rem;
+	border-top: 1px solid var(--surface-border);
 }
 
 .buttons-form .p-button {
-  flex: 1;
-  min-width: 0;
+	flex: 1;
+	min-width: 0;
 }
 
 @keyframes fadeIn {
-  from {
+	from {
 	opacity: 0;
-  }
-  to {
+	}
+	to {
 	opacity: 1;
-  }
+	}
 }
 
 @media screen and (max-width: 768px) {
-  .AddPostForm {
+	.AddPostForm {
 	padding: 0;
 	align-items: flex-end;
-  }
+	}
 
-  .formPost {
+	.formPost {
 	max-width: 100%;
 	margin: 0;
 	border-radius: 1.5rem 1.5rem 0 0;
 	padding: 1.25rem;
 	animation: slideUp 0.2s ease;
-  }
+	}
 
-  .formPost h3 {
+	.formPost h3 {
 	font-size: 1.125rem;
 	margin-bottom: 0.75rem;
-  }
+	}
 
-  .formPost > div {
+	.formPost > div {
 	margin-bottom: 0.75rem;
-  }
+	}
 
-  .formPost .p-inputtextarea {
+	.formPost .p-inputtextarea {
 	min-height: 80px;
-  }
+	}
 
-  .buttons-form {
+	.buttons-form {
 	flex-direction: column;
 	gap: 0.5rem;
 	margin-top: 1.25rem;
 	padding-top: 0.75rem;
-  }
+	}
 
-  @keyframes slideUp {
+	@keyframes slideUp {
 	from {
 	  transform: translateY(100%);
 	}
 	to {
 	  transform: translateY(0);
 	}
-  }
+	}
 }

@@ -1,44 +1,44 @@
 {
-  "name": "cuisine-artisanale",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "backfill:public-profiles": "node scripts/backfill-public-profiles.mjs",
-    "backfill:recipe-counters": "node scripts/backfill-recipe-counters.mjs",
-    "seed:units": "node scripts/seed-units.mjs",
-    "import:recipes": "node scripts/import-recipes.mjs",
-    "export:pinterest": "node scripts/export-pinterest-csv.mjs"
-  },
-  "dependencies": {
-    "firebase": "^11.3.0",
-    "firebase-admin": "^13.5.0",
-    "framer-motion": "^12.23.24",
-    "jspdf": "^3.0.4",
-    "leaflet": "^1.9.4",
-    "next": "^15.5.27",
-    "primeicons": "^7.0.0",
-    "primereact": "^10.9.5",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "react-leaflet": "^5.0.0",
-    "react-player": "^2.16.0",
-    "react-toastify": "^11.0.3",
-    "resend": "^6.5.2"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3.3.7",
-    "@types/leaflet": "^1.9.16",
-    "@types/node": "^22.9.0",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
-    "eslint": "^9.19.0",
-    "eslint-config-next": "^15.5.27",
-    "typescript": "~5.7.2"
-  }
+	"name": "cuisine-artisanale",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint .",
+		"typecheck": "tsc --noEmit",
+		"backfill:public-profiles": "node scripts/backfill-public-profiles.mjs",
+		"backfill:recipe-counters": "node scripts/backfill-recipe-counters.mjs",
+		"seed:units": "node scripts/seed-units.mjs",
+		"import:recipes": "node scripts/import-recipes.mjs",
+		"export:pinterest": "node scripts/export-pinterest-csv.mjs"
+	},
+	"dependencies": {
+		"firebase": "^11.3.0",
+		"firebase-admin": "^13.5.0",
+		"framer-motion": "^12.23.24",
+		"jspdf": "^3.0.4",
+		"leaflet": "^1.9.4",
+		"next": "^15.5.27",
+		"primeicons": "^7.0.0",
+		"primereact": "^10.9.5",
+		"react": "^19.2.1",
+		"react-dom": "^19.2.1",
+		"react-leaflet": "^5.0.0",
+		"react-player": "^2.16.0",
+		"react-toastify": "^11.0.3",
+		"resend": "^6.5.2"
+	},
+	"devDependencies": {
+		"@eslint/eslintrc": "^3.3.7",
+		"@types/leaflet": "^1.9.16",
+		"@types/node": "^22.9.0",
+		"@types/react": "^19.0.8",
+		"@types/react-dom": "^19.0.3",
+		"eslint": "^9.19.0",
+		"eslint-config-next": "^15.5.27",
+		"typescript": "~5.7.2"
+	}
 }

@@ -1,29 +1,29 @@
 .AddRecette {
-  padding: 16px;
-  margin: 10px;
-  border-radius: 8px;
+	padding: 16px;
+	margin: 10px;
+	border-radius: 8px;
 }
 
 .AddRecette .p-button:disabled,
 .AddRecette .p-button.p-disabled {
-  background-color: #cccccc !important;
-  color: #888888 !important;
-  cursor: not-allowed !important;
-  opacity: 0.7;
-  border: 1px solid #bbbbbb !important;
+	background-color: #cccccc !important;
+	color: #888888 !important;
+	cursor: not-allowed !important;
+	opacity: 0.7;
+	border: 1px solid #bbbbbb !important;
 }
 
 .AddRecette-mobile {
-  display: none;
+	display: none;
 }
 
 
 @media screen and (max-width: 768px) {
-  .AddRecette {
+	.AddRecette {
 	display: none;
-  }
+	}
 
-  .AddRecette-mobile {
+	.AddRecette-mobile {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -33,21 +33,21 @@
 	background: var(--surface-100);
 	color: var(--text-color);
 	text-decoration: none;
-  }
+	}
 
-  .AddRecette-mobile > .pi-video {
+	.AddRecette-mobile > .pi-video {
 	font-size: 1.4rem;
 	color: var(--primary-color);
-  }
+	}
 
-  .AddRecette-mobile > span:nth-child(2) {
+	.AddRecette-mobile > span:nth-child(2) {
 	display: flex;
 	flex: 1;
 	flex-direction: column;
 	gap: 0.15rem;
-  }
+	}
 
-  .AddRecette-mobile small {
+	.AddRecette-mobile small {
 	color: var(--text-color-secondary);
-  }
+	}
 }

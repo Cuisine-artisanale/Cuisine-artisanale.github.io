@@ -7,15 +7,15 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 
 const AddRecette: React.FC = () => {
-  const {user } = useAuth();
+	const {user } = useAuth();
 
-  const router = useRouter();
+	const router = useRouter();
 
-  const handleClick = () => {
+	const handleClick = () => {
 	router.push("/recettes/add-recipe");
-  };
+	};
 
-  return (
+	return (
 	<>
 	  <div className="AddRecette">
 		<h2>Ajouter une recette</h2>
@@ -37,7 +37,7 @@ const AddRecette: React.FC = () => {
 		<span className="pi pi-chevron-right" aria-hidden="true"></span>
 	  </Link>
 	</>
-  );
+	);
 };
 
 export default AddRecette;

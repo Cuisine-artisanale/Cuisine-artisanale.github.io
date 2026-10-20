@@ -1,123 +1,123 @@
 /* === OVERLAY === */
 .newsletter-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end; /* 👈 aligne en bas */
-  z-index: 1000;
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.2);
+	display: flex;
+	justify-content: flex-end;
+	align-items: flex-end; /* 👈 aligne en bas */
+	z-index: 1000;
 }
 
 /* === POPUP === */
 .newsletter-popup {
-  background: var(--background-base);
-  border-radius: 1rem 1rem 0 1rem;
-  padding: 1.5rem;
-  width: 360px;
-  max-width: 90%;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  margin: 1.5rem;
-  pointer-events: all; /* réactive les clics sur la popup */
-  animation: slideUp 0.5s ease-out;
+	background: var(--background-base);
+	border-radius: 1rem 1rem 0 1rem;
+	padding: 1.5rem;
+	width: 360px;
+	max-width: 90%;
+	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+	text-align: center;
+	position: relative;
+	overflow: hidden;
+	margin: 1.5rem;
+	pointer-events: all; /* réactive les clics sur la popup */
+	animation: slideUp 0.5s ease-out;
 }
 
 /* === Animation d'apparition === */
 @keyframes slideUp {
-  from {
+	from {
 	transform: translateY(100%);
 	opacity: 0;
-  }
-  to {
+	}
+	to {
 	transform: translateY(0);
 	opacity: 1;
-  }
+	}
 }
 
 /* === Animation de fermeture === */
 @keyframes slideDown {
-  from {
+	from {
 	transform: translateY(0);
 	opacity: 1;
-  }
-  to {
+	}
+	to {
 	transform: translateY(100%);
 	opacity: 0;
-  }
+	}
 }
 
 /* Ajoute cette classe quand tu veux fermer avec animation */
 .newsletter-popup.closing {
-  animation: slideDown 0.4s ease-in forwards;
+	animation: slideDown 0.4s ease-in forwards;
 }
 
 /* === TITRE + TEXTE === */
 .newsletter-popup h2 {
-  color: var(--text-color-light);
-  margin-bottom: 0.5rem;
-  font-size: 1.4rem;
+	color: var(--text-color-light);
+	margin-bottom: 0.5rem;
+	font-size: 1.4rem;
 }
 
 .newsletter-popup p {
-  color: var(--text-color);
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
+	color: var(--text-color);
+	font-size: 0.9rem;
+	margin-bottom: 1rem;
 }
 
 /* === FORMULAIRE === */
 .newsletter-popup form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
 }
 
 .newsletter-popup input {
-  padding: 0.7rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--surface-border);
-  text-align: center;
-  font-size: 1rem;
+	padding: 0.7rem;
+	border-radius: 0.5rem;
+	border: 1px solid var(--surface-border);
+	text-align: center;
+	font-size: 1rem;
 }
 
 .newsletter-popup button {
-  background: var(--button-bg);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.8rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.3s ease, transform 0.2s ease;
+	background: var(--button-bg);
+	color: white;
+	border: none;
+	border-radius: 0.5rem;
+	padding: 0.8rem;
+	cursor: pointer;
+	font-weight: 600;
+	transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .newsletter-popup button:hover {
-  background: var(--button-hover-bg);
-  transform: translateY(-2px);
+	background: var(--button-hover-bg);
+	transform: translateY(-2px);
 }
 
 /* === FERMETURE === */
 .newsletter-close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.7rem;
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  color: var(--text-color-secondary);
-  cursor: pointer;
-  transition: color 0.2s ease;
+	position: absolute;
+	top: 0.5rem;
+	right: 0.7rem;
+	background: none;
+	border: none;
+	font-size: 1.2rem;
+	color: var(--text-color-secondary);
+	cursor: pointer;
+	transition: color 0.2s ease;
 }
 
 .newsletter-close:hover {
-  color: var(--text-color-inverted);
+	color: var(--text-color-inverted);
 }
 
 /* === STATUT === */
 .newsletter-status {
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: var(--text-color-secondary);
+	margin-top: 1rem;
+	font-size: 0.9rem;
+	color: var(--text-color-secondary);
 }

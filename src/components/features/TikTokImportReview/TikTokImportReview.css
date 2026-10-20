@@ -1,117 +1,117 @@
 /* Relecture d'une recette importée de TikTok.
-   Les listes d'ingrédients et d'étapes ont leurs propres styles (IngredientListEditor, StepListEditor).
-   Les !important neutralisent les styles globaux des champs (index.css, mobile.css). */
+	 Les listes d'ingrédients et d'étapes ont leurs propres styles (IngredientListEditor, StepListEditor).
+	 Les !important neutralisent les styles globaux des champs (index.css, mobile.css). */
 
 .tiktok-review {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
 }
 
 .tiktok-review-intro,
 .tiktok-review-note,
 .tiktok-review-author {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 0.95rem;
+	margin: 0;
+	color: var(--text-color-secondary);
+	font-size: 0.95rem;
 }
 
 .tiktok-review-source {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
+	display: flex;
+	gap: 1rem;
+	align-items: flex-start;
 }
 
 .tiktok-review-thumbnail {
-  flex: none;
-  width: 84px;
-  height: 112px;
-  object-fit: cover;
-  border-radius: var(--border-radius, 8px);
-  background: var(--surface-ground);
+	flex: none;
+	width: 84px;
+	height: 112px;
+	object-fit: cover;
+	border-radius: var(--border-radius, 8px);
+	background: var(--surface-ground);
 }
 
 .tiktok-review-main-fields {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 }
 
 .tiktok-review-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 0.75rem;
 }
 
 .tiktok-review-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	min-width: 0;
 }
 
 .tiktok-review-field > span {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-color);
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: var(--text-color);
 }
 
 .tiktok-review-field input,
 .tiktok-review-field select {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius, 8px);
-  background: var(--surface-ground);
-  color: var(--text-color);
-  font: inherit;
-  padding: 0.55rem 0.65rem !important;
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+	border: 1px solid var(--surface-border);
+	border-radius: var(--border-radius, 8px);
+	background: var(--surface-ground);
+	color: var(--text-color);
+	font: inherit;
+	padding: 0.55rem 0.65rem !important;
 }
 
 .tiktok-review-field input[aria-invalid="true"] {
-  border-color: var(--danger-500);
+	border-color: var(--danger-500);
 }
 
 .tiktok-review-section h3 {
-  margin: 0 0 0.6rem;
-  font-size: 1.05rem;
-  color: var(--primary-color);
+	margin: 0 0 0.6rem;
+	font-size: 1.05rem;
+	color: var(--primary-color);
 }
 
 .tiktok-review-footer {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
 }
 
 .tiktok-review-publish {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-right: auto;
-  color: var(--text-color-secondary);
-  font-size: 0.9rem;
-  text-align: left;
-  cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-right: auto;
+	color: var(--text-color-secondary);
+	font-size: 0.9rem;
+	text-align: left;
+	cursor: pointer;
 }
 
 @media (max-width: 600px) {
-  .tiktok-review-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+	.tiktok-review-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 
-  .tiktok-review-footer .p-button {
-    flex: 1;
-  }
+	.tiktok-review-footer .p-button {
+		flex: 1;
+	}
 }
 
 /* mobile.css ajoute marge et retrait à tous les <label> : sans effet voulu ici */
 .tiktok-review .tiktok-review-field {
-  padding: 0 !important;
-  margin: 0 !important;
+	padding: 0 !important;
+	margin: 0 !important;
 }

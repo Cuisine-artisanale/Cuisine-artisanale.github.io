@@ -16,325 +16,325 @@ const REQUIRE_EMAIL_VERIFICATION = false;
 
 function VerifyEmailContent() {
 const { logout } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const toastRef = useRef<Toast>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [verified, setVerified] = useState(false);
-  const [error, setError] = useState('');
-  const [email, setEmail] = useState('');
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const toastRef = useRef<Toast>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [isVerifying, setIsVerifying] = useState(false);
+	const [verified, setVerified] = useState(false);
+	const [error, setError] = useState('');
+	const [email, setEmail] = useState('');
 
-  useEffect(() => {
-    // Si la vérification email est désactivée, rediriger vers le compte
-    if (!REQUIRE_EMAIL_VERIFICATION) {
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        router.push('/account');
-      } else {
-        router.push('/login');
-      }
-      return;
-    }
+	useEffect(() => {
+		// Si la vérification email est désactivée, rediriger vers le compte
+		if (!REQUIRE_EMAIL_VERIFICATION) {
+			const currentUser = auth.currentUser;
+			if (currentUser) {
+				router.push('/account');
+			} else {
+				router.push('/login');
+			}
+			return;
+		}
 
-    // Vérifier si un code Firebase (oobCode) est présent dans l'URL
-    const oobCode = searchParams.get('oobCode');
-    const mode = searchParams.get('mode');
+		// Vérifier si un code Firebase (oobCode) est présent dans l'URL
+		const oobCode = searchParams.get('oobCode');
+		const mode = searchParams.get('mode');
 
-    // Si l'URL d'action Firebase pointe ici, rediriger les liens de réinitialisation
-    if (oobCode && mode === 'resetPassword') {
-      router.replace(`/reset-password?${searchParams.toString()}`);
-      return;
-    }
+		// Si l'URL d'action Firebase pointe ici, rediriger les liens de réinitialisation
+		if (oobCode && mode === 'resetPassword') {
+			router.replace(`/reset-password?${searchParams.toString()}`);
+			return;
+		}
 
-    // Si un code Firebase est présent, vérifier automatiquement
-    if (oobCode && mode === 'verifyEmail') {
-      handleFirebaseVerification(oobCode);
-    } else {
-      // Sinon, vérifier si l'utilisateur est connecté
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        router.push('/login');
-        return;
-      }
-      setEmail(currentUser.email || '');
+		// Si un code Firebase est présent, vérifier automatiquement
+		if (oobCode && mode === 'verifyEmail') {
+			handleFirebaseVerification(oobCode);
+		} else {
+			// Sinon, vérifier si l'utilisateur est connecté
+			const currentUser = auth.currentUser;
+			if (!currentUser) {
+				router.push('/login');
+				return;
+			}
+			setEmail(currentUser.email || '');
 
-      // Si déjà vérifié, rediriger
-      if (currentUser.emailVerified) {
-        router.push('/account');
-      }
-    }
-  }, [searchParams, router]);
+			// Si déjà vérifié, rediriger
+			if (currentUser.emailVerified) {
+				router.push('/account');
+			}
+		}
+	}, [searchParams, router]);
 
-  const handleFirebaseVerification = async (oobCode: string) => {
-    setIsVerifying(true);
-    setError('');
+	const handleFirebaseVerification = async (oobCode: string) => {
+		setIsVerifying(true);
+		setError('');
 
-    try {
-      // Appliquer le code de vérification Firebase
-      await applyActionCode(auth, oobCode);
+		try {
+			// Appliquer le code de vérification Firebase
+			await applyActionCode(auth, oobCode);
 
-      // Rafraîchir l'utilisateur Firebase pour mettre à jour emailVerified
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        await currentUser.reload();
-        setEmail(currentUser.email || '');
+			// Rafraîchir l'utilisateur Firebase pour mettre à jour emailVerified
+			const currentUser = auth.currentUser;
+			if (currentUser) {
+				await currentUser.reload();
+				setEmail(currentUser.email || '');
 
-        // Mettre à jour Firestore avec le statut de vérification
-        try {
-          const db = getFirestore();
-          const userRef = doc(db, 'users', currentUser.uid);
+				// Mettre à jour Firestore avec le statut de vérification
+				try {
+					const db = getFirestore();
+					const userRef = doc(db, 'users', currentUser.uid);
           
-          // Vérifier si le document existe
-          const userDoc = await getDoc(userRef);
+					// Vérifier si le document existe
+					const userDoc = await getDoc(userRef);
           
-          if (userDoc.exists()) {
-            // Le document existe, le mettre à jour
-            await updateDoc(userRef, {
-              emailVerified: true,
-              emailVerifiedAt: serverTimestamp()
-            });
-          } else {
-            // Le document n'existe pas, le créer
-            await setDoc(userRef, {
-              email: currentUser.email || '',
-              displayName: currentUser.displayName || '',
-              role: 'user',
-              createdAt: serverTimestamp(),
-              emailVerified: true,
-              emailVerifiedAt: serverTimestamp()
-            });
-          }
-        } catch (firestoreError: any) {
-          // Ne pas bloquer si la mise à jour Firestore échoue
-          // L'utilisateur est quand même vérifié dans Firebase Auth
-          console.error('❌ Erreur lors de la mise à jour Firestore (non bloquant):', firestoreError);
-          console.error('Détails de l\'erreur:', {
-            code: firestoreError.code,
-            message: firestoreError.message,
-            uid: currentUser.uid
-          });
-        }
-      }
+					if (userDoc.exists()) {
+						// Le document existe, le mettre à jour
+						await updateDoc(userRef, {
+							emailVerified: true,
+							emailVerifiedAt: serverTimestamp()
+						});
+					} else {
+						// Le document n'existe pas, le créer
+						await setDoc(userRef, {
+							email: currentUser.email || '',
+							displayName: currentUser.displayName || '',
+							role: 'user',
+							createdAt: serverTimestamp(),
+							emailVerified: true,
+							emailVerifiedAt: serverTimestamp()
+						});
+					}
+				} catch (firestoreError: any) {
+					// Ne pas bloquer si la mise à jour Firestore échoue
+					// L'utilisateur est quand même vérifié dans Firebase Auth
+					console.error('❌ Erreur lors de la mise à jour Firestore (non bloquant):', firestoreError);
+					console.error('Détails de l\'erreur:', {
+						code: firestoreError.code,
+						message: firestoreError.message,
+						uid: currentUser.uid
+					});
+				}
+			}
 
-      setVerified(true);
-      toastRef.current?.show({
-        severity: 'success',
-        summary: 'Email vérifié !',
-        detail: 'Votre email a été vérifié avec succès. Redirection...',
-        life: 3000
-      });
+			setVerified(true);
+			toastRef.current?.show({
+				severity: 'success',
+				summary: 'Email vérifié !',
+				detail: 'Votre email a été vérifié avec succès. Redirection...',
+				life: 3000
+			});
 
-      setTimeout(() => {
-        router.push('/account');
-      }, 2000);
-    } catch (error: any) {
-      console.error('Error verifying email:', error);
-      let errorMessage = 'Une erreur est survenue lors de la vérification. Veuillez réessayer.';
+			setTimeout(() => {
+				router.push('/account');
+			}, 2000);
+		} catch (error: any) {
+			console.error('Error verifying email:', error);
+			let errorMessage = 'Une erreur est survenue lors de la vérification. Veuillez réessayer.';
 
-      if (error.code === 'auth/invalid-action-code') {
-        errorMessage = 'Le lien de vérification est invalide ou a expiré. Veuillez demander un nouvel email.';
-      } else if (error.code === 'auth/expired-action-code') {
-        errorMessage = 'Le lien de vérification a expiré. Veuillez demander un nouvel email.';
-      }
+			if (error.code === 'auth/invalid-action-code') {
+				errorMessage = 'Le lien de vérification est invalide ou a expiré. Veuillez demander un nouvel email.';
+			} else if (error.code === 'auth/expired-action-code') {
+				errorMessage = 'Le lien de vérification a expiré. Veuillez demander un nouvel email.';
+			}
 
-      setError(errorMessage);
-    } finally {
-      setIsVerifying(false);
-    }
-  };
+			setError(errorMessage);
+		} finally {
+			setIsVerifying(false);
+		}
+	};
 
-  const handleResendEmail = async () => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      router.push('/login');
-      return;
-    }
+	const handleResendEmail = async () => {
+		const currentUser = auth.currentUser;
+		if (!currentUser) {
+			router.push('/login');
+			return;
+		}
 
-    try {
-      setIsLoading(true);
-      // Utiliser l'API route Next.js avec Resend (même système que la newsletter)
-      const idToken = await currentUser.getIdToken();
-      const response = await fetch('/api/send-verification-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({
-          displayName: currentUser.displayName || 'Utilisateur',
-        }),
-      });
+		try {
+			setIsLoading(true);
+			// Utiliser l'API route Next.js avec Resend (même système que la newsletter)
+			const idToken = await currentUser.getIdToken();
+			const response = await fetch('/api/send-verification-email', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${idToken}`,
+				},
+				body: JSON.stringify({
+					displayName: currentUser.displayName || 'Utilisateur',
+				}),
+			});
 
-      const responseData = await response.json();
+			const responseData = await response.json();
 
-      if (!response.ok) {
-        throw new Error(responseData.error || responseData.message || 'Erreur lors de l\'envoi de l\'email');
-      }
+			if (!response.ok) {
+				throw new Error(responseData.error || responseData.message || 'Erreur lors de l\'envoi de l\'email');
+			}
 
-      toastRef.current?.show({
-        severity: 'success',
-        summary: 'Email envoyé',
-        detail: 'Un nouvel email de vérification a été envoyé. Vérifiez votre boîte mail (et vos spams).',
-        life: 6000
-      });
-    } catch (error: any) {
-      console.error('Resend verification email error:', error);
-      let errorMessage = 'Une erreur est survenue lors de l\'envoi de l\'email';
+			toastRef.current?.show({
+				severity: 'success',
+				summary: 'Email envoyé',
+				detail: 'Un nouvel email de vérification a été envoyé. Vérifiez votre boîte mail (et vos spams).',
+				life: 6000
+			});
+		} catch (error: any) {
+			console.error('Resend verification email error:', error);
+			let errorMessage = 'Une erreur est survenue lors de l\'envoi de l\'email';
 
-      if (error.message?.includes('Trop de demandes') || error.message?.includes('too-many-requests')) {
-        errorMessage = 'Trop de demandes. Veuillez réessayer dans quelques minutes.';
-      } else if (error.message?.includes('Utilisateur non trouvé') || error.message?.includes('user-not-found')) {
-        errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
-      } else if (error.message?.includes('credentials') || error.message?.includes('configuration')) {
-        errorMessage = 'Erreur de configuration. Veuillez contacter le support.';
-      } else {
-        errorMessage = error.message || errorMessage;
-      }
+			if (error.message?.includes('Trop de demandes') || error.message?.includes('too-many-requests')) {
+				errorMessage = 'Trop de demandes. Veuillez réessayer dans quelques minutes.';
+			} else if (error.message?.includes('Utilisateur non trouvé') || error.message?.includes('user-not-found')) {
+				errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
+			} else if (error.message?.includes('credentials') || error.message?.includes('configuration')) {
+				errorMessage = 'Erreur de configuration. Veuillez contacter le support.';
+			} else {
+				errorMessage = error.message || errorMessage;
+			}
 
-      toastRef.current?.show({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: errorMessage,
-        life: 5000
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+			toastRef.current?.show({
+				severity: 'error',
+				summary: 'Erreur',
+				detail: errorMessage,
+				life: 5000
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  const handleLogout = () => {
+	const handleLogout = () => {
 	logout();
-    router.push('/login');
-  };
+		router.push('/login');
+	};
 
-  // Si en train de vérifier le token
-  if (isVerifying) {
-    return (
-      <div className="verify-email-page">
-        <Toast ref={toastRef} />
-        <div className="verify-email-container">
-          <div className="verify-email-card">
-            <div className="verify-email-header">
-              <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }} />
-              <h1>Vérification en cours...</h1>
-              <p>Veuillez patienter pendant que nous vérifions votre email.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+	// Si en train de vérifier le token
+	if (isVerifying) {
+		return (
+			<div className="verify-email-page">
+				<Toast ref={toastRef} />
+				<div className="verify-email-container">
+					<div className="verify-email-card">
+						<div className="verify-email-header">
+							<i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }} />
+							<h1>Vérification en cours...</h1>
+							<p>Veuillez patienter pendant que nous vérifions votre email.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
-  // Si vérifié avec succès
-  if (verified) {
-    return (
-      <div className="verify-email-page">
-        <Toast ref={toastRef} />
-        <div className="verify-email-container">
-          <div className="verify-email-card">
-            <div className="verify-email-header success">
-              <i className="pi pi-check-circle" style={{ fontSize: '3rem', color: 'var(--success-500)' }} />
-              <h1>Email vérifié !</h1>
-              <p>Votre email a été vérifié avec succès. Redirection...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+	// Si vérifié avec succès
+	if (verified) {
+		return (
+			<div className="verify-email-page">
+				<Toast ref={toastRef} />
+				<div className="verify-email-container">
+					<div className="verify-email-card">
+						<div className="verify-email-header success">
+							<i className="pi pi-check-circle" style={{ fontSize: '3rem', color: 'var(--success-500)' }} />
+							<h1>Email vérifié !</h1>
+							<p>Votre email a été vérifié avec succès. Redirection...</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
-  // Si erreur de vérification
-  if (error) {
-    return (
-      <div className="verify-email-page">
-        <Toast ref={toastRef} />
-        <div className="verify-email-container">
-          <div className="verify-email-card">
-            <div className="verify-email-header error">
-              <i className="pi pi-times-circle" style={{ fontSize: '3rem', color: 'var(--danger-500)' }} />
-              <h1>Erreur de vérification</h1>
-              <p className="error-message">{error}</p>
-            </div>
+	// Si erreur de vérification
+	if (error) {
+		return (
+			<div className="verify-email-page">
+				<Toast ref={toastRef} />
+				<div className="verify-email-container">
+					<div className="verify-email-card">
+						<div className="verify-email-header error">
+							<i className="pi pi-times-circle" style={{ fontSize: '3rem', color: 'var(--danger-500)' }} />
+							<h1>Erreur de vérification</h1>
+							<p className="error-message">{error}</p>
+						</div>
 
-            <div className="verify-email-actions">
-              <Button
-                label="Renvoyer un email de vérification"
-                icon="pi pi-send"
-                className="resend-button"
-                onClick={handleResendEmail}
-                loading={isLoading}
-              />
+						<div className="verify-email-actions">
+							<Button
+								label="Renvoyer un email de vérification"
+								icon="pi pi-send"
+								className="resend-button"
+								onClick={handleResendEmail}
+								loading={isLoading}
+							/>
 
-              <Button
-                label="Retour à la connexion"
-                icon="pi pi-arrow-left"
-                className="p-button-text"
-                onClick={handleLogout}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+							<Button
+								label="Retour à la connexion"
+								icon="pi pi-arrow-left"
+								className="p-button-text"
+								onClick={handleLogout}
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
-  // Page par défaut (en attente de vérification)
-  return (
-    <div className="verify-email-page">
-      <Toast ref={toastRef} />
-      <div className="verify-email-container">
-        <div className="verify-email-card">
-          <div className="verify-email-header">
-            <i className="pi pi-envelope" />
-            <h1>Vérifiez votre email</h1>
-            <p>
-              Un email de vérification a été envoyé à <strong>{email}</strong>
-            </p>
-          </div>
+	// Page par défaut (en attente de vérification)
+	return (
+		<div className="verify-email-page">
+			<Toast ref={toastRef} />
+			<div className="verify-email-container">
+				<div className="verify-email-card">
+					<div className="verify-email-header">
+						<i className="pi pi-envelope" />
+						<h1>Vérifiez votre email</h1>
+						<p>
+							Un email de vérification a été envoyé à <strong>{email}</strong>
+						</p>
+					</div>
 
-          <div className="verify-email-instructions">
-            <h3>Comment vérifier votre email :</h3>
-            <ol>
-              <li>Ouvrez votre boîte mail</li>
-              <li>Cherchez l'email de <strong>Cuisine Artisanale</strong> (vérifiez aussi vos spams)</li>
-              <li>Cliquez sur le bouton "Vérifier mon email" dans l'email</li>
-              <li>Vous serez automatiquement redirigé</li>
-            </ol>
-          </div>
+					<div className="verify-email-instructions">
+						<h3>Comment vérifier votre email :</h3>
+						<ol>
+							<li>Ouvrez votre boîte mail</li>
+							<li>Cherchez l'email de <strong>Cuisine Artisanale</strong> (vérifiez aussi vos spams)</li>
+							<li>Cliquez sur le bouton "Vérifier mon email" dans l'email</li>
+							<li>Vous serez automatiquement redirigé</li>
+						</ol>
+					</div>
 
-          <div className="verify-email-actions">
-            <Button
-              label="Renvoyer l'email"
-              icon="pi pi-send"
-              className="resend-button"
-              onClick={handleResendEmail}
-              loading={isLoading}
-            />
+					<div className="verify-email-actions">
+						<Button
+							label="Renvoyer l'email"
+							icon="pi pi-send"
+							className="resend-button"
+							onClick={handleResendEmail}
+							loading={isLoading}
+						/>
 
-            <Button
-              label="Se déconnecter"
-              icon="pi pi-sign-out"
-              className="p-button logout-button"
-              onClick={handleLogout}
-            />
-          </div>
+						<Button
+							label="Se déconnecter"
+							icon="pi pi-sign-out"
+							className="p-button logout-button"
+							onClick={handleLogout}
+						/>
+					</div>
 
-          <div className="verify-email-help">
-            <p className="help-text">
-              <i className="pi pi-info-circle" /> L'email devrait arriver en quelques secondes.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+					<div className="verify-email-help">
+						<p className="help-text">
+							<i className="pi pi-info-circle" /> L'email devrait arriver en quelques secondes.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 export default function VerifyEmail() {
-  return (
-    <Suspense fallback={<div>Chargement...</div>}>
-      <VerifyEmailContent />
-    </Suspense>
-  );
+	return (
+		<Suspense fallback={<div>Chargement...</div>}>
+			<VerifyEmailContent />
+		</Suspense>
+	);
 }

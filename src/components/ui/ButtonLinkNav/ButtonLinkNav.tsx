@@ -5,22 +5,22 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 interface ButtonLinkNavProps {
-  onClick?: () => void;
-  isMobile?: boolean;
+	onClick?: () => void;
+	isMobile?: boolean;
 }
 
 const ButtonLinkNav: React.FC<ButtonLinkNavProps> = ({ onClick, isMobile = false }) => {
-  const pathname = usePathname();
+	const pathname = usePathname();
 
-  const navItems = [
+	const navItems = [
 	{ path: '/', label: 'Accueil', icon: 'pi pi-home' },
 	{ path: '/recettes', label: 'Recettes', icon: 'pi pi-book' },
 	{ path: '/regions', label: 'Régions', icon: 'pi pi-map-marker' },
 	{ path: '/map', label: 'Carte', icon: 'pi pi-map' },
 	{ path: '/about', label: 'À propos', icon: 'pi pi-info-circle' }
-  ];
+	];
 
-  return (
+	return (
 	<div className={`ButtonLinkNav ${isMobile ? 'mobile' : ''}`}>
 	  <nav>
 		<ul className="menu">
@@ -43,7 +43,7 @@ const ButtonLinkNav: React.FC<ButtonLinkNavProps> = ({ onClick, isMobile = false
 		</ul>
 	  </nav>
 	</div>
-  );
+	);
 };
 
 export default ButtonLinkNav;

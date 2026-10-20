@@ -4,14 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import "./NewsletterPopup.css";
 
 const NewsletterPopup: React.FC = () => {
-  const [showPopup, setShowPopup] = useState(false);
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("");
-  const [closing, setClosing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+	const [showPopup, setShowPopup] = useState(false);
+	const [email, setEmail] = useState("");
+	const [status, setStatus] = useState("");
+	const [closing, setClosing] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
-  // 🔸 Vérifie si la popup doit s'afficher (toutes les 31 jours)
-  useEffect(() => {
+	// 🔸 Vérifie si la popup doit s'afficher (toutes les 31 jours)
+	useEffect(() => {
 	const lastShown = localStorage.getItem("newsletter_last_shown");
 	const oneMonth = 31 * 24 * 60 * 60 * 1000;
 	const now = Date.now();
@@ -23,9 +23,9 @@ const NewsletterPopup: React.FC = () => {
 	  }, 10000); // Affiche après 10 secondes
 	  return () => clearTimeout(timer);
 	}
-  }, []);
+	}, []);
 
-  const subscribeToNewsletter = async (e: React.FormEvent) => {
+	const subscribeToNewsletter = async (e: React.FormEvent) => {
 	e.preventDefault();
 
 	if (!email) return;
@@ -58,7 +58,7 @@ const NewsletterPopup: React.FC = () => {
 	} finally {
 	  setIsLoading(false);
 	}
-  };
+	};
 
 	const handleClose = () => {
 	setClosing(true);
@@ -69,7 +69,7 @@ const NewsletterPopup: React.FC = () => {
 	};
 
 
-  return (
+	return (
 	<AnimatePresence>
 	  {showPopup && (
 		<motion.div
@@ -112,7 +112,7 @@ const NewsletterPopup: React.FC = () => {
 		</motion.div>
 	  )}
 	</AnimatePresence>
-  );
+	);
 };
 
 export default NewsletterPopup;

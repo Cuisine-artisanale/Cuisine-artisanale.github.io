@@ -7,9 +7,9 @@
  * pour que Firestore ne soit téléchargé que lorsqu'une donnée en a réellement besoin.
  */
 export async function loadFirestore() {
-  const [firestore, { db }] = await Promise.all([
-    import('firebase/firestore'),
-    import('./firebase'),
-  ]);
-  return { ...firestore, db };
+	const [firestore, { db }] = await Promise.all([
+		import('firebase/firestore'),
+		import('./firebase'),
+	]);
+	return { ...firestore, db };
 }

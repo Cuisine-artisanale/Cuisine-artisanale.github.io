@@ -5,9 +5,9 @@ import { Button } from 'primereact/button';
 import AddUnitForm from '@/components/features/AddUnitForm/AddUnitForm';
 
 const AddUnit: React.FC = () => {
-  const [dialogVisible, setDialogVisible] = useState(false);
+	const [dialogVisible, setDialogVisible] = useState(false);
 
-  return (
+	return (
 	<div className="add-unit">
 	  <Button
 		label="Ajouter une unité"
@@ -21,7 +21,7 @@ const AddUnit: React.FC = () => {
 		onHide={() => setDialogVisible(false)}
 	  />
 	</div>
-  );
+	);
 };
 
 export default AddUnit;

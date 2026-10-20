@@ -16,10 +16,10 @@ import { useUnits } from '@/hooks/useUnits';
 import { selectableUnits, unitOptionLabel, type UnitDef } from '@/lib/utils/units';
 
 interface AddIngredientFormProps {
-  visible: boolean;
-  onHide: () => void;
-  initialName?: string;
-  onIngredientCreated?: (ingredientId: any) => void;
+	visible: boolean;
+	onHide: () => void;
+	initialName?: string;
+	onIngredientCreated?: (ingredientId: any) => void;
 }
 
 const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, initialName, onIngredientCreated }) => {
@@ -43,7 +43,7 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 		}
 	}, [visible, initialName]);
 
-  	const validateForm = () => {
+		const validateForm = () => {
 		const errors: { name?: string; unit?: string; category?: string } = {};
 
 		if (!name.trim()) {
@@ -108,7 +108,7 @@ const AddIngredientForm: React.FC<AddIngredientFormProps> = ({ visible, onHide, 
 		} finally {
 			setLoading(false);
 		}
-  };
+	};
 
 	useEffect(() => {
 		if (visible) {

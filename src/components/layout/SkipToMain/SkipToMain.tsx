@@ -15,26 +15,26 @@ import './SkipToMain.css';
  * Usage: Place at the beginning of your layout, before the header
  */
 export const SkipToMain: React.FC = () => {
-  const handleSkipClick = () => {
-    const mainContent = document.querySelector('main') || document.querySelector('.wrapper');
-    if (mainContent) {
-      // Focus the main element
-      (mainContent as HTMLElement).focus();
-      mainContent.scrollIntoView();
-    }
-  };
+	const handleSkipClick = () => {
+		const mainContent = document.querySelector('main') || document.querySelector('.wrapper');
+		if (mainContent) {
+			// Focus the main element
+			(mainContent as HTMLElement).focus();
+			mainContent.scrollIntoView();
+		}
+	};
 
-  return (
-    <a
-      href="#main-content"
-      className="skip-to-main"
-      onClick={handleSkipClick}
-      role="navigation"
-      aria-label="Aller au contenu principal"
-    >
-      Aller au contenu principal
-    </a>
-  );
+	return (
+		<a
+			href="#main-content"
+			className="skip-to-main"
+			onClick={handleSkipClick}
+			role="navigation"
+			aria-label="Aller au contenu principal"
+		>
+			Aller au contenu principal
+		</a>
+	);
 };
 
 export default SkipToMain;

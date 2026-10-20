@@ -15,310 +15,310 @@
  */
 
 /* ================================================
-   TOUCH TARGETS GLOBAUX
-   ================================================ */
+	 TOUCH TARGETS GLOBAUX
+	 ================================================ */
 
 /* Boutons : 44 px minimum par défaut. Sélecteurs d'élément, sans !important :
-   un composant qui fixe sa propre taille (navbar, pastilles…) garde la main.
-   Les liens ne sont pas forcés : un lien dans une phrase doit rester dans la phrase. */
+	 un composant qui fixe sa propre taille (navbar, pastilles…) garde la main.
+	 Les liens ne sont pas forcés : un lien dans une phrase doit rester dans la phrase. */
 @media (max-width: 768px) {
-  button,
-  input[type="button"],
-  input[type="submit"] {
+	button,
+	input[type="button"],
+	input[type="submit"] {
 	min-height: 44px;
 	min-width: 44px;
-  }
+	}
 
-  /* Touch feedback - États actifs */
-  button:active,
-  .p-button:active,
-  a.button:active {
+	/* Touch feedback - États actifs */
+	button:active,
+	.p-button:active,
+	a.button:active {
 	transform: scale(0.98) !important;
 	opacity: 0.9 !important;
 	transition: transform 0.1s ease, opacity 0.1s ease !important;
-  }
+	}
 }
 
 /* ================================================
-   HOVER VS TOUCH - Séparation desktop/mobile
-   ================================================ */
+	 HOVER VS TOUCH - Séparation desktop/mobile
+	 ================================================ */
 
 /* Desktop uniquement - Hover effects */
 @media (hover: hover) and (pointer: fine) {
-  /* Hover cards */
-  .recipe-card:hover,
-  .Post:hover,
-  .recette-card:hover {
+	/* Hover cards */
+	.recipe-card:hover,
+	.Post:hover,
+	.recette-card:hover {
 	transform: translateY(-6px);
 	box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
-  }
+	}
 
-  /* Hover images */
-  .recipe-image-container:hover .recipe-image,
-  .recette-desc-images img:hover {
+	/* Hover images */
+	.recipe-image-container:hover .recipe-image,
+	.recette-desc-images img:hover {
 	transform: scale(1.08);
-  }
+	}
 
-  /* Hover buttons */
-  button:hover:not(:active),
-  .p-button:hover:not(:active) {
+	/* Hover buttons */
+	button:hover:not(:active),
+	.p-button:hover:not(:active) {
 	filter: brightness(1.05);
-  }
+	}
 }
 
 /* Mobile - Désactiver les hover, garder uniquement active */
 @media (hover: none) and (pointer: coarse) {
-  /* Désactiver tous les hover transformations */
-  *:hover {
+	/* Désactiver tous les hover transformations */
+	*:hover {
 	transform: none !important;
-  }
+	}
 
-  /* Touch feedback uniquement sur :active */
-  button:active,
-  .p-button:active,
-  .recipe-card:active,
-  a:active {
+	/* Touch feedback uniquement sur :active */
+	button:active,
+	.p-button:active,
+	.recipe-card:active,
+	a:active {
 	transform: scale(0.98) !important;
 	opacity: 0.95 !important;
-  }
+	}
 }
 
 /* ================================================
-   INPUTS & FORMS - iOS Safari Optimization
-   ================================================ */
+	 INPUTS & FORMS - iOS Safari Optimization
+	 ================================================ */
 
 @media (max-width: 768px) {
-  /* Font-size minimum 16px pour éviter le zoom iOS */
-  input,
-  textarea,
-  select,
-  .p-inputtext,
-  .p-dropdown,
-  .p-multiselect {
+	/* Font-size minimum 16px pour éviter le zoom iOS */
+	input,
+	textarea,
+	select,
+	.p-inputtext,
+	.p-dropdown,
+	.p-multiselect {
 	font-size: 16px !important;
 	min-height: 44px !important;
 	padding: 0.75rem !important;
-  }
+	}
 
-  /* Textarea doit être assez grand pour touch */
-  textarea,
-  .p-textarea {
+	/* Textarea doit être assez grand pour touch */
+	textarea,
+	.p-textarea {
 	min-height: 120px !important;
 	padding: 1rem !important;
-  }
+	}
 
-  /* Checkboxes et radio buttons */
-  input[type="checkbox"],
-  input[type="radio"] {
+	/* Checkboxes et radio buttons */
+	input[type="checkbox"],
+	input[type="radio"] {
 	min-width: 24px !important;
 	min-height: 24px !important;
 	transform: scale(1.3);
 	margin: 0.5rem;
-  }
+	}
 
-  /* Labels cliquables (sans padding imposé : il décalait tous les formulaires) */
-  label {
+	/* Labels cliquables (sans padding imposé : il décalait tous les formulaires) */
+	label {
 	cursor: pointer;
 	user-select: none;
 	-webkit-user-select: none;
-  }
+	}
 }
 
 /* ================================================
-   DIALOGS - Bottom Sheets Mobile
-   ================================================ */
+	 DIALOGS - Bottom Sheets Mobile
+	 ================================================ */
 
 @media (max-width: 768px) {
-  /* Dialog transformé en bottom sheet */
+	/* Dialog transformé en bottom sheet */
 
-  /* Handle de drag (indicateur visuel) */
+	/* Handle de drag (indicateur visuel) */
 }
 
 @keyframes slideUp {
-  from {
+	from {
 	transform: translateY(100%);
 	opacity: 0;
-  }
-  to {
+	}
+	to {
 	transform: translateY(0);
 	opacity: 1;
-  }
+	}
 }
 
 /* ================================================
-   NAVBAR - Mobile Optimizations
-   ================================================ */
+	 NAVBAR - Mobile Optimizations
+	 ================================================ */
 
 @media (max-width: 768px) {
-  /* Navbar toujours visible (pas d'auto-hide frustrant) */
-  .navbar {
+	/* Navbar toujours visible (pas d'auto-hide frustrant) */
+	.navbar {
 	position: sticky !important;
 	top: 0 !important;
 	transform: translateY(0) !important;
-  }
+	}
 
-  /* Enlever l'animation auto-hide */
-  .navbar-hidden {
+	/* Enlever l'animation auto-hide */
+	.navbar-hidden {
 	transform: translateY(0) !important;
-  }
+	}
 
-  /* Menu items plus grands pour touch */
-  .navbar-navigation a {
+	/* Menu items plus grands pour touch */
+	.navbar-navigation a {
 	min-height: 48px !important;
 	padding: 1rem !important;
 	display: flex;
 	align-items: center;
-  }
+	}
 }
 
 /* ================================================
-   FILTRES - Bottom Sheet Mobile
-   ================================================ */
+	 FILTRES - Bottom Sheet Mobile
+	 ================================================ */
 
 @media (max-width: 768px) {
-  /* Filtre en bottom sheet sur mobile */
+	/* Filtre en bottom sheet sur mobile */
 
-  /* Checkbox groups plus espacés */
-  .Filtre_type > div {
+	/* Checkbox groups plus espacés */
+	.Filtre_type > div {
 	padding: 1rem !important;
 	min-height: 48px;
-  }
+	}
 
-  .Filtre_type input[type="checkbox"] {
+	.Filtre_type input[type="checkbox"] {
 	min-width: 24px !important;
 	min-height: 24px !important;
-  }
+	}
 }
 
 /* ================================================
-   CARDS - Touch Optimizations
-   ================================================ */
+	 CARDS - Touch Optimizations
+	 ================================================ */
 
 @media (max-width: 768px) {
-  /* Recipe cards spacing */
-  .recipe-card,
-  .Post,
-  .recette-card {
+	/* Recipe cards spacing */
+	.recipe-card,
+	.Post,
+	.recette-card {
 	margin-bottom: 1.5rem;
-  }
+	}
 
-  /* Action buttons dans les cards */
-  .recipe-actions,
-  .Post_admin_actions {
+	/* Action buttons dans les cards */
+	.recipe-actions,
+	.Post_admin_actions {
 	gap: 1rem !important;
-  }
+	}
 
-  .recipe-actions button,
-  .Post_admin_actions button {
+	.recipe-actions button,
+	.Post_admin_actions button {
 	flex: 1;
 	min-height: 44px !important;
-  }
+	}
 
-  /* Rating stars plus grandes */
-  .recipe-rating .p-rating .p-icon {
+	/* Rating stars plus grandes */
+	.recipe-rating .p-rating .p-icon {
 	font-size: 1.25rem !important;
 	padding: 0.25rem;
-  }
+	}
 }
 
 /* ================================================
-   TABLES - Mobile Scroll
-   ================================================ */
+	 TABLES - Mobile Scroll
+	 ================================================ */
 
 @media (max-width: 768px) {
-  /* Tables scroll horizontalement */
-  .p-datatable-wrapper {
+	/* Tables scroll horizontalement */
+	.p-datatable-wrapper {
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
-  }
+	}
 
-  /* Table cells plus grandes */
-  .p-datatable tbody td,
-  .p-datatable thead th {
+	/* Table cells plus grandes */
+	.p-datatable tbody td,
+	.p-datatable thead th {
 	padding: 1rem !important;
 	min-height: 48px;
-  }
+	}
 }
 
 /* ================================================
-   TOAST - Mobile Position
-   ================================================ */
+	 TOAST - Mobile Position
+	 ================================================ */
 
 @media (max-width: 768px) {
-  /* Toast en haut sur mobile (plus accessible) */
-  .p-toast {
+	/* Toast en haut sur mobile (plus accessible) */
+	.p-toast {
 	top: 1rem !important;
 	left: 1rem !important;
 	right: 1rem !important;
 	width: auto !important;
-  }
+	}
 
-  .p-toast-message {
+	.p-toast-message {
 	margin: 0 0 0.5rem 0 !important;
-  }
+	}
 }
 
 /* ================================================
-   SAFE AREA - iPhone Notch Support
-   ================================================ */
+	 SAFE AREA - iPhone Notch Support
+	 ================================================ */
 
 @supports (padding: env(safe-area-inset-bottom)) {
-  /* (encoche du haut gérée dans Navbar.css ; la navbar n'a pas à porter la marge du bas) */
-  body {
+	/* (encoche du haut gérée dans Navbar.css ; la navbar n'a pas à porter la marge du bas) */
+	body {
 	padding-bottom: env(safe-area-inset-bottom);
-  }
+	}
 }
 
 /* ================================================
-   ACCESSIBILITY - Focus Visible
-   ================================================ */
+	 ACCESSIBILITY - Focus Visible
+	 ================================================ */
 
 /* Focus visible pour navigation clavier (a11y) */
 :focus-visible {
-  outline: 3px solid var(--primary-color) !important;
-  outline-offset: 2px !important;
+	outline: 3px solid var(--primary-color) !important;
+	outline-offset: 2px !important;
 }
 
 /* Mais pas sur touch/click */
 :focus:not(:focus-visible) {
-  outline: none !important;
+	outline: none !important;
 }
 
 /* ================================================
-   SCROLL - Smooth & Touch Friendly
-   ================================================ */
+	 SCROLL - Smooth & Touch Friendly
+	 ================================================ */
 
 @media (max-width: 768px) {
-  /* Scroll smooth natif */
-  html {
+	/* Scroll smooth natif */
+	html {
 	scroll-behavior: smooth;
 	-webkit-overflow-scrolling: touch;
-  }
+	}
 
-  /* Scrollbars plus fines sur mobile */
-  * {
+	/* Scrollbars plus fines sur mobile */
+	* {
 	scrollbar-width: thin;
 	scrollbar-color: var(--primary-color) transparent;
-  }
+	}
 
-  *::-webkit-scrollbar {
+	*::-webkit-scrollbar {
 	width: 4px;
 	height: 4px;
-  }
+	}
 
-  *::-webkit-scrollbar-thumb {
+	*::-webkit-scrollbar-thumb {
 	background: var(--primary-color);
 	border-radius: 2px;
-  }
+	}
 }
 
 /* ================================================
-   PULL TO REFRESH - Désactiver sur PWA
-   ================================================ */
+	 PULL TO REFRESH - Désactiver sur PWA
+	 ================================================ */
 
 @media (max-width: 768px) {
-  /* Éviter le pull-to-refresh du navigateur */
-  body {
+	/* Éviter le pull-to-refresh du navigateur */
+	body {
 	overscroll-behavior-y: contain;
-  }
+	}
 }

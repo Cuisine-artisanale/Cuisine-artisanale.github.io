@@ -12,33 +12,33 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 
 interface AddPostFormProps {
-  closeForm: () => void;
-  /** Appelé après une publication réussie */
-  onPosted?: () => void;
+	closeForm: () => void;
+	/** Appelé après une publication réussie */
+	onPosted?: () => void;
 }
 
 // List of inappropriate words and phrases (you can expand this list)
 const inappropriateContent = [
-  // French inappropriate words
-  'merde', 'putain', 'con', 'connard', 'salope', 'bite', 'cul', 'enculé', 'fdp', 'ta gueule', 'nique', 'bordel', 'chiant', 'emmerde', 'enculeur', 'pédé', 'gouine', 'batard', 'enculée', 'test', 'penis',
+	// French inappropriate words
+	'merde', 'putain', 'con', 'connard', 'salope', 'bite', 'cul', 'enculé', 'fdp', 'ta gueule', 'nique', 'bordel', 'chiant', 'emmerde', 'enculeur', 'pédé', 'gouine', 'batard', 'enculée', 'test', 'penis',
 
-  // English inappropriate words
-  'fuck', 'shit', 'bitch', 'ass', 'dick', 'bastard', 'crap', 'slut', 'motherfucker', 'cunt', 'damn', 'pussy', 'prick', 'whore', 'cock', 'retard', 'jerk', 'douche', 'tests'
+	// English inappropriate words
+	'fuck', 'shit', 'bitch', 'ass', 'dick', 'bastard', 'crap', 'slut', 'motherfucker', 'cunt', 'damn', 'pussy', 'prick', 'whore', 'cock', 'retard', 'jerk', 'douche', 'tests'
 ];
 
 const checkInappropriateContent = (text: string): boolean => {
-  const lowerText = text.toLowerCase();
-  return inappropriateContent.some(word => lowerText.includes(word));
+	const lowerText = text.toLowerCase();
+	return inappropriateContent.some(word => lowerText.includes(word));
 };
 
 const AddPostForm: React.FC<AddPostFormProps> = ({ closeForm, onPosted }) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+	const [title, setTitle] = useState('');
+	const [content, setContent] = useState('');
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const { user } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 	e.preventDefault();
 	setError(null);
 
@@ -68,9 +68,9 @@ const AddPostForm: React.FC<AddPostFormProps> = ({ closeForm, onPosted }) => {
 	} finally {
 	  setLoading(false);
 	}
-  };
+	};
 
-  return (
+	return (
 	<div className="AddPostForm">
 	  <form className="formPost" onSubmit={handleSubmit}>
 		<h3>Nouveau Post</h3>
@@ -122,7 +122,7 @@ const AddPostForm: React.FC<AddPostFormProps> = ({ closeForm, onPosted }) => {
 		</div>
 	  </form>
 	</div>
-  );
+	);
 };
 
 export default AddPostForm;

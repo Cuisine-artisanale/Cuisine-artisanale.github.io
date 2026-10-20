@@ -592,7 +592,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 		}
 	};
 
-  	const handleAddReview = async () => {
+		const handleAddReview = async () => {
 		if (!userId) {
 			showToast({
 				severity: 'warn',
@@ -672,7 +672,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 		}
 	};
 
-  return (
+	return (
 	<>
 		<div className="RecetteDesc">
 			<ConfirmDialog />
@@ -1213,7 +1213,7 @@ const RecetteDesc: React.FC<RecetteDescProps> = ({
 			</div>
 		</Dialog>
 	</>
-  );
+	);
 };
 
 export default RecetteDesc;

@@ -11,45 +11,45 @@ const listeners = new Set<() => void>();
 let reloadOnControllerChange = false;
 
 function setWaitingWorker(worker: ServiceWorker | null) {
-  waitingWorker = worker;
-  listeners.forEach((listener) => listener());
+	waitingWorker = worker;
+	listeners.forEach((listener) => listener());
 }
 
 export function getWaitingWorker() {
-  return waitingWorker;
+	return waitingWorker;
 }
 
 export function subscribeWaitingWorker(listener: () => void) {
-  listeners.add(listener);
-  return () => {
+	listeners.add(listener);
+	return () => {
 	listeners.delete(listener);
-  };
+	};
 }
 
 /** Active la version en attente ; la page se recharge quand elle prend le contrôle. */
 export function applyUpdate() {
-  if (!waitingWorker) return;
-  reloadOnControllerChange = true;
-  waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+	if (!waitingWorker) return;
+	reloadOnControllerChange = true;
+	waitingWorker.postMessage({ type: 'SKIP_WAITING' });
 }
 
 function watchInstalling(registration: ServiceWorkerRegistration) {
-  const worker = registration.installing;
-  if (!worker) return;
-  worker.addEventListener('statechange', () => {
+	const worker = registration.installing;
+	if (!worker) return;
+	worker.addEventListener('statechange', () => {
 	// Sans contrôleur, c'est la toute première installation : rien à proposer
 	if (worker.state === 'installed' && navigator.serviceWorker.controller) {
 	  setWaitingWorker(worker);
 	}
-  });
+	});
 }
 
 export function registerServiceWorker() {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+	if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
 	return;
-  }
+	}
 
-  const register = () => {
+	const register = () => {
 	navigator.serviceWorker
 	  .register('/sw.js')
 	  .then((registration) => {
@@ -73,21 +73,21 @@ export function registerServiceWorker() {
 	  reloadOnControllerChange = false;
 	  window.location.reload();
 	});
-  };
+	};
 
-  // L'hydratation peut survenir après l'événement load : enregistrer tout de suite dans ce cas
-  if (document.readyState === 'complete') {
+	// L'hydratation peut survenir après l'événement load : enregistrer tout de suite dans ce cas
+	if (document.readyState === 'complete') {
 	register();
-  } else {
+	} else {
 	window.addEventListener('load', register, { once: true });
-  }
+	}
 }
 
 /**
  * Désinstaller le Service Worker (utile pour le debug)
  */
 export async function unregisterServiceWorker() {
-  if ('serviceWorker' in navigator) {
+	if ('serviceWorker' in navigator) {
 	const registrations = await navigator.serviceWorker.getRegistrations();
 	for (const registration of registrations) {
 	  await registration.unregister();
@@ -98,5 +98,5 @@ export async function unregisterServiceWorker() {
 	for (const name of cacheNames) {
 	  await caches.delete(name);
 	}
-  }
+	}
 }

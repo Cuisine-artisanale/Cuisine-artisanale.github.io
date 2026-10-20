@@ -4,21 +4,21 @@ import "./ThemeContext.css";
 
 // Création du contexte du thème
 export const ThemeContext = createContext({
-  theme: "light",
-  toggleTheme: () => {},
+	theme: "light",
+	toggleTheme: () => {},
 });
 
 import { ReactNode } from "react";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<string>(() => {
+	const [theme, setTheme] = useState<string>(() => {
 	if (typeof window !== "undefined") {
 	  return localStorage.getItem("theme") || "light";
 	}
 	return "light";
-  });
+	});
 
-  useEffect(() => {
+	useEffect(() => {
 	// Apply theme using data-theme attribute
 	document.documentElement.setAttribute('data-theme', theme);
 
@@ -34,15 +34,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 	}, 300);
 
 	return () => clearTimeout(timer);
-  }, [theme]);
+	}, [theme]);
 
-  const toggleTheme = () => {
+	const toggleTheme = () => {
 	setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
-  };
+	};
 
-  return (
+	return (
 	<ThemeContext.Provider value={{ theme, toggleTheme }}>
 	  {children}
 	</ThemeContext.Provider>
-  );
+	);
 }

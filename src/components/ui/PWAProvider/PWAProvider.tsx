@@ -12,7 +12,7 @@ import UpdateBanner from '@/components/ui/UpdateBanner/UpdateBanner';
  * et gère les fonctionnalités PWA
  */
 export default function PWAProvider() {
-  useEffect(() => {
+	useEffect(() => {
 	// Enregistrer le Service Worker en production uniquement
 	if (process.env.NODE_ENV === 'production') {
 	  registerServiceWorker();
@@ -33,7 +33,7 @@ export default function PWAProvider() {
 	  window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 	  window.removeEventListener('appinstalled', handleAppInstalled);
 	};
-  }, []);
+	}, []);
 
-  return <UpdateBanner />;
+	return <UpdateBanner />;
 }

@@ -7,14 +7,14 @@
  * (« Œufs » = « oeuf »), pluriel simple ignoré. Deux noms de même clé désignent le même ingrédient.
  */
 export function ingredientNameKey(name: string | undefined | null): string {
-  return (name || '')
-    .toLowerCase()
-    .replace(/œ/g, 'oe')
-    .replace(/æ/g, 'ae')
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[\s.'’-]/g, '')
-    .replace(/s$/, '');
+	return (name || '')
+		.toLowerCase()
+		.replace(/œ/g, 'oe')
+		.replace(/æ/g, 'ae')
+		.normalize('NFD')
+		.replace(/[̀-ͯ]/g, '')
+		.replace(/[\s.'’-]/g, '')
+		.replace(/s$/, '');
 }
 
 /**
@@ -22,11 +22,11 @@ export function ingredientNameKey(name: string | undefined | null): string {
  * initial supprimé (« de farine » → « Farine »), première lettre en majuscule.
  */
 export function formatIngredientName(name: string): string {
-  const cleaned = name
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/^(?:de\s+la\s+|de\s+l['’]\s*|de\s+|du\s+|des\s+|d['’]\s*)/i, '')
-    .replace(/[\s.,;:]+$/, '')
-    .trim();
-  return cleaned ? cleaned.charAt(0).toLocaleUpperCase('fr-FR') + cleaned.slice(1) : '';
+	const cleaned = name
+		.replace(/\s+/g, ' ')
+		.trim()
+		.replace(/^(?:de\s+la\s+|de\s+l['’]\s*|de\s+|du\s+|des\s+|d['’]\s*)/i, '')
+		.replace(/[\s.,;:]+$/, '')
+		.trim();
+	return cleaned ? cleaned.charAt(0).toLocaleUpperCase('fr-FR') + cleaned.slice(1) : '';
 }

@@ -4,14 +4,14 @@ import { auth } from "@/lib/config/firebase-app";
 import { loadFirestore } from "@/lib/config/firestore-lazy";
 import { trackEvent } from "@/lib/analytics/track";
 import {
-  User,
-  onAuthStateChanged,
-  signOut,
-  GoogleAuthProvider,
-  signInWithPopup,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile
+	User,
+	onAuthStateChanged,
+	signOut,
+	GoogleAuthProvider,
+	signInWithPopup,
+	createUserWithEmailAndPassword,
+	signInWithEmailAndPassword,
+	updateProfile
 } from "firebase/auth";
 
 // Flag pour désactiver temporairement la vérification email
@@ -19,28 +19,28 @@ import {
 const REQUIRE_EMAIL_VERIFICATION = false;
 
 interface AuthContextType {
-  user: User | null;
-  role: string | null;
-  displayName?: string | null;
-  logout: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
-  refreshUserData: () => Promise<void>;
-  loading: boolean;
-  error: string | null;
+	user: User | null;
+	role: string | null;
+	displayName?: string | null;
+	logout: () => Promise<void>;
+	signInWithGoogle: () => Promise<void>;
+	signInWithEmail: (email: string, password: string) => Promise<void>;
+	signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
+	refreshUserData: () => Promise<void>;
+	loading: boolean;
+	error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const [user, setUser] = useState<User | null>(null);
+	const [role, setRole] = useState<string | null>(null);
+	const [displayName, setDisplayName] = useState<string | null>(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  const fetchUserRole = async (userId: string) => {
+	const fetchUserRole = async (userId: string) => {
 	const { db, doc, getDoc } = await loadFirestore();
 	const userRef = doc(db, "users", userId);
 	const userDoc = await getDoc(userRef);
@@ -48,9 +48,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  return userDoc.data().role;
 	}
 	return null;
-  };
+	};
 
-  const fetchUserDisplayName = async (userId: string, googleDisplayName: string | null) => {
+	const fetchUserDisplayName = async (userId: string, googleDisplayName: string | null) => {
 	try {
 	  const { db, doc, getDoc } = await loadFirestore();
 	  const userRef = doc(db, "users", userId);
@@ -67,9 +67,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  console.error("Error fetching display name:", err);
 	  return googleDisplayName || null;
 	}
-  };
+	};
 
-  const createUserInFirestore = async (userId: string, email: string, displayName: string, emailVerified: boolean = false) => {
+	const createUserInFirestore = async (userId: string, email: string, displayName: string, emailVerified: boolean = false) => {
 	const { db, doc, setDoc } = await loadFirestore();
 	const userRef = doc(db, "users", userId);
 	// À l'inscription, ce profil est écrit deux fois en parallèle (onAuthStateChanged, puis signUpWithEmail
@@ -82,9 +82,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  ...(displayName.trim() && { displayName: displayName.trim() }),
 	  ...(emailVerified && { emailVerified: true, emailVerifiedAt: new Date() })
 	}, { merge: true });
-  };
+	};
 
-  const refreshUserData = async () => {
+	const refreshUserData = async () => {
 	if (!user) return;
 	try {
 	  const { db, doc, getDoc } = await loadFirestore();
@@ -103,9 +103,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  console.error("Error refreshing user data:", err);
 	  setError(err instanceof Error ? err.message : "Error refreshing user data");
 	}
-  };
+	};
 
-  useEffect(() => {
+	useEffect(() => {
 	const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
 	  try {
 		if (currentUser) {
@@ -138,9 +138,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	});
 
 	return () => unsubscribe();
-  }, []);
+	}, []);
 
-  const logout = async () => {
+	const logout = async () => {
 	try {
 	  setError(null);
 	  await signOut(auth);
@@ -150,9 +150,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  console.error("Error signing out:", err);
 	  setError(err instanceof Error ? err.message : "Error signing out");
 	}
-  };
+	};
 
-  const signInWithGoogle = async () => {
+	const signInWithGoogle = async () => {
 	try {
 	  setError(null);
 	  const provider = new GoogleAuthProvider();
@@ -172,9 +172,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  setError(err instanceof Error ? err.message : "Error signing in with Google");
 	  throw err;
 	}
-  };
+	};
 
-  const signInWithEmail = async (email: string, password: string) => {
+	const signInWithEmail = async (email: string, password: string) => {
 	try {
 	  setError(null);
 	  const result = await signInWithEmailAndPassword(auth, email, password);
@@ -194,9 +194,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  setError(err.message || "Error signing in with email");
 	  throw err;
 	}
-  };
+	};
 
-  const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+	const signUpWithEmail = async (email: string, password: string, displayName: string) => {
 	try {
 	  setError(null);
 
@@ -260,9 +260,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	  setError(err.message || "Error signing up with email");
 	  throw err;
 	}
-  };
+	};
 
-  return (
+	return (
 	<AuthContext.Provider value={{
 	  user,
 	  role,
@@ -277,7 +277,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	}}>
 	  {children}
 	</AuthContext.Provider>
-  );
+	);
 };
 
 export const useAuth = () => {

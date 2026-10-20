@@ -2,7 +2,7 @@ import React from 'react';
 import './LienUtiles.css';
 
 const LienUtiles: React.FC = () => {
-  return (
+	return (
 	<div className="LienUtiles">
 	  <ul>
 		<li>
@@ -22,7 +22,7 @@ const LienUtiles: React.FC = () => {
 		</li>
 	  </ul>
 	</div>
-  );
+	);
 };
 
 export default LienUtiles;

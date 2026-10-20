@@ -12,31 +12,31 @@ const BOT_PATTERN = /bot|crawl|spider|slurp|preview|facebookexternalhit|headless
  * Valeurs hors des listes prévues ignorées ; réponse toujours 204 (rien à afficher).
  */
 export async function POST(request: NextRequest) {
-  const noContent = new NextResponse(null, { status: 204 });
-  if (BOT_PATTERN.test(request.headers.get('user-agent') || '')) return noContent;
+	const noContent = new NextResponse(null, { status: 204 });
+	if (BOT_PATTERN.test(request.headers.get('user-agent') || '')) return noContent;
 
-  const body = await request.json().catch(() => null);
-  if (!body) return noContent;
+	const body = await request.json().catch(() => null);
+	if (!body) return noContent;
 
-  // Vue d'une fiche recette : compte pour le classement par popularité de la liste
-  if (body.type === 'view') {
-    if (!isRecipeId(body.recipeId)) return noContent;
-    const viewLimit = await checkRateLimit({ action: 'track-view', identifier: getClientIp(request), limit: 120, windowSeconds: 3600 });
-    if (viewLimit.allowed) await recordRecipeView(body.recipeId);
-    return noContent;
-  }
+	// Vue d'une fiche recette : compte pour le classement par popularité de la liste
+	if (body.type === 'view') {
+		if (!isRecipeId(body.recipeId)) return noContent;
+		const viewLimit = await checkRateLimit({ action: 'track-view', identifier: getClientIp(request), limit: 120, windowSeconds: 3600 });
+		if (viewLimit.allowed) await recordRecipeView(body.recipeId);
+		return noContent;
+	}
 
-  if (!isTrafficSource(body.source)) return noContent;
+	if (!isTrafficSource(body.source)) return noContent;
 
-  // Limite large : un visiteur normal envoie quelques appels par heure
-  const rateLimit = await checkRateLimit({ action: 'track', identifier: getClientIp(request), limit: 30, windowSeconds: 3600 });
-  if (!rateLimit.allowed) return noContent;
+	// Limite large : un visiteur normal envoie quelques appels par heure
+	const rateLimit = await checkRateLimit({ action: 'track', identifier: getClientIp(request), limit: 30, windowSeconds: 3600 });
+	if (!rateLimit.allowed) return noContent;
 
-  if (body.type === 'visit' && isLandingPage(body.page)) {
-    await recordTraffic({ type: 'visit', source: body.source, page: body.page });
-  } else if (body.type === 'event' && (CLIENT_EVENTS as readonly string[]).includes(body.event)) {
-    await recordTraffic({ type: 'event', event: body.event, source: body.source });
-  }
+	if (body.type === 'visit' && isLandingPage(body.page)) {
+		await recordTraffic({ type: 'visit', source: body.source, page: body.page });
+	} else if (body.type === 'event' && (CLIENT_EVENTS as readonly string[]).includes(body.event)) {
+		await recordTraffic({ type: 'event', event: body.event, source: body.source });
+	}
 
-  return noContent;
+	return noContent;
 }

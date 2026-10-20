@@ -1,145 +1,145 @@
 /* Pages « Recettes par région » */
 .regions-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  min-height: 100vh;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	min-height: 100vh;
 }
 
 .regions-header {
-  margin: 1rem 0 2rem;
+	margin: 1rem 0 2rem;
 }
 
 .regions-header h1 {
-  color: var(--text-color);
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
+	color: var(--text-color);
+	font-size: 2rem;
+	margin-bottom: 0.75rem;
 }
 
 .regions-header p {
-  color: var(--text-color-secondary);
-  max-width: 70ch;
-  line-height: 1.6;
+	color: var(--text-color-secondary);
+	max-width: 70ch;
+	line-height: 1.6;
 }
 
 .regions-header a,
 .regions-empty a {
-  color: var(--primary-color);
-  text-decoration: underline;
+	color: var(--primary-color);
+	text-decoration: underline;
 }
 
 /* Départements de la région */
 .regions-departements,
 .regions-others ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 1.25rem 0 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	list-style: none;
+	padding: 0;
+	margin: 1.25rem 0 0;
 }
 
 .regions-departements li > *,
 .regions-others a {
-  display: inline-block;
-  padding: 0.35rem 0.8rem;
-  border: 1px solid var(--surface-border);
-  border-radius: 999px;
-  background: var(--surface-card);
-  color: var(--text-color-secondary);
-  font-size: 0.9rem;
-  text-decoration: none;
+	display: inline-block;
+	padding: 0.35rem 0.8rem;
+	border: 1px solid var(--surface-border);
+	border-radius: 999px;
+	background: var(--surface-card);
+	color: var(--text-color-secondary);
+	font-size: 0.9rem;
+	text-decoration: none;
 }
 
 .regions-departements a,
 .regions-others a {
-  color: var(--text-color);
-  font-weight: 600;
+	color: var(--text-color);
+	font-weight: 600;
 }
 
 .regions-departements a:hover,
 .regions-others a:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+	border-color: var(--primary-color);
+	color: var(--primary-color);
 }
 
 /* Grille des recettes d'une région */
 .regions-recipes {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 2rem;
 }
 
 .regions-empty {
-  padding: 2rem;
-  border-radius: var(--border-radius);
-  background: var(--surface-card);
-  color: var(--text-color-secondary);
-  text-align: center;
+	padding: 2rem;
+	border-radius: var(--border-radius);
+	background: var(--surface-card);
+	color: var(--text-color-secondary);
+	text-align: center;
 }
 
 .regions-others {
-  margin-top: 3rem;
+	margin-top: 3rem;
 }
 
 .regions-others h2 {
-  color: var(--text-color);
-  font-size: 1.25rem;
+	color: var(--text-color);
+	font-size: 1.25rem;
 }
 
 /* Index des régions */
 .regions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 1.5rem;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 }
 
 .regions-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  height: 100%;
-  padding: 1.5rem;
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius);
-  background: var(--surface-card);
-  box-shadow: var(--card-shadow);
-  color: var(--text-color);
-  text-decoration: none;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	height: 100%;
+	padding: 1.5rem;
+	border: 1px solid var(--surface-border);
+	border-radius: var(--border-radius);
+	background: var(--surface-card);
+	box-shadow: var(--card-shadow);
+	color: var(--text-color);
+	text-decoration: none;
 }
 
 .regions-card:hover {
-  border-color: var(--primary-color);
+	border-color: var(--primary-color);
 }
 
 .regions-card h2 {
-  font-size: 1.2rem;
-  margin: 0;
+	font-size: 1.2rem;
+	margin: 0;
 }
 
 .regions-card p {
-  flex: 1;
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 0.95rem;
-  line-height: 1.5;
+	flex: 1;
+	margin: 0;
+	color: var(--text-color-secondary);
+	font-size: 0.95rem;
+	line-height: 1.5;
 }
 
 .regions-card-count {
-  color: var(--primary-color);
-  font-size: 0.9rem;
-  font-weight: 600;
+	color: var(--primary-color);
+	font-size: 0.9rem;
+	font-weight: 600;
 }
 
 @media (max-width: 768px) {
-  .regions-page {
-    padding: 1rem;
-  }
+	.regions-page {
+		padding: 1rem;
+	}
 
-  .regions-header h1 {
-    font-size: 1.6rem;
-  }
+	.regions-header h1 {
+		font-size: 1.6rem;
+	}
 }

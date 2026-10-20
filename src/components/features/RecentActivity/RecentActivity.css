@@ -1,121 +1,121 @@
 /* Activité récente de l'utilisateur (page compte).
-   mobile.css transforme tous les liens en blocs de 44 px avec retrait : on fixe ici leur mise en forme. */
+	 mobile.css transforme tous les liens en blocs de 44 px avec retrait : on fixe ici leur mise en forme. */
 
 .recent-activity {
-  padding: 1.25rem;
-  border: 1px solid var(--surface-border);
-  border-radius: 12px;
-  background: var(--surface-card);
+	padding: 1.25rem;
+	border: 1px solid var(--surface-border);
+	border-radius: 12px;
+	background: var(--surface-card);
 }
 
 .recent-activity h3 {
-  margin: 0 0 0.75rem;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-color);
+	margin: 0 0 0.75rem;
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: var(--text-color);
 }
 
 .recent-activity-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
 .recent-activity-list li {
-  border-bottom: 1px solid var(--surface-border);
+	border-bottom: 1px solid var(--surface-border);
 }
 
 .recent-activity-list li:last-child {
-  border-bottom: none;
+	border-bottom: none;
 }
 
 .recent-activity .recent-activity-row {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  min-height: 0;
-  padding: 0.75rem 0.25rem;
-  color: var(--text-color);
-  font-weight: 400;
-  text-decoration: none;
+	display: flex;
+	align-items: center;
+	gap: 0.85rem;
+	min-height: 0;
+	padding: 0.75rem 0.25rem;
+	color: var(--text-color);
+	font-weight: 400;
+	text-decoration: none;
 }
 
 .recent-activity a.recent-activity-row:hover {
-  background: var(--surface-hover);
-  color: var(--text-color);
+	background: var(--surface-hover);
+	color: var(--text-color);
 }
 
 .recent-activity-icon {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: var(--surface-section);
-  color: var(--primary-color);
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 50%;
+	background: var(--surface-section);
+	color: var(--primary-color);
 }
 
 /* En attente de validation : ton d'avertissement */
 .recent-activity-icon.is-pending {
-  background: var(--warning-50);
-  color: var(--warning-900);
+	background: var(--warning-50);
+	color: var(--warning-900);
 }
 
 .recent-activity-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
 }
 
 .recent-activity-text strong {
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .recent-activity-text small,
 .recent-activity-date {
-  color: var(--text-color-secondary);
-  font-size: 0.85rem;
+	color: var(--text-color-secondary);
+	font-size: 0.85rem;
 }
 
 .recent-activity-date {
-  flex: none;
-  white-space: nowrap;
+	flex: none;
+	white-space: nowrap;
 }
 
 .recent-activity-empty {
-  margin: 0;
-  color: var(--text-color-secondary);
+	margin: 0;
+	color: var(--text-color-secondary);
 }
 
 .recent-activity-empty p {
-  margin: 0 0 0.75rem;
+	margin: 0 0 0.75rem;
 }
 
 .recent-activity .recent-activity-cta {
-  display: inline-flex;
-  min-height: 0;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  background: var(--primary-color);
-  color: var(--text-color-inverted, #fff);
-  font-weight: 600;
-  text-decoration: none;
+	display: inline-flex;
+	min-height: 0;
+	padding: 0.5rem 1rem;
+	border-radius: 999px;
+	background: var(--primary-color);
+	color: var(--text-color-inverted, #fff);
+	font-weight: 600;
+	text-decoration: none;
 }
 
 @media (max-width: 600px) {
-  /* La date passe sous le texte */
-  .recent-activity .recent-activity-row {
-    flex-wrap: wrap;
-  }
+	/* La date passe sous le texte */
+	.recent-activity .recent-activity-row {
+		flex-wrap: wrap;
+	}
 
-  .recent-activity-date {
-    width: 100%;
-    padding-left: 3.1rem;
-  }
+	.recent-activity-date {
+		width: 100%;
+		padding-left: 3.1rem;
+	}
 }

@@ -1,72 +1,72 @@
 .offline-page {
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 2.5rem 1rem 3rem;
-  text-align: center;
+	max-width: 560px;
+	margin: 0 auto;
+	padding: 2.5rem 1rem 3rem;
+	text-align: center;
 }
 
 .offline-icon {
-  font-size: 2.5rem;
-  color: var(--text-color-secondary);
-  opacity: 0.6;
+	font-size: 2.5rem;
+	color: var(--text-color-secondary);
+	opacity: 0.6;
 }
 
 .offline-page h1 {
-  margin: 1rem 0 0.5rem;
-  color: var(--text-color);
-  font-size: 1.6rem;
+	margin: 1rem 0 0.5rem;
+	color: var(--text-color);
+	font-size: 1.6rem;
 }
 
 .offline-page > p {
-  margin: 0 0 2rem;
-  color: var(--text-color-secondary);
+	margin: 0 0 2rem;
+	color: var(--text-color-secondary);
 }
 
 .offline-page section {
-  text-align: left;
+	text-align: left;
 }
 
 .offline-page h2 {
-  margin: 0 0 0.75rem;
-  font-size: 1.1rem;
-  color: var(--text-color);
+	margin: 0 0 0.75rem;
+	font-size: 1.1rem;
+	color: var(--text-color);
 }
 
 .offline-recipes {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
 }
 
 .offline-recipes a {
-  display: block;
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius, 8px);
-  background: var(--surface-card);
-  color: var(--text-color);
-  font-weight: 500;
-  text-decoration: none;
+	display: block;
+	padding: 0.9rem 1rem;
+	border: 1px solid var(--surface-border);
+	border-radius: var(--border-radius, 8px);
+	background: var(--surface-card);
+	color: var(--text-color);
+	font-weight: 500;
+	text-decoration: none;
 }
 
 .offline-empty {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 0.95rem;
+	margin: 0;
+	color: var(--text-color-secondary);
+	font-size: 0.95rem;
 }
 
 .offline-retry {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 2rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--border-radius, 8px);
-  background: var(--primary-color);
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 2rem;
+	padding: 0.75rem 1.25rem;
+	border-radius: var(--border-radius, 8px);
+	background: var(--primary-color);
+	color: #fff;
+	font-weight: 600;
+	text-decoration: none;
 }

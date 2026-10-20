@@ -2,27 +2,27 @@ import { Toast } from 'primereact/toast';
 import type { ToastOptions } from '@/types';
 
 export const showToast = (toastRef: React.RefObject<Toast | null>, options: ToastOptions) => {
-  if (toastRef.current) {
+	if (toastRef.current) {
 	toastRef.current.show({
 	  severity: options.severity,
 	  summary: options.summary,
 	  detail: options.detail,
 	  life: options.life || 1000
 	});
-  }
+	}
 };
 
 // Common toast messages
 export const toastMessages = {
-  success: {
+	success: {
 	default: 'Succès',
 	create: 'Création réussie',
 	update: 'Mise à jour réussie',
 	delete: 'Suppression réussie',
 	accept: 'Acceptation réussie',
 	reject: 'Rejet réussi'
-  },
-  error: {
+	},
+	error: {
 	default: 'Erreur',
 	create: 'Erreur lors de la création',
 	update: 'Erreur lors de la mise à jour',
@@ -30,13 +30,13 @@ export const toastMessages = {
 	auth: 'Vous devez être connecté',
 	accept: 'Erreur lors de l\'acceptation',
 	reject: 'Erreur lors du rejet'
-  },
-  warning: {
+	},
+	warning: {
 	default: 'Attention'
-  },
-  info: {
+	},
+	info: {
 	default: 'Information',
 	reject: 'Rejet effectué'
-  }
+	}
 };
 

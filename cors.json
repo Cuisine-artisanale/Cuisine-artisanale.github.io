@@ -5,4 +5,4 @@
 	  "responseHeader": ["Content-Type", "Authorization"],
 	  "maxAgeSeconds": 3600
 	}
-  ]
+	]

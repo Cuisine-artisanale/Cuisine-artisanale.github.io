@@ -1,151 +1,151 @@
 /* Page de présentation de l'import TikTok */
 .import-tiktok-page {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem;
-  min-height: 100vh;
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 2rem;
+	min-height: 100vh;
 }
 
 .import-tiktok-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
-  margin: 1rem 0 3rem;
-  padding: 3rem 1.5rem;
-  border-radius: 18px;
-  background: var(--surface-section);
-  text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.25rem;
+	margin: 1rem 0 3rem;
+	padding: 3rem 1.5rem;
+	border-radius: 18px;
+	background: var(--surface-section);
+	text-align: center;
 }
 
 .import-tiktok-hero h1 {
-  max-width: 20ch;
-  margin: 0;
-  font-size: clamp(1.7rem, 1.1rem + 2.6vw, 2.8rem);
-  line-height: 1.15;
-  color: var(--text-color);
+	max-width: 20ch;
+	margin: 0;
+	font-size: clamp(1.7rem, 1.1rem + 2.6vw, 2.8rem);
+	line-height: 1.15;
+	color: var(--text-color);
 }
 
 .import-tiktok-hero p {
-  max-width: 55ch;
-  margin: 0;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: var(--text-color-secondary);
+	max-width: 55ch;
+	margin: 0;
+	font-size: 1.1rem;
+	line-height: 1.6;
+	color: var(--text-color-secondary);
 }
 
 .import-tiktok-page a.import-tiktok-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.75rem;
-  border-radius: 999px;
-  background: var(--primary-color);
-  color: var(--text-color-inverted, #fff);
-  font-size: 1.05rem;
-  font-weight: 600;
-  text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.8rem 1.75rem;
+	border-radius: 999px;
+	background: var(--primary-color);
+	color: var(--text-color-inverted, #fff);
+	font-size: 1.05rem;
+	font-weight: 600;
+	text-decoration: none;
 }
 
 .import-tiktok-page a.import-tiktok-cta:hover {
-  background: var(--primary-600, var(--primary-dark));
-  color: var(--text-color-inverted, #fff);
+	background: var(--primary-600, var(--primary-dark));
+	color: var(--text-color-inverted, #fff);
 }
 
 .import-tiktok-page section {
-  margin-bottom: 3rem;
+	margin-bottom: 3rem;
 }
 
 .import-tiktok-page h2 {
-  margin: 0 0 1.25rem;
-  font-size: 1.5rem;
-  color: var(--text-color);
+	margin: 0 0 1.25rem;
+	font-size: 1.5rem;
+	color: var(--text-color);
 }
 
 /* Étapes */
 .import-tiktok-steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 1.5rem;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 }
 
 .import-tiktok-steps li {
-  padding: 1.5rem;
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius);
-  background: var(--surface-card);
-  box-shadow: var(--card-shadow);
+	padding: 1.5rem;
+	border: 1px solid var(--surface-border);
+	border-radius: var(--border-radius);
+	background: var(--surface-card);
+	box-shadow: var(--card-shadow);
 }
 
 .import-tiktok-steps .pi {
-  font-size: 1.6rem;
-  color: var(--primary-color);
+	font-size: 1.6rem;
+	color: var(--primary-color);
 }
 
 .import-tiktok-steps h3 {
-  margin: 0.75rem 0 0.5rem;
-  font-size: 1.15rem;
-  color: var(--text-color);
+	margin: 0.75rem 0 0.5rem;
+	font-size: 1.15rem;
+	color: var(--text-color);
 }
 
 .import-tiktok-steps p,
 .import-tiktok-faq dd {
-  margin: 0;
-  line-height: 1.6;
-  color: var(--text-color-secondary);
+	margin: 0;
+	line-height: 1.6;
+	color: var(--text-color-secondary);
 }
 
 /* Bénéfices */
 .import-tiktok-benefits {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 0.75rem 1.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 0.75rem 1.5rem;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 }
 
 .import-tiktok-benefits li {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--text-color);
-  font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	color: var(--text-color);
+	font-weight: 600;
 }
 
 .import-tiktok-benefits .pi {
-  color: var(--primary-color);
+	color: var(--primary-color);
 }
 
 /* Questions fréquentes */
 .import-tiktok-faq {
-  margin: 0;
+	margin: 0;
 }
 
 .import-tiktok-faq > div {
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--surface-border);
+	padding: 1rem 0;
+	border-bottom: 1px solid var(--surface-border);
 }
 
 .import-tiktok-faq dt {
-  margin-bottom: 0.35rem;
-  font-weight: 600;
-  color: var(--text-color);
+	margin-bottom: 0.35rem;
+	font-weight: 600;
+	color: var(--text-color);
 }
 
 .import-tiktok-footer {
-  text-align: center;
+	text-align: center;
 }
 
 @media (max-width: 768px) {
-  .import-tiktok-page {
-    padding: 1rem;
-  }
+	.import-tiktok-page {
+		padding: 1rem;
+	}
 
-  .import-tiktok-hero {
-    padding: 2rem 1rem;
-  }
+	.import-tiktok-hero {
+		padding: 2rem 1rem;
+	}
 }

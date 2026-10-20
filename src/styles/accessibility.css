@@ -1,23 +1,23 @@
 /* ============================================
-   ACCESSIBILITY ENHANCEMENTS
-   ============================================
+	 ACCESSIBILITY ENHANCEMENTS
+	 ============================================
 
-   Ce fichier complète theme.css avec des
-   améliorations d'accessibilité (focus states,
-   navigation clavier, ARIA).
+	 Ce fichier complète theme.css avec des
+	 améliorations d'accessibilité (focus states,
+	 navigation clavier, ARIA).
 
-   ⚠️ IMPORTANT: Les couleurs viennent de theme.css
-   Ceci ajoute SEULEMENT les focus states et interactions
+	 ⚠️ IMPORTANT: Les couleurs viennent de theme.css
+	 Ceci ajoute SEULEMENT les focus states et interactions
 */
 
 /* ============================================
-   FOCUS STATES - Navigation clavier
-   ============================================ */
+	 FOCUS STATES - Navigation clavier
+	 ============================================ */
 
 /* Focus visible pour tous les éléments interactifs */
 :focus-visible {
-  outline: 3px solid var(--primary-color);
-  outline-offset: 2px;
+	outline: 3px solid var(--primary-color);
+	outline-offset: 2px;
 }
 
 /* Inputs focus */
@@ -27,8 +27,8 @@ select:focus,
 .p-inputtext:focus,
 .p-dropdown:focus,
 .p-multiselect:focus {
-  outline: 3px solid var(--primary-color);
-  outline-offset: 2px;
+	outline: 3px solid var(--primary-color);
+	outline-offset: 2px;
 }
 
 /* Boutons focus */
@@ -36,88 +36,88 @@ button:focus,
 button:focus-visible,
 .p-button:focus,
 .p-button:focus-visible {
-  outline: 3px solid var(--primary-color);
-  outline-offset: 2px;
+	outline: 3px solid var(--primary-color);
+	outline-offset: 2px;
 }
 
 /* Links focus */
 a:focus,
 a:focus-visible {
-  outline: 3px solid var(--primary-color);
-  outline-offset: 2px;
+	outline: 3px solid var(--primary-color);
+	outline-offset: 2px;
 }
 
 /* ============================================
-   KEYBOARD NAVIGATION - Skip to main
-   ============================================ */
+	 KEYBOARD NAVIGATION - Skip to main
+	 ============================================ */
 
 /* Skip to main content link (visible on focus) */
 .skip-to-main {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: var(--primary-color);
-  color: var(--text-color-inverted);
-  padding: 12px 16px;
-  text-decoration: none;
-  z-index: 1000;
-  border-radius: 0 0 var(--border-radius) 0;
-  box-shadow: var(--card-shadow);
-  font-weight: 600;
-  font-size: 16px;
+	position: absolute;
+	top: -40px;
+	left: 0;
+	background: var(--primary-color);
+	color: var(--text-color-inverted);
+	padding: 12px 16px;
+	text-decoration: none;
+	z-index: 1000;
+	border-radius: 0 0 var(--border-radius) 0;
+	box-shadow: var(--card-shadow);
+	font-weight: 600;
+	font-size: 16px;
 }
 
 .skip-to-main:focus,
 .skip-to-main:focus-visible {
-  top: 0;
-  outline: 3px solid var(--primary-color);
+	top: 0;
+	outline: 3px solid var(--primary-color);
 }
 
 /* ============================================
-   ACCESSIBILITY PREFERENCES
-   ============================================ */
+	 ACCESSIBILITY PREFERENCES
+	 ============================================ */
 
 /* Reduced motion support - respecte prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+	* {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: more) {
-  button,
-  .p-button,
-  input,
-  textarea,
-  select {
-    border-width: 2px;
-    border-color: var(--text-color);
-  }
+	button,
+	.p-button,
+	input,
+	textarea,
+	select {
+		border-width: 2px;
+		border-color: var(--text-color);
+	}
 }
 
 /* Print styles - accessibilité en impression */
 @media print {
-  .skip-to-main {
-    display: none;
-  }
+	.skip-to-main {
+		display: none;
+	}
 
-  body {
-    color: #000;
-    background: #fff;
-  }
+	body {
+		color: #000;
+		background: #fff;
+	}
 
-  button,
-  .p-button {
-    page-break-inside: avoid;
-  }
+	button,
+	.p-button {
+		page-break-inside: avoid;
+	}
 }
 
 /* ============================================
-   TOUCH TARGETS & INTERACTIVE ELEMENTS
-   ============================================ */
+	 TOUCH TARGETS & INTERACTIVE ELEMENTS
+	 ============================================ */
 
 /* Touch targets minimum 44x44px (mobile accessibility) */
 button,
@@ -126,42 +126,42 @@ a.button,
 input[type="button"],
 input[type="submit"],
 [role="button"] {
-  min-height: 44px;
-  min-width: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+	min-height: 44px;
+	min-width: 44px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 }
 
 /* Form labels - proper association */
 label {
-  font-weight: 600;
-  margin-bottom: 8px;
-  display: block;
+	font-weight: 600;
+	margin-bottom: 8px;
+	display: block;
 }
 
 /* Error messages */
 .error-message {
-  color: var(--input-error-border);
-  font-size: 14px;
-  margin-top: 4px;
+	color: var(--input-error-border);
+	font-size: 14px;
+	margin-top: 4px;
 }
 
 /* ============================================
-   IMAGES - Alt text
-   ============================================ */
+	 IMAGES - Alt text
+	 ============================================ */
 
 /* Images responsive */
 img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+	max-width: 100%;
+	height: auto;
+	display: block;
 }
 
 /* Note: Alt text is enforced in HTML, see components:
-   - src/components/Recette/Recette.tsx
-   - src/components/RecetteDesc/RecetteDesc.tsx
-   - src/components/Post/Post.tsx
+	 - src/components/Recette/Recette.tsx
+	 - src/components/RecetteDesc/RecetteDesc.tsx
+	 - src/components/Post/Post.tsx
 */
 
 /* Cible du lien "Aller au contenu principal" : pas de contour au focus programmatique */

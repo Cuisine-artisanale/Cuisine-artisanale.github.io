@@ -9,25 +9,25 @@ import { InputText } from 'primereact/inputtext';
 import type { Department } from '@/types';
 
 const Filtre: React.FC = () => {
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [position, setPosition] = useState<Department | null>(null);
-  const departements = DEPARTEMENTS;
-  const [name, setName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  // Téléphone : seuls le champ de recherche et ce bouton sont visibles tant que le panneau est replié
-  const [open, setOpen] = useState(false);
-  const activeFilters = (selectedType ? 1 : 0) + (position?.code ? 1 : 0);
+	const [selectedType, setSelectedType] = useState<string | null>(null);
+	const [position, setPosition] = useState<Department | null>(null);
+	const departements = DEPARTEMENTS;
+	const [name, setName] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
+	// Téléphone : seuls le champ de recherche et ce bouton sont visibles tant que le panneau est replié
+	const [open, setOpen] = useState(false);
+	const activeFilters = (selectedType ? 1 : 0) + (position?.code ? 1 : 0);
 
-  const router = useRouter();
+	const router = useRouter();
 
-  const typeRecette = [
+	const typeRecette = [
 	{ id: 1, name: 'Entrée' },
 	{ id: 2, name: 'Plat' },
 	{ id: 3, name: 'Dessert' },
 	{ id: 4, name: 'Boisson' },
-  ];
+	];
 
-  const applyFilter = () => {
+	const applyFilter = () => {
 	setIsLoading(true);
 	const queryParams = new URLSearchParams();
 
@@ -44,22 +44,22 @@ const Filtre: React.FC = () => {
 	const query = queryParams.toString();
 	router.push(query ? `/recettes?${query}` : '/recettes');
 	setIsLoading(false);
-  };
+	};
 
-  const resetFilter = () => {
+	const resetFilter = () => {
 	setName('');
 	setSelectedType(null);
 	setPosition(null);
 	router.push('/recettes');
-  };
+	};
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+	const handleKeyPress = (e: React.KeyboardEvent) => {
 	if (e.key === 'Enter') {
 	  applyFilter();
 	}
-  };
+	};
 
-  return (
+	return (
 	<div className={`Filtre${open ? ' is-open' : ''}`}>
 	  	<h2>Filtrer les recettes</h2>
 
@@ -137,7 +137,7 @@ const Filtre: React.FC = () => {
 				/>
 			</div>
 	</div>
-  );
+	);
 };
 
 export default Filtre;

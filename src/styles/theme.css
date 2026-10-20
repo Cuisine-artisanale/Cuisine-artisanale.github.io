@@ -1,11 +1,11 @@
 /* Thème du site : palette chaude (brun, crème), en mode clair et sombre.
-   Chargé après le thème PrimeReact (lara-light-indigo, importé dans providers.tsx) et hors de
-   tout @layer, pour que ces variables remplacent bien les siennes. */
+	 Chargé après le thème PrimeReact (lara-light-indigo, importé dans providers.tsx) et hors de
+	 tout @layer, pour que ces variables remplacent bien les siennes. */
 
 
 /* ============================================
-   ROOT LIGHT THEME (Base Theme)
-   ============================================ */
+	 ROOT LIGHT THEME (Base Theme)
+	 ============================================ */
 :root {
 
 	/* =============================
@@ -196,8 +196,8 @@
 }
 
 /* ============================================
-   DARK THEME
-   ============================================ */
+	 DARK THEME
+	 ============================================ */
 [data-theme="dark"] {
 	--primary-color: #CD853F !important;
 	--primary-dark: #8B4513 !important;
@@ -249,8 +249,8 @@
 }
 
 /* ============================================
-   RESPONSIVE
-   ============================================ */
+	 RESPONSIVE
+	 ============================================ */
 
 @media (min-width: 1200px) {
 	:root {
@@ -274,10 +274,10 @@
 }
 
 /* ============================================
-   COMPOSANTS PRIMEREACT
-   ============================================
-   Le thème lara écrit ses couleurs (gris, indigo) en dur dans les composants :
-   on les ramène ici sur la palette du site, en mode clair comme en mode sombre. */
+	 COMPOSANTS PRIMEREACT
+	 ============================================
+	 Le thème lara écrit ses couleurs (gris, indigo) en dur dans les composants :
+	 on les ramène ici sur la palette du site, en mode clair comme en mode sombre. */
 
 /* Pas de règle sur .p-component : elle recolorerait aussi le texte des boutons */
 .p-inputtext,

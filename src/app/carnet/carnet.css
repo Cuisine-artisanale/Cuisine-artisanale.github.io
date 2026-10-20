@@ -1,18 +1,18 @@
 /* Messages de la fiche d'une recette du carnet (chargement, recette absente, non connecté) */
 .carnet-message {
-  min-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem;
-  color: var(--text-color-secondary);
-  text-align: center;
+	min-height: 60vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	padding: 2rem;
+	color: var(--text-color-secondary);
+	text-align: center;
 }
 
 .carnet-message a {
-  color: var(--primary-color);
-  font-weight: 600;
-  text-decoration: underline;
+	color: var(--primary-color);
+	font-weight: 600;
+	text-decoration: underline;
 }

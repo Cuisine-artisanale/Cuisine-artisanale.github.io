@@ -2,7 +2,7 @@ import { db } from "@/lib/config/firebase";
 import { doc, getDoc, setDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp, orderBy, limit } from "firebase/firestore";
 
 export const toggleLikeRecipes = async (recetteId: string, userId: string) => {
-  try {
+	try {
 	// Vérifier si la recette existe
 	const recipesRef = doc(db, "recipes", recetteId);
 	const recipeSnap = await getDoc(recipesRef);
@@ -41,14 +41,14 @@ export const toggleLikeRecipes = async (recetteId: string, userId: string) => {
 	  });
 	}
 
-  } catch (error) {
+	} catch (error) {
 	console.error("Error liking recipe: ", error);
-  }
+	}
 };
 
 
 export const unlikeRecipes = async (recetteId: string, userId: string) => {
-  try {
+	try {
 	// Créer l'ID unique du like
 	const likeId = `${userId}_${recetteId}`;
 	const likeRef = doc(db, "likes", likeId);
@@ -63,14 +63,14 @@ export const unlikeRecipes = async (recetteId: string, userId: string) => {
 	  console.warn("Like non trouvé");
 	}
 
-  } catch (error) {
+	} catch (error) {
 	console.error("Error unliking recipe: ", error);
-  }
+	}
 };
 
 // Fonction utilitaire pour récupérer tous les likes d'une recette
 export const getRecipeLikes = async (recetteId: string) => {
-  try {
+	try {
 	const likesRef = collection(db, "likes");
 	const q = query(likesRef, where("recetteId", "==", recetteId));
 	const querySnapshot = await getDocs(q);
@@ -81,38 +81,38 @@ export const getRecipeLikes = async (recetteId: string) => {
 	}));
 
 	return likes;
-  } catch (error) {
+	} catch (error) {
 	console.error("Error fetching recipe likes: ", error);
 	return [];
-  }
+	}
 };
 
 // Fonction utilitaire pour vérifier si un utilisateur a liké une recette
 export const hasUserLikedRecipe = async (recetteId: string, userId: string) => {
-  try {
+	try {
 	const likeId = `${userId}_${recetteId}`;
 	const likeRef = doc(db, "likes", likeId);
 	const likeSnap = await getDoc(likeRef);
 
 	return likeSnap.exists();
-  } catch (error) {
+	} catch (error) {
 	console.error("Error checking user like: ", error);
 	return false;
-  }
+	}
 };
 
 // Fonction utilitaire pour compter les likes d'une recette
 export const countRecipeLikes = async (recetteId: string) => {
-  try {
+	try {
 	const likesRef = collection(db, "likes");
 	const q = query(likesRef, where("recetteId", "==", recetteId));
 	const querySnapshot = await getDocs(q);
 
 	return querySnapshot.size;
-  } catch (error) {
+	} catch (error) {
 	console.error("Error counting recipe likes: ", error);
 	return 0;
-  }
+	}
 };
 
 // ============= RECOMMANDATIONS =============
@@ -122,7 +122,7 @@ export const countRecipeLikes = async (recetteId: string) => {
  * Algorithme simple: même type + même département
  */
 export const getSimilarRecipes = async (recetteId: string, limit_count: number = 5) => {
-  try {
+	try {
 	const recipeRef = doc(db, "recipes", recetteId);
 	const recipeSnap = await getDoc(recipeRef);
 
@@ -153,17 +153,17 @@ export const getSimilarRecipes = async (recetteId: string, limit_count: number =
 	  }));
 
 	return similarRecipes;
-  } catch (error) {
+	} catch (error) {
 	console.error("Error fetching similar recipes: ", error);
 	return [];
-  }
+	}
 };
 
 /**
  * Récupère les recettes populaires (basé sur les likes)
  */
 export const getTrendingRecipes = async (limit_count: number = 5) => {
-  try {
+	try {
 	// Compteur likesCount stocké sur les recettes (maintenu par une Cloud Function)
 	const byCounter = await getDocs(query(collection(db, "recipes"), orderBy("likesCount", "desc"), limit(limit_count)));
 	if (!byCounter.empty) {
@@ -189,17 +189,17 @@ export const getTrendingRecipes = async (limit_count: number = 5) => {
 	  .filter((snap) => snap.exists())
 	  .map((snap) => ({ id: snap.id, ...snap.data(), likesCount: counts.get(snap.id) || 0 }))
 	  .slice(0, limit_count);
-  } catch (error) {
+	} catch (error) {
 	console.error("Error fetching trending recipes: ", error);
 	return [];
-  }
+	}
 };
 
 /**
  * Récupère les recettes recommandées pour un utilisateur basé sur ses likes
  */
 export const getPersonalizedRecommendations = async (userId: string, limit_count: number = 5) => {
-  try {
+	try {
 	// Récupérer les recettes aimées par l'utilisateur
 	const likesRef = collection(db, "likes");
 	const q = query(likesRef, where("userId", "==", userId));
@@ -260,9 +260,9 @@ export const getPersonalizedRecommendations = async (userId: string, limit_count
 	  .slice(0, limit_count)
 	  .map(({ score, ...recipe }) => recipe); // Retirer le score
 
-  } catch (error) {
+	} catch (error) {
 	console.error("Error fetching personalized recommendations: ", error);
 	return [];
-  }
+	}
 };
 

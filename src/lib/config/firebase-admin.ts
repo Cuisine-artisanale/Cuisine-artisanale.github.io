@@ -8,72 +8,72 @@ import path from 'path';
 let initialized = false;
 
 function getServiceAccountFromEnv() {
-  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-  if (!raw) return null;
+	const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+	if (!raw) return null;
 
-  try {
-    return JSON.parse(raw);
-  } catch {
-    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY contient un JSON invalide');
-  }
+	try {
+		return JSON.parse(raw);
+	} catch {
+		throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY contient un JSON invalide');
+	}
 }
 
 function getServiceAccountFromFile() {
-  const serviceAccountPath = path.join(process.cwd(), 'src', 'firebase', 'serviceAccountKey.json');
-  if (!fs.existsSync(serviceAccountPath)) {
-    return null;
-  }
+	const serviceAccountPath = path.join(process.cwd(), 'src', 'firebase', 'serviceAccountKey.json');
+	if (!fs.existsSync(serviceAccountPath)) {
+		return null;
+	}
 
-  try {
-    const raw = fs.readFileSync(serviceAccountPath, 'utf8');
-    return JSON.parse(raw);
-  } catch {
-    throw new Error('Le fichier src/firebase/serviceAccountKey.json est invalide');
-  }
+	try {
+		const raw = fs.readFileSync(serviceAccountPath, 'utf8');
+		return JSON.parse(raw);
+	} catch {
+		throw new Error('Le fichier src/firebase/serviceAccountKey.json est invalide');
+	}
 }
 
 export function getFirebaseAdminApp() {
-  if (getApps().length > 0) {
-    initialized = true;
-    return getApp();
-  }
+	if (getApps().length > 0) {
+		initialized = true;
+		return getApp();
+	}
 
-  const serviceAccount = getServiceAccountFromEnv() || getServiceAccountFromFile();
+	const serviceAccount = getServiceAccountFromEnv() || getServiceAccountFromFile();
 
-  if (serviceAccount) {
-    initialized = true;
-    return initializeApp({
-      credential: cert(serviceAccount),
-      projectId: serviceAccount.project_id,
-    });
-  }
+	if (serviceAccount) {
+		initialized = true;
+		return initializeApp({
+			credential: cert(serviceAccount),
+			projectId: serviceAccount.project_id,
+		});
+	}
 
-  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-  if (!projectId) {
-    throw new Error('Configuration Firebase Admin manquante (FIREBASE_SERVICE_ACCOUNT_KEY ou FIREBASE_PROJECT_ID)');
-  }
+	const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+	if (!projectId) {
+		throw new Error('Configuration Firebase Admin manquante (FIREBASE_SERVICE_ACCOUNT_KEY ou FIREBASE_PROJECT_ID)');
+	}
 
-  initialized = true;
-  return initializeApp({ projectId });
+	initialized = true;
+	return initializeApp({ projectId });
 }
 
 export function getFirebaseAdminAuth() {
-  const app = getFirebaseAdminApp();
-  return getAuth(app);
+	const app = getFirebaseAdminApp();
+	return getAuth(app);
 }
 
 export function getFirebaseAdminDb() {
-  const app = getFirebaseAdminApp();
-  return getFirestore(app);
+	const app = getFirebaseAdminApp();
+	return getFirestore(app);
 }
 
 /** Bucket Firebase Storage du site (photos des recettes). */
 export function getFirebaseAdminBucket() {
-  const app = getFirebaseAdminApp();
-  return getStorage(app).bucket(process.env.FIREBASE_STORAGE_BUCKET || 'recettes-cuisine-a1bf2.firebasestorage.app');
+	const app = getFirebaseAdminApp();
+	return getStorage(app).bucket(process.env.FIREBASE_STORAGE_BUCKET || 'recettes-cuisine-a1bf2.firebasestorage.app');
 }
 
 export function isFirebaseAdminInitialized() {
-  return initialized || getApps().length > 0;
+	return initialized || getApps().length > 0;
 }
 

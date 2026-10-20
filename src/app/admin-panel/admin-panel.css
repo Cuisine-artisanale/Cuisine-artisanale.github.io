@@ -1,66 +1,66 @@
 /* Habillage de l'administration : menu à gauche, contenu à droite. */
 
 .admin-panel {
-  display: flex;
-  align-items: stretch;
-  min-height: calc(100vh - 120px);
-  border: 1px solid var(--surface-border);
-  border-radius: 14px;
-  background: var(--surface-ground);
-  overflow: hidden;
+	display: flex;
+	align-items: stretch;
+	min-height: calc(100vh - 120px);
+	border: 1px solid var(--surface-border);
+	border-radius: 14px;
+	background: var(--surface-ground);
+	overflow: hidden;
 }
 
 .admin-main {
-  flex: 1;
-  min-width: 0;
+	flex: 1;
+	min-width: 0;
 }
 
 .admin-content {
-  padding: 1.5rem;
+	padding: 1.5rem;
 }
 
 /* ---- Accès refusé, connexion requise, chargement ---- */
 .admin-gate {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  min-height: 50vh;
-  padding: 2rem;
-  color: var(--text-color-secondary);
-  text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	min-height: 50vh;
+	padding: 2rem;
+	color: var(--text-color-secondary);
+	text-align: center;
 }
 
 .admin-gate > .pi {
-  font-size: 2rem;
-  color: var(--primary-color);
+	font-size: 2rem;
+	color: var(--primary-color);
 }
 
 .admin-gate p {
-  max-width: 32rem;
-  margin: 0;
-  font-size: 1.05rem;
+	max-width: 32rem;
+	margin: 0;
+	font-size: 1.05rem;
 }
 
 .admin-gate .admin-gate-link {
-  display: inline-flex;
-  min-height: 0;
-  padding: 0.6rem 1.25rem;
-  border-radius: 999px;
-  background: var(--primary-color);
-  color: var(--text-color-inverted, #fff);
-  font-weight: 600;
-  text-decoration: none;
+	display: inline-flex;
+	min-height: 0;
+	padding: 0.6rem 1.25rem;
+	border-radius: 999px;
+	background: var(--primary-color);
+	color: var(--text-color-inverted, #fff);
+	font-weight: 600;
+	text-decoration: none;
 }
 
 @media (max-width: 900px) {
-  .admin-panel {
-    flex-direction: column;
-    border-radius: 10px;
-  }
+	.admin-panel {
+		flex-direction: column;
+		border-radius: 10px;
+	}
 
-  .admin-content {
-    padding: 1rem;
-  }
+	.admin-content {
+		padding: 1rem;
+	}
 }

@@ -1,46 +1,46 @@
 .cookie-banner {
-  position: fixed;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(100%);
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
-  max-width: 520px;
-  z-index: 9999;
-  text-align: center;
-  font-family: 'Segoe UI', sans-serif;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-  opacity: 0;
-  transition: all 0.5s ease-in-out;
+	position: fixed;
+	bottom: 1rem;
+	left: 50%;
+	transform: translateX(-50%) translateY(100%);
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 12px;
+	padding: 1.5rem 2rem;
+	max-width: 520px;
+	z-index: 9999;
+	text-align: center;
+	font-family: 'Segoe UI', sans-serif;
+	box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+	opacity: 0;
+	transition: all 0.5s ease-in-out;
 }
 
 .cookie-banner.expanded {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
+	transform: translateX(-50%) translateY(0);
+	opacity: 1;
 }
 
 .cookie-banner.banner-show {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
+	transform: translateX(-50%) translateY(0);
+	opacity: 1;
 }
 
 .cookie-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-top: 1rem;
+	display: flex;
+	justify-content: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	margin-top: 1rem;
 }
 
 .cookie-buttons button {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	border: none;
+	cursor: pointer;
+	font-weight: 600;
+	transition: all 0.2s ease;
 }
 
 .cookie-buttons .accept { background-color: #27ae60; color: #fff; }
@@ -51,38 +51,38 @@
 .cookie-buttons .manage:hover { background-color: #2c80b4; }
 
 .cookie-options {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #f9f9f9;
-  border-left: 4px solid #3498db;
-  border-radius: 8px;
-  text-align: left;
-  animation: fadeIn 0.4s ease-in-out;
+	margin-top: 1rem;
+	padding: 1rem;
+	background-color: #f9f9f9;
+	border-left: 4px solid #3498db;
+	border-radius: 8px;
+	text-align: left;
+	animation: fadeIn 0.4s ease-in-out;
 }
 
 .cookie-options label {
-  display: block;
-  margin-bottom: 0.6rem;
-  cursor: pointer;
+	display: block;
+	margin-bottom: 0.6rem;
+	cursor: pointer;
 }
 
 .cookie-options .save {
-  margin-top: 0.8rem;
-  padding: 0.5rem 1rem;
-  background-color: #2980b9;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+	margin-top: 0.8rem;
+	padding: 0.5rem 1rem;
+	background-color: #2980b9;
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
 }
 
 .cookie-options .save:hover {
-  background-color: #1f6391;
+	background-color: #1f6391;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+	from { opacity: 0; transform: translateY(-10px); }
+	to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 600px) {

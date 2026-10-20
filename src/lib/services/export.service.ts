@@ -1,160 +1,160 @@
 import type { RecipeExportData } from '@/types';
 
 export const exportRecipePDF = async (recipe: RecipeExportData) => {
-  try {
-    // jsPDF (~300 Ko) n'est chargé qu'au moment de l'export
-    const { default: jsPDF } = await import('jspdf');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
+	try {
+		// jsPDF (~300 Ko) n'est chargé qu'au moment de l'export
+		const { default: jsPDF } = await import('jspdf');
+		const pdf = new jsPDF({
+			orientation: 'portrait',
+			unit: 'mm',
+			format: 'a4'
+		});
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 15;
-    const maxWidth = pageWidth - 2 * margin;
-    let yPosition = margin;
+		const pageWidth = pdf.internal.pageSize.getWidth();
+		const pageHeight = pdf.internal.pageSize.getHeight();
+		const margin = 15;
+		const maxWidth = pageWidth - 2 * margin;
+		let yPosition = margin;
 
-    // Helper function to add text with word wrapping
-    const addWrappedText = (text: string, fontSize: number, fontStyle: 'normal' | 'bold' = 'normal', maxW: number = maxWidth) => {
-      pdf.setFontSize(fontSize);
-      pdf.setFont('helvetica', fontStyle);
-      const lines = pdf.splitTextToSize(text, maxW);
-      pdf.text(lines, margin, yPosition);
-      yPosition += lines.length * (fontSize / 3);
-      return yPosition;
-    };
+		// Helper function to add text with word wrapping
+		const addWrappedText = (text: string, fontSize: number, fontStyle: 'normal' | 'bold' = 'normal', maxW: number = maxWidth) => {
+			pdf.setFontSize(fontSize);
+			pdf.setFont('helvetica', fontStyle);
+			const lines = pdf.splitTextToSize(text, maxW);
+			pdf.text(lines, margin, yPosition);
+			yPosition += lines.length * (fontSize / 3);
+			return yPosition;
+		};
 
-    const checkPageBreak = (additionalSpace: number = 10) => {
-      if (yPosition + additionalSpace > pageHeight - margin) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-    };
+		const checkPageBreak = (additionalSpace: number = 10) => {
+			if (yPosition + additionalSpace > pageHeight - margin) {
+				pdf.addPage();
+				yPosition = margin;
+			}
+		};
 
-    // Title
-    checkPageBreak(20);
-    addWrappedText(recipe.title, 20, 'bold');
-    yPosition += 5;
+		// Title
+		checkPageBreak(20);
+		addWrappedText(recipe.title, 20, 'bold');
+		yPosition += 5;
 
-    // Recipe Info
-    checkPageBreak(15);
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
+		// Recipe Info
+		checkPageBreak(15);
+		pdf.setFontSize(10);
+		pdf.setFont('helvetica', 'normal');
 
-    const infoText = `Type: ${recipe.type} | Préparation: ${recipe.preparationTime} min | Cuisson: ${recipe.cookingTime} min`;
-    const infoLines = pdf.splitTextToSize(infoText, maxWidth);
-    pdf.text(infoLines, margin, yPosition);
-    yPosition += infoLines.length * 3.5 + 5;
+		const infoText = `Type: ${recipe.type} | Préparation: ${recipe.preparationTime} min | Cuisson: ${recipe.cookingTime} min`;
+		const infoLines = pdf.splitTextToSize(infoText, maxWidth);
+		pdf.text(infoLines, margin, yPosition);
+		yPosition += infoLines.length * 3.5 + 5;
 
-    if (recipe.departementName) {
-      checkPageBreak(10);
-      addWrappedText(`Région: ${recipe.departementName}`, 10);
-    }
+		if (recipe.departementName) {
+			checkPageBreak(10);
+			addWrappedText(`Région: ${recipe.departementName}`, 10);
+		}
 
-    // Add main image if available
-    if (recipe.images && recipe.images.length > 0) {
-      checkPageBreak(80);
-      try {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = recipe.images[0];
+		// Add main image if available
+		if (recipe.images && recipe.images.length > 0) {
+			checkPageBreak(80);
+			try {
+				const img = new Image();
+				img.crossOrigin = 'anonymous';
+				img.src = recipe.images[0];
 
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-        });
+				await new Promise((resolve, reject) => {
+					img.onload = resolve;
+					img.onerror = reject;
+				});
 
-        const imgWidth = maxWidth;
-        const imgHeight = (img.height / img.width) * imgWidth;
+				const imgWidth = maxWidth;
+				const imgHeight = (img.height / img.width) * imgWidth;
 
-        if (imgHeight < 60) {
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0);
-              const imgData = canvas.toDataURL('image/jpeg', 0.8);
-              const finalHeight = Math.min(imgHeight, 60);
-              pdf.addImage(imgData, 'JPEG', margin, yPosition, imgWidth, finalHeight);
-              yPosition += finalHeight + 5;
-            }
-          } catch {
-            // Skip image if error
-          }
-        }
-      } catch {
-        // Skip image if it fails to load
-      }
-    }
+				if (imgHeight < 60) {
+					try {
+						const canvas = document.createElement('canvas');
+						canvas.width = img.width;
+						canvas.height = img.height;
+						const ctx = canvas.getContext('2d');
+						if (ctx) {
+							ctx.drawImage(img, 0, 0);
+							const imgData = canvas.toDataURL('image/jpeg', 0.8);
+							const finalHeight = Math.min(imgHeight, 60);
+							pdf.addImage(imgData, 'JPEG', margin, yPosition, imgWidth, finalHeight);
+							yPosition += finalHeight + 5;
+						}
+					} catch {
+						// Skip image if error
+					}
+				}
+			} catch {
+				// Skip image if it fails to load
+			}
+		}
 
-    // Recipe Parts
-    recipe.recipeParts.forEach((part) => {
-      checkPageBreak(15);
-      yPosition += 5;
-      addWrappedText(part.title, 14, 'bold');
-      yPosition += 3;
+		// Recipe Parts
+		recipe.recipeParts.forEach((part) => {
+			checkPageBreak(15);
+			yPosition += 5;
+			addWrappedText(part.title, 14, 'bold');
+			yPosition += 3;
 
-      // Ingredients
-      checkPageBreak(10);
-      addWrappedText('Ingrédients:', 11, 'bold');
-      yPosition += 2;
+			// Ingredients
+			checkPageBreak(10);
+			addWrappedText('Ingrédients:', 11, 'bold');
+			yPosition += 2;
 
-      part.ingredients.forEach((ingredient) => {
-        checkPageBreak(5);
-        const ingredientText = `• ${ingredient.name}: ${ingredient.quantity} ${ingredient.unit}`;
-        const ingLines = pdf.splitTextToSize(ingredientText, maxWidth - 5);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(ingLines, margin + 5, yPosition);
-        yPosition += ingLines.length * 3.5;
-      });
+			part.ingredients.forEach((ingredient) => {
+				checkPageBreak(5);
+				const ingredientText = `• ${ingredient.name}: ${ingredient.quantity} ${ingredient.unit}`;
+				const ingLines = pdf.splitTextToSize(ingredientText, maxWidth - 5);
+				pdf.setFontSize(10);
+				pdf.setFont('helvetica', 'normal');
+				pdf.text(ingLines, margin + 5, yPosition);
+				yPosition += ingLines.length * 3.5;
+			});
 
-      yPosition += 3;
+			yPosition += 3;
 
-      // Steps
-      checkPageBreak(10);
-      addWrappedText('Étapes de préparation:', 11, 'bold');
-      yPosition += 2;
+			// Steps
+			checkPageBreak(10);
+			addWrappedText('Étapes de préparation:', 11, 'bold');
+			yPosition += 2;
 
-      part.steps.forEach((step, stepIndex) => {
-        checkPageBreak(5);
-        const stepText = `${stepIndex + 1}. ${step}`;
-        const stepLines = pdf.splitTextToSize(stepText, maxWidth - 5);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(stepLines, margin + 5, yPosition);
-        yPosition += stepLines.length * 3.5;
-      });
+			part.steps.forEach((step, stepIndex) => {
+				checkPageBreak(5);
+				const stepText = `${stepIndex + 1}. ${step}`;
+				const stepLines = pdf.splitTextToSize(stepText, maxWidth - 5);
+				pdf.setFontSize(10);
+				pdf.setFont('helvetica', 'normal');
+				pdf.text(stepLines, margin + 5, yPosition);
+				yPosition += stepLines.length * 3.5;
+			});
 
-      yPosition += 5;
-    });
+			yPosition += 5;
+		});
 
-    // Footer
-    pdf.setFontSize(8);
-    pdf.setFont('helvetica', 'italic');
-    pdf.setTextColor(150, 150, 150);
-    pdf.text('Recette imprimée depuis Cuisine Artisanale', margin, pageHeight - 10);
+		// Footer
+		pdf.setFontSize(8);
+		pdf.setFont('helvetica', 'italic');
+		pdf.setTextColor(150, 150, 150);
+		pdf.text('Recette imprimée depuis Cuisine Artisanale', margin, pageHeight - 10);
 
-    const fileName = `${recipe.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
-    pdf.save(fileName);
+		const fileName = `${recipe.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+		pdf.save(fileName);
 
-    return true;
-  } catch (error) {
-    console.error('Erreur lors de la génération du PDF:', error);
-    throw error;
-  }
+		return true;
+	} catch (error) {
+		console.error('Erreur lors de la génération du PDF:', error);
+		throw error;
+	}
 };
 
 export const printRecipe = (recipe: RecipeExportData) => {
-  try {
-    const printWindow = window.open('', '', 'height=700,width=900');
-    if (!printWindow) throw new Error('Could not open print window');
+	try {
+		const printWindow = window.open('', '', 'height=700,width=900');
+		if (!printWindow) throw new Error('Could not open print window');
 
-    const htmlContent = `
+		const htmlContent = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -305,17 +305,17 @@ export const printRecipe = (recipe: RecipeExportData) => {
       </html>
     `;
 
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+		printWindow.document.write(htmlContent);
+		printWindow.document.close();
 
-    setTimeout(() => {
-      printWindow.print();
-    }, 250);
+		setTimeout(() => {
+			printWindow.print();
+		}, 250);
 
-    return true;
-  } catch (error) {
-    console.error('Erreur lors de l\'impression:', error);
-    throw error;
-  }
+		return true;
+	} catch (error) {
+		console.error('Erreur lors de l\'impression:', error);
+		throw error;
+	}
 };
 

@@ -1,14 +1,14 @@
 .AddIngredient {
-  padding: 16px;
-  margin: 10px;
+	padding: 16px;
+	margin: 10px;
 }
 
 .add-ingredient {
-  display: flex;
-  justify-content: flex-end;
-  padding: 1rem;
+	display: flex;
+	justify-content: flex-end;
+	padding: 1rem;
 }
 
 .add-ingredient .p-button {
-  min-width: 180px;
+	min-width: 180px;
 }

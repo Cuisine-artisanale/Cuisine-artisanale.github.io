@@ -4,14 +4,14 @@ import { sendEmail } from '@/lib/services/emailService';
 import { checkRateLimit, getClientIp } from '@/lib/server/rate-limit';
 
 const FRONTEND_URL =
-  process.env.NEXT_PUBLIC_FRONTEND_URL ||
-  process.env.FRONTEND_URL ||
-  'https://www.cuisine-artisanale.fr';
+	process.env.NEXT_PUBLIC_FRONTEND_URL ||
+	process.env.FRONTEND_URL ||
+	'https://www.cuisine-artisanale.fr';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function getResetEmailHtml(resetUrl: string) {
-  return `
+	return `
         <!DOCTYPE html>
         <html>
         <head>
@@ -118,64 +118,64 @@ function getResetEmailHtml(resetUrl: string) {
  * La réponse est identique que le compte existe ou non (pas d'énumération).
  */
 export async function POST(request: NextRequest) {
-  let email: unknown;
-  try {
-    ({ email } = await request.json());
-  } catch {
-    return NextResponse.json({ success: false, error: 'Requête invalide' }, { status: 400 });
-  }
+	let email: unknown;
+	try {
+		({ email } = await request.json());
+	} catch {
+		return NextResponse.json({ success: false, error: 'Requête invalide' }, { status: 400 });
+	}
 
-  if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
-    return NextResponse.json({ success: false, error: 'Email invalide' }, { status: 400 });
-  }
+	if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
+		return NextResponse.json({ success: false, error: 'Email invalide' }, { status: 400 });
+	}
 
-  const normalizedEmail = email.trim().toLowerCase();
+	const normalizedEmail = email.trim().toLowerCase();
 
-  // 5 demandes par heure et par adresse IP
-  const rateLimit = await checkRateLimit({
-    action: 'reset-email',
-    identifier: getClientIp(request),
-    limit: 5,
-    windowSeconds: 3600,
-  });
-  if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { success: false, error: 'Trop de demandes. Veuillez réessayer plus tard.' },
-      { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfter) } },
-    );
-  }
+	// 5 demandes par heure et par adresse IP
+	const rateLimit = await checkRateLimit({
+		action: 'reset-email',
+		identifier: getClientIp(request),
+		limit: 5,
+		windowSeconds: 3600,
+	});
+	if (!rateLimit.allowed) {
+		return NextResponse.json(
+			{ success: false, error: 'Trop de demandes. Veuillez réessayer plus tard.' },
+			{ status: 429, headers: { 'Retry-After': String(rateLimit.retryAfter) } },
+		);
+	}
 
-  try {
-    const firebaseLink = await getFirebaseAdminAuth().generatePasswordResetLink(normalizedEmail, {
-      url: `${FRONTEND_URL}/login`,
-    });
+	try {
+		const firebaseLink = await getFirebaseAdminAuth().generatePasswordResetLink(normalizedEmail, {
+			url: `${FRONTEND_URL}/login`,
+		});
 
-    const oobCode = new URL(firebaseLink).searchParams.get('oobCode');
-    if (!oobCode) {
-      throw new Error('oobCode absent du lien généré');
-    }
+		const oobCode = new URL(firebaseLink).searchParams.get('oobCode');
+		if (!oobCode) {
+			throw new Error('oobCode absent du lien généré');
+		}
 
-    const resetUrl = `${FRONTEND_URL}/reset-password?mode=resetPassword&oobCode=${encodeURIComponent(oobCode)}`;
+		const resetUrl = `${FRONTEND_URL}/reset-password?mode=resetPassword&oobCode=${encodeURIComponent(oobCode)}`;
 
-    const result = await sendEmail({
-      to: normalizedEmail,
-      subject: 'Réinitialisez votre mot de passe - Cuisine Artisanale',
-      html: getResetEmailHtml(resetUrl),
-      from: process.env.RESEND_FROM_EMAIL || 'a.sabatier@cuisine-artisanale.fr',
-    });
+		const result = await sendEmail({
+			to: normalizedEmail,
+			subject: 'Réinitialisez votre mot de passe - Cuisine Artisanale',
+			html: getResetEmailHtml(resetUrl),
+			from: process.env.RESEND_FROM_EMAIL || 'a.sabatier@cuisine-artisanale.fr',
+		});
 
-    if (!result.success) {
-      console.error('Erreur Resend (reset password):', result.error);
-      return NextResponse.json({ success: false, error: "Erreur lors de l'envoi de l'email" }, { status: 500 });
-    }
-  } catch (error: any) {
-    if (error?.code === 'auth/user-not-found' || error?.code === 'auth/email-not-found') {
-      // Ne pas révéler si le compte existe
-      return NextResponse.json({ success: true });
-    }
-    console.error('Erreur send-reset-email:', error);
-    return NextResponse.json({ success: false, error: "Erreur lors de l'envoi de l'email" }, { status: 500 });
-  }
+		if (!result.success) {
+			console.error('Erreur Resend (reset password):', result.error);
+			return NextResponse.json({ success: false, error: "Erreur lors de l'envoi de l'email" }, { status: 500 });
+		}
+	} catch (error: any) {
+		if (error?.code === 'auth/user-not-found' || error?.code === 'auth/email-not-found') {
+			// Ne pas révéler si le compte existe
+			return NextResponse.json({ success: true });
+		}
+		console.error('Erreur send-reset-email:', error);
+		return NextResponse.json({ success: false, error: "Erreur lors de l'envoi de l'email" }, { status: 500 });
+	}
 
-  return NextResponse.json({ success: true });
+	return NextResponse.json({ success: true });
 }

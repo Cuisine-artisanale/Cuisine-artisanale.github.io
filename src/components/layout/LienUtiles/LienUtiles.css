@@ -1,13 +1,13 @@
 .LienUtiles{
-  width: 100%;
+	width: 100%;
 }
 
 .LienUtiles ul{
-  list-style-type: none;
-  padding: 0;
-  display: flex;
-  /* Sur téléphone, les liens passent à la ligne au lieu de déborder de la page */
-  flex-wrap: wrap;
-  justify-content: space-around;
-  margin: 0;
+	list-style-type: none;
+	padding: 0;
+	display: flex;
+	/* Sur téléphone, les liens passent à la ligne au lieu de déborder de la page */
+	flex-wrap: wrap;
+	justify-content: space-around;
+	margin: 0;
 }

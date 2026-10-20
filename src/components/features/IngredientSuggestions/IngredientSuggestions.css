@@ -1,157 +1,157 @@
 /* Propositions de correction du catalogue d'ingrédients (page admin).
-   Les !important neutralisent les styles globaux des boutons (index.css, mobile.css). */
+	 Les !important neutralisent les styles globaux des boutons (index.css, mobile.css). */
 
 .ingredient-suggestions {
-  margin-bottom: 1.5rem;
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--surface-border);
-  border-radius: var(--border-radius, 8px);
-  background: var(--surface-card);
+	margin-bottom: 1.5rem;
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--surface-border);
+	border-radius: var(--border-radius, 8px);
+	background: var(--surface-card);
 }
 
 .ingredient-suggestions-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.75rem;
 }
 
 .ingredient-suggestions-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  color: var(--primary-color);
+	margin: 0;
+	font-size: 1.1rem;
+	color: var(--primary-color);
 }
 
 .ingredient-suggestions-header p,
 .ingredient-suggestions-empty {
-  margin: 0.25rem 0 0;
-  color: var(--text-color-secondary);
-  font-size: 0.9rem;
+	margin: 0.25rem 0 0;
+	color: var(--text-color-secondary);
+	font-size: 0.9rem;
 }
 
 .ingredient-suggestions-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  margin-left: 0.35rem;
-  padding: 0 0.4rem;
-  border-radius: 999px;
-  background: var(--primary-color);
-  color: var(--text-color-inverted, #fff);
-  font-size: 0.8rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.5rem;
+	height: 1.5rem;
+	margin-left: 0.35rem;
+	padding: 0 0.4rem;
+	border-radius: 999px;
+	background: var(--primary-color);
+	color: var(--text-color-inverted, #fff);
+	font-size: 0.8rem;
 }
 
 .ingredient-suggestions button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border-radius: var(--border-radius, 8px);
-  font-weight: 600;
-  cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	border-radius: var(--border-radius, 8px);
+	font-weight: 600;
+	cursor: pointer;
 }
 
 .ingredient-suggestions button:disabled {
-  opacity: 0.5;
-  cursor: default;
+	opacity: 0.5;
+	cursor: default;
 }
 
 .ingredient-suggestions .ingredient-suggestions-check,
 .ingredient-suggestions .is-ignore {
-  background: transparent !important;
-  border: 1px solid var(--surface-border);
-  color: var(--text-color);
+	background: transparent !important;
+	border: 1px solid var(--surface-border);
+	color: var(--text-color);
 }
 
 .ingredient-suggestions .ingredient-suggestions-check:hover:not(:disabled),
 .ingredient-suggestions .is-ignore:hover:not(:disabled) {
-  background: var(--surface-hover) !important;
-  color: var(--text-color);
+	background: var(--surface-hover) !important;
+	color: var(--text-color);
 }
 
 .ingredient-suggestions .is-apply {
-  background: var(--primary-color) !important;
-  border: 1px solid var(--primary-color);
-  color: var(--text-color-inverted, #fff);
+	background: var(--primary-color) !important;
+	border: 1px solid var(--primary-color);
+	color: var(--text-color-inverted, #fff);
 }
 
 .ingredient-suggestions-list {
-  list-style: none;
-  margin: 1rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	list-style: none;
+	margin: 1rem 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 }
 
 .ingredient-suggestions-list li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: var(--border-radius, 8px);
-  background: var(--surface-ground);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	border-radius: var(--border-radius, 8px);
+	background: var(--surface-ground);
 }
 
 .ingredient-suggestions-text {
-  flex: 1 1 16rem;
-  min-width: 0;
+	flex: 1 1 16rem;
+	min-width: 0;
 }
 
 .ingredient-suggestions-text p {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.5rem;
-  margin: 0.3rem 0 0.15rem;
-  color: var(--text-color);
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.35rem 0.5rem;
+	margin: 0.3rem 0 0.15rem;
+	color: var(--text-color);
 }
 
 .ingredient-suggestions-text small {
-  color: var(--text-color-secondary);
+	color: var(--text-color-secondary);
 }
 
 .ingredient-suggestions-old {
-  text-decoration: line-through;
-  color: var(--text-color-secondary);
+	text-decoration: line-through;
+	color: var(--text-color-secondary);
 }
 
 .ingredient-suggestions-tag {
-  display: inline-block;
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  background: var(--surface-border);
-  color: var(--text-color);
-  font-size: 0.75rem;
-  font-weight: 600;
+	display: inline-block;
+	padding: 0.1rem 0.5rem;
+	border-radius: 999px;
+	background: var(--surface-border);
+	color: var(--text-color);
+	font-size: 0.75rem;
+	font-weight: 600;
 }
 
 .ingredient-suggestions-tag.is-duplicate {
-  background: var(--warning-100);
-  color: var(--warning-900);
+	background: var(--warning-100);
+	color: var(--warning-900);
 }
 
 .ingredient-suggestions-tag.is-ai {
-  background: var(--info-100);
-  color: var(--info-900);
+	background: var(--info-100);
+	color: var(--info-900);
 }
 
 .ingredient-suggestions-actions {
-  display: flex;
-  gap: 0.5rem;
+	display: flex;
+	gap: 0.5rem;
 }
 
 @media (max-width: 600px) {
-  .ingredient-suggestions-actions {
-    width: 100%;
-  }
+	.ingredient-suggestions-actions {
+		width: 100%;
+	}
 
-  .ingredient-suggestions-actions button {
-    flex: 1;
-    justify-content: center;
-  }
+	.ingredient-suggestions-actions button {
+		flex: 1;
+		justify-content: center;
+	}
 }

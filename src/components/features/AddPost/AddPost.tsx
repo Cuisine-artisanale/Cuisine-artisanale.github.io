@@ -9,18 +9,18 @@ import { useAuth } from '@/contexts/AuthContext/AuthContext';
 const AddPostForm = dynamic(() => import('@/components/features/AddPostForm/AddPostForm'), { ssr: false });
 
 const AddPost: React.FC<{ onPosted?: () => void }> = ({ onPosted }) => {
-  const [showForm, setShowForm] = useState(false);
-  const { user } = useAuth();
+	const [showForm, setShowForm] = useState(false);
+	const { user } = useAuth();
 
-  const handleMobileClick = () => {
+	const handleMobileClick = () => {
 	setShowForm(true);
-  };
+	};
 
-  const handleCloseForm = () => {
+	const handleCloseForm = () => {
 	setShowForm(false);
-  };
+	};
 
-  return (
+	return (
 	<div className="AddPost">
 	  {/* Desktop layout */}
 	  <div className="desktop-post">
@@ -43,7 +43,7 @@ const AddPost: React.FC<{ onPosted?: () => void }> = ({ onPosted }) => {
 
 	  {showForm && <AddPostForm closeForm={handleCloseForm} onPosted={onPosted} />}
 	</div>
-  );
+	);
 };
 
 export default AddPost;

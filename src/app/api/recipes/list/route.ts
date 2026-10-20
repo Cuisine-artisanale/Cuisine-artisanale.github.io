@@ -5,8 +5,8 @@ import { getShuffledRecipesPage } from '@/lib/server/listings';
 const MAX_PAGE = 500;
 
 function toInt(value: string | null, max: number): number | null {
-  const n = Number(value);
-  return Number.isInteger(n) && n >= 0 && n <= max ? n : null;
+	const n = Number(value);
+	return Number.isInteger(n) && n >= 0 && n <= max ? n : null;
 }
 
 /**
@@ -15,23 +15,23 @@ function toInt(value: string | null, max: number): number | null {
  * La graine vient de la première page (rendue par le serveur) : même graine, même ordre.
  */
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const seed = toInt(searchParams.get('seed'), 2 ** 31);
-  const page = toInt(searchParams.get('page') ?? '0', MAX_PAGE);
-  if (seed === null || page === null) {
-    return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 });
-  }
+	const { searchParams } = new URL(request.url);
+	const seed = toInt(searchParams.get('seed'), 2 ** 31);
+	const page = toInt(searchParams.get('page') ?? '0', MAX_PAGE);
+	if (seed === null || page === null) {
+		return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 });
+	}
 
-  try {
-    const result = await getShuffledRecipesPage({
-      seed,
-      page,
-      type: (searchParams.get('type') || '').slice(0, 40),
-      position: (searchParams.get('position') || '').slice(0, 10),
-    });
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error('Liste des recettes indisponible :', error);
-    return NextResponse.json({ error: 'Liste indisponible' }, { status: 500 });
-  }
+	try {
+		const result = await getShuffledRecipesPage({
+			seed,
+			page,
+			type: (searchParams.get('type') || '').slice(0, 40),
+			position: (searchParams.get('position') || '').slice(0, 10),
+		});
+		return NextResponse.json(result);
+	} catch (error) {
+		console.error('Liste des recettes indisponible :', error);
+		return NextResponse.json({ error: 'Liste indisponible' }, { status: 500 });
+	}
 }

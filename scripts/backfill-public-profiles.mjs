@@ -14,14 +14,14 @@ import { cert, initializeApp } from 'firebase-admin/app';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 
 function loadServiceAccount() {
-  if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-    return JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-  }
-  const file = path.join(process.cwd(), 'src', 'firebase', 'serviceAccountKey.json');
-  if (fs.existsSync(file)) {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  }
-  throw new Error('Aucun identifiant Firebase Admin (FIREBASE_SERVICE_ACCOUNT_KEY ou src/firebase/serviceAccountKey.json)');
+	if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+		return JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+	}
+	const file = path.join(process.cwd(), 'src', 'firebase', 'serviceAccountKey.json');
+	if (fs.existsSync(file)) {
+		return JSON.parse(fs.readFileSync(file, 'utf8'));
+	}
+	throw new Error('Aucun identifiant Firebase Admin (FIREBASE_SERVICE_ACCOUNT_KEY ou src/firebase/serviceAccountKey.json)');
 }
 
 const serviceAccount = loadServiceAccount();
@@ -34,19 +34,19 @@ let pending = 0;
 let total = 0;
 
 for (const userDoc of users.docs) {
-  const data = userDoc.data();
-  batch.set(db.collection('publicProfiles').doc(userDoc.id), {
-    displayName: typeof data.displayName === 'string' && data.displayName.trim() ? data.displayName.trim() : 'Utilisateur',
-    photoURL: typeof data.photoURL === 'string' ? data.photoURL : null,
-    updatedAt: FieldValue.serverTimestamp(),
-  });
-  pending++;
-  total++;
-  if (pending === 400) {
-    await batch.commit();
-    batch = db.batch();
-    pending = 0;
-  }
+	const data = userDoc.data();
+	batch.set(db.collection('publicProfiles').doc(userDoc.id), {
+		displayName: typeof data.displayName === 'string' && data.displayName.trim() ? data.displayName.trim() : 'Utilisateur',
+		photoURL: typeof data.photoURL === 'string' ? data.photoURL : null,
+		updatedAt: FieldValue.serverTimestamp(),
+	});
+	pending++;
+	total++;
+	if (pending === 400) {
+		await batch.commit();
+		batch = db.batch();
+		pending = 0;
+	}
 }
 if (pending > 0) await batch.commit();
 
@@ -60,20 +60,20 @@ pending = 0;
 let cleaned = 0;
 
 for (const likeDoc of likes.docs) {
-  const { userName, userId } = likeDoc.data();
-  if (typeof userName === 'string' && userName.includes('@')) {
-    const displayName = displayNames.get(userId);
-    batch.update(likeDoc.ref, {
-      userName: typeof displayName === 'string' && displayName.trim() ? displayName.trim() : 'Anonyme',
-    });
-    pending++;
-    cleaned++;
-    if (pending === 400) {
-      await batch.commit();
-      batch = db.batch();
-      pending = 0;
-    }
-  }
+	const { userName, userId } = likeDoc.data();
+	if (typeof userName === 'string' && userName.includes('@')) {
+		const displayName = displayNames.get(userId);
+		batch.update(likeDoc.ref, {
+			userName: typeof displayName === 'string' && displayName.trim() ? displayName.trim() : 'Anonyme',
+		});
+		pending++;
+		cleaned++;
+		if (pending === 400) {
+			await batch.commit();
+			batch = db.batch();
+			pending = 0;
+		}
+	}
 }
 if (pending > 0) await batch.commit();
 

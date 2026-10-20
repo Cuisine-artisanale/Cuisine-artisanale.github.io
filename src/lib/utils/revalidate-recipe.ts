@@ -7,19 +7,19 @@ import { auth } from '@/lib/config/firebase-app';
  * `lists` : régénère aussi les listes de recettes (publication, suppression, changement de titre).
  */
 export function revalidateRecipe(recipe: { id?: string | null; url?: string | null }, { lists = false } = {}): void {
-  const slugs = [recipe.url, recipe.id].filter((s): s is string => Boolean(s));
-  const user = auth.currentUser;
-  if (!user || slugs.length === 0) return;
+	const slugs = [recipe.url, recipe.id].filter((s): s is string => Boolean(s));
+	const user = auth.currentUser;
+	if (!user || slugs.length === 0) return;
 
-  user
-    .getIdToken()
-    .then((idToken) =>
-      fetch('/api/revalidate-recipe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
-        body: JSON.stringify({ slugs, lists }),
-        keepalive: true,
-      })
-    )
-    .catch(() => undefined);
+	user
+		.getIdToken()
+		.then((idToken) =>
+			fetch('/api/revalidate-recipe', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+				body: JSON.stringify({ slugs, lists }),
+				keepalive: true,
+			})
+		)
+		.catch(() => undefined);
 }
