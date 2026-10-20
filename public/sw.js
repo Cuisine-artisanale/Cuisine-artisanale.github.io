@@ -6,8 +6,8 @@
  * - Autres fichiers du site (icônes, images de /public) : réseau d'abord, 60 au plus
  * - Sans réseau ni copie : page /offline (liste des recettes consultables)
  *
- * Une nouvelle version attend (pas de skipWaiting à l'installation) : l'app affiche une
- * bannière et n'active la version qu'au clic, pour ne pas recharger une saisie en cours.
+ * Une nouvelle version s'active dès son installation, sans recharger la page ouverte :
+ * elle sert simplement les requêtes suivantes (aucune saisie en cours n'est perdue).
  */
 
 // Changer la version purge les anciens caches à l'activation
@@ -44,7 +44,7 @@ async function precacheShell() {
 }
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(precacheShell());
+	event.waitUntil(precacheShell().then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
@@ -150,10 +150,10 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('message', (event) => {
-  // Envoyé par la bannière « Nouvelle version » quand l'utilisateur accepte
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-	self.skipWaiting();
-  }
+	// Envoyé par les anciennes versions de l'app (bannière de mise à jour retirée)
+	if (event.data && event.data.type === 'SKIP_WAITING') {
+		self.skipWaiting();
+	}
 
   if (event.data && event.data.type === 'CLEAR_CACHE') {
 	caches.keys()
