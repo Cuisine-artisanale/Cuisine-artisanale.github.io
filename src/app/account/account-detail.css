@@ -3,6 +3,13 @@
   display: flex;
   flex-direction: column;
   gap: 30px;
+  min-width: 0;
+}
+
+/* Aucun bloc du tableau de bord ne doit imposer sa largeur à la page */
+.AccountDetail > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Dashboard Header */
@@ -445,8 +452,9 @@
     width: 100%;
   }
 
+  /* La section des recommandations a déjà sa carte et ses marges */
   .recommendations-card {
-    padding: 1.5rem !important;
+    padding: 0 !important;
   }
 
   /* Dialog mobile optimizations */
