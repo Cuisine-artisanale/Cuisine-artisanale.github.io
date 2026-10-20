@@ -12,37 +12,36 @@ const AddPost: React.FC<{ onPosted?: () => void }> = ({ onPosted }) => {
 	const [showForm, setShowForm] = useState(false);
 	const { user } = useAuth();
 
-	const handleMobileClick = () => {
-	setShowForm(true);
+	const handleOpenForm = () => {
+		setShowForm(true);
 	};
 
 	const handleCloseForm = () => {
-	setShowForm(false);
+		setShowForm(false);
 	};
 
 	return (
-	<div className="AddPost">
-	  {/* Desktop layout */}
-	  <div className="desktop-post">
-		<h2>Ajouter un post</h2>
-		<p>Partagez vos pensées avec le monde !</p>
-		<Button onClick={handleMobileClick} disabled={!user}>
-		  Ajouter un post
-		</Button>
-		{!user && <p>Vous devez être connecté pour ajouter un post</p>}
-	  </div>
+		<div className="AddPost">
+			{/* Desktop layout */}
+			<div className="desktop-post">
+				<h2>Ajouter un post</h2>
+				<p>Partagez vos pensées avec le monde !</p>
+				<Button onClick={handleOpenForm} disabled={!user}>
+					Ajouter un post
+				</Button>
+				{!user && <p>Vous devez être connecté pour ajouter un post</p>}
+			</div>
 
-	  {/* Floating mobile button */}
-	  <div className="mobile-floating-button" onClick={handleMobileClick}>
-		<Button
-		  icon="pi pi-plus"
-		  aria-label="Ajouter un post"
-		  className="p-button-rounded p-button-lg"
-		/>
-	  </div>
+			{/* Téléphone : bouton explicite en tête du fil (et non un « + » flottant sur toute la page) */}
+			{user && (
+				<button type="button" className="mobile-post-button" onClick={handleOpenForm}>
+					<span className="pi pi-pencil" aria-hidden="true"></span>
+					Écrire un post
+				</button>
+			)}
 
-	  {showForm && <AddPostForm closeForm={handleCloseForm} onPosted={onPosted} />}
-	</div>
+			{showForm && <AddPostForm closeForm={handleCloseForm} onPosted={onPosted} />}
+		</div>
 	);
 };
 

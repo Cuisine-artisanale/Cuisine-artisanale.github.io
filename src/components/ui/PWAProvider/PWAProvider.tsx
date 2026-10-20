@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { registerServiceWorker } from '@/lib/utils/service-worker';
 import { setInstallPrompt, type InstallPromptEvent } from '@/lib/utils/install-prompt';
+import InstallBanner from '@/components/ui/InstallBanner/InstallBanner';
 
 /**
  * PWA PROVIDER
@@ -34,6 +35,5 @@ export default function PWAProvider() {
 		};
 	}, []);
 
-	// Ce composant ne rend rien
-	return null;
+	return <InstallBanner />;
 }

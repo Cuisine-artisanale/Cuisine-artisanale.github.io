@@ -15,65 +15,47 @@
 	border: 1px solid #bbbbbb !important;
 }
 
-.mobile-floating-button {
-	position: fixed;
-	bottom: 1.5rem;
-	right: 1.5rem;
-	z-index: 100;
+.mobile-post-button {
 	display: none;
-}
-
-.mobile-floating-button .p-button {
-	width: 4rem;
-	height: 4rem;
-	border-radius: 50%;
-	background: var(--primary-color);
-	border: none;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.mobile-floating-button .p-button .p-button-icon {
-	font-size: 1.75rem;
-	color: white;
 }
 
 /* Desktop styles */
 @media screen and (min-width: 769px) {
 	.desktop-post {
-	display: block;
-	text-align: center;
-	padding: 2rem;
-	background: var(--surface-card);
-	border-radius: var(--border-radius);
-	box-shadow: var(--card-shadow);
+		display: block;
+		text-align: center;
+		padding: 2rem;
+		background: var(--surface-card);
+		border-radius: var(--border-radius);
+		box-shadow: var(--card-shadow);
 	}
 
 	.desktop-post h2 {
-	color: var(--text-color);
-	margin-bottom: 1rem;
+		color: var(--text-color);
+		margin-bottom: 1rem;
 	}
 
 	.desktop-post p {
-	color: var(--text-color-secondary);
-	margin-bottom: 1.5rem;
-	}
-
-	.mobile-floating-button {
-	display: none;
+		color: var(--text-color-secondary);
+		margin-bottom: 1.5rem;
 	}
 }
 
 /* Mobile styles */
 @media screen and (max-width: 768px) {
-	.mobile-floating-button {
-	display: block;
-
-	.p-button-label{
-		display: none;
-	}
-	}
-
-	.desktop-post {
-	display: none;
+	.mobile-post-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border: 1px solid var(--primary-color);
+		border-radius: var(--border-radius);
+		background: var(--surface-card) !important;
+		color: var(--primary-color) !important;
+		font: inherit;
+		font-weight: 600;
+		cursor: pointer;
 	}
 }

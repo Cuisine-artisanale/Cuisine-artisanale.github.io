@@ -191,8 +191,11 @@
 		gap: 1rem;
 	}
 
+	/* Le bouton « Écrire un post » passe en tête du fil, avant les posts */
 	.AddPost_section {
 		position: static;
+		order: -1;
+		padding: 0;
 	}
 
 	.LoadMore_section {

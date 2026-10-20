@@ -18,6 +18,10 @@ export default function WeeklyRecipe({ recipe }: WeeklyRecipeProps) {
 	const likesCount = recipe?.likesCount ?? 0;
 	const averageRating = recipe?.averageRating ?? null;
 	const reviewsCount = recipe?.reviewsCount ?? 0;
+	// `position` : code de département, nom déjà résolu, ou « none » (non renseigné : rien d'affiché)
+	const location = recipe?.position && recipe.position !== 'none'
+		? getDepartementName(recipe.position) ?? recipe.position
+		: '';
 
 	if (!featuredRecette) {
 		return (
@@ -58,8 +62,8 @@ export default function WeeklyRecipe({ recipe }: WeeklyRecipeProps) {
 						)}
 					</div>
 
-					{featuredRecette.position && (
-						<p className="weekly-recipe-content-location"><i className="pi pi-map-marker" aria-hidden="true"></i> {getDepartementName(featuredRecette.position) || featuredRecette.position}</p>
+					{location && (
+						<p className="weekly-recipe-content-location"><i className="pi pi-map-marker" aria-hidden="true"></i> {location}</p>
 					)}
 
 					<div className="weekly-recipe-stats">
