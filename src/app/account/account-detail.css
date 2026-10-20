@@ -111,6 +111,12 @@
 }
 
 .tiktok-collection-select {
+  /* Un <select> prend la largeur de sa plus longue option : sans limite, un nom de
+     collection TikTok élargissait toute la page sur téléphone */
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  text-overflow: ellipsis;
   border: 1px solid var(--surface-border);
   border-radius: var(--border-radius);
   background: var(--surface-ground);
@@ -147,6 +153,7 @@
 
 .tiktok-url-row input {
   flex: 1;
+  min-width: 0;
   border: 1px solid var(--surface-border);
   border-radius: var(--border-radius);
   background: var(--surface-ground);
