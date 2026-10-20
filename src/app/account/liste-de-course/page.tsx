@@ -51,7 +51,9 @@ export default function ListeDeCoursePage() {
 			setShoppingList(list);
 		} catch (error) {
 			console.error("Error fetching shopping list:", error);
-			setError("Erreur lors du chargement de la liste de course");
+			setError(navigator.onLine
+				? "Erreur lors du chargement de la liste de course"
+				: "Pas de connexion : ouvrez une fois votre liste avec du réseau pour la retrouver hors ligne");
 			showToast({
 				severity: 'error',
 				summary: 'Erreur',
@@ -62,23 +64,26 @@ export default function ListeDeCoursePage() {
 		}
 	};
 
+	// Les modifications s'affichent tout de suite : hors ligne, Firestore les applique sur l'appareil
+	// mais ne confirme l'écriture qu'au retour du réseau (attendre bloquerait la liste en magasin)
+	const setItemChecked = (itemId: string, checked: boolean) => {
+		setShoppingList((current) => current && {
+			...current,
+			items: current.items.map(i => (i.id === itemId ? { ...i, checked } : i))
+		});
+	};
+
 	const handleToggleItem = async (item: ShoppingListItem) => {
 		if (!shoppingList) return;
 
+		setItemChecked(item.id, !item.checked);
 		try {
 			await updateShoppingListItem(shoppingList.id, item.id, {
 				checked: !item.checked
 			});
-
-			// Mettre à jour l'état local
-			setShoppingList({
-				...shoppingList,
-				items: shoppingList.items.map(i =>
-					i.id === item.id ? { ...i, checked: !i.checked } : i
-				)
-			});
 		} catch (error) {
 			console.error("Error toggling item:", error);
+			setItemChecked(item.id, item.checked);
 			showToast({
 				severity: 'error',
 				summary: 'Erreur',
@@ -95,19 +100,21 @@ export default function ListeDeCoursePage() {
 			header: 'Confirmation de suppression',
 			icon: 'pi pi-exclamation-triangle',
 			accept: async () => {
+				const previous = shoppingList;
+				setShoppingList({
+					...shoppingList,
+					items: shoppingList.items.filter(i => i.id !== item.id)
+				});
+				showToast({
+					severity: 'success',
+					summary: 'Supprimé',
+					detail: 'Élément retiré de la liste'
+				});
 				try {
 					await removeShoppingListItem(shoppingList.id, item.id);
-					setShoppingList({
-						...shoppingList,
-						items: shoppingList.items.filter(i => i.id !== item.id)
-					});
-					showToast({
-						severity: 'success',
-						summary: 'Supprimé',
-						detail: 'Élément retiré de la liste'
-					});
 				} catch (error) {
 					console.error("Error deleting item:", error);
+					setShoppingList(previous);
 					showToast({
 						severity: 'error',
 						summary: 'Erreur',
@@ -139,28 +146,28 @@ export default function ListeDeCoursePage() {
 			createdAt: new Date()
 		};
 
+		const previous = shoppingList;
+		setShoppingList({
+			...shoppingList,
+			items: [...shoppingList.items, newItem]
+		});
+
+		// Réinitialiser le formulaire
+		setNewItemName('');
+		setNewItemQuantity('');
+		setNewItemUnit('');
+		setShowAddDialog(false);
+		showToast({
+			severity: 'success',
+			summary: 'Ajouté',
+			detail: 'Élément ajouté à la liste'
+		});
+
 		try {
-			// Ajouter dans Firebase
 			await addShoppingListItem(user!.uid, newItem);
-
-			// Mettre à jour localement après succès
-			setShoppingList({
-				...shoppingList,
-				items: [...shoppingList.items, newItem]
-			});
-
-			// Réinitialiser le formulaire
-			setNewItemName('');
-			setNewItemQuantity('');
-			setNewItemUnit('');
-			setShowAddDialog(false);
-			showToast({
-				severity: 'success',
-				summary: 'Ajouté',
-				detail: 'Élément ajouté à la liste'
-			});
 		} catch (error) {
 			console.error("Error adding item:", error);
+			setShoppingList(previous);
 			showToast({
 				severity: 'error',
 				summary: 'Erreur',
@@ -177,19 +184,21 @@ export default function ListeDeCoursePage() {
 			header: 'Confirmation',
 			icon: 'pi pi-exclamation-triangle',
 			accept: async () => {
+				const previous = shoppingList;
+				setShoppingList({
+					...shoppingList,
+					items: []
+				});
+				showToast({
+					severity: 'success',
+					summary: 'Liste vidée',
+					detail: 'Tous les éléments ont été supprimés'
+				});
 				try {
 					await clearShoppingList(shoppingList.id);
-					setShoppingList({
-						...shoppingList,
-						items: []
-					});
-					showToast({
-						severity: 'success',
-						summary: 'Liste vidée',
-						detail: 'Tous les éléments ont été supprimés'
-					});
 				} catch (error) {
 					console.error("Error clearing list:", error);
+					setShoppingList(previous);
 					showToast({
 						severity: 'error',
 						summary: 'Erreur',

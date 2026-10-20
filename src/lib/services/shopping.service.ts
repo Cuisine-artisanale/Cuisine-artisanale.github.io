@@ -135,6 +135,12 @@ export const getOrCreateShoppingList = async (userId: string): Promise<ShoppingL
 			} as ShoppingList;
 		}
 
+		// Hors ligne, un résultat vide vient du cache de l'appareil : la liste existe peut-être
+		// sur le serveur, en créer une seconde ferait un doublon à la reconnexion
+		if (querySnapshot.metadata.fromCache) {
+			throw new Error("Liste de course indisponible hors ligne");
+		}
+
 		// Créer une nouvelle liste de course
 		const newListRef = doc(collection(db, "shoppingLists"));
 		const newListData: Omit<ShoppingList, "id"> = {

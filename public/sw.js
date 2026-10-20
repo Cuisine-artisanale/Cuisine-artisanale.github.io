@@ -16,7 +16,9 @@ const SHELL_CACHE = `cuisine-artisanale-shell-${VERSION}`;
 const STATIC_CACHE = `cuisine-artisanale-static-${VERSION}`;
 const PAGES_CACHE = `cuisine-artisanale-pages-${VERSION}`;
 const ASSETS_CACHE = `cuisine-artisanale-assets-${VERSION}`;
-const CURRENT_CACHES = [SHELL_CACHE, STATIC_CACHE, PAGES_CACHE, ASSETS_CACHE];
+const IMAGES_CACHE = `cuisine-artisanale-images-${VERSION}`;
+const STORAGE_IMAGES_CACHE = `cuisine-artisanale-storage-images-${VERSION}`;
+const CURRENT_CACHES = [SHELL_CACHE, STATIC_CACHE, PAGES_CACHE, ASSETS_CACHE, IMAGES_CACHE, STORAGE_IMAGES_CACHE];
 
 const OFFLINE_URL = '/offline';
 const SHELL_ASSETS = [OFFLINE_URL, '/manifest.json', '/pwa/icon-192.png', '/icon.png'];
@@ -24,6 +26,11 @@ const SHELL_ASSETS = [OFFLINE_URL, '/manifest.json', '/pwa/icon-192.png', '/icon
 const MAX_PAGES = 50;
 const MAX_STATIC = 200;
 const MAX_ASSETS = 60;
+// Photos des recettes (carnet, favoris) : images redimensionnées par Next, puis photos
+// Firebase Storage. Ces dernières sont « opaques » (autre domaine) et comptent plus lourd
+// dans le quota de stockage du navigateur : on en garde moins.
+const MAX_IMAGES = 80;
+const MAX_STORAGE_IMAGES = 40;
 
 // Pages jamais copiées : saisies, connexion, administration
 const NO_CACHE_PAGES = ['/recettes/add-recipe', '/recettes/edit', '/login', '/admin-panel', '/reset-password', '/verify-email'];
@@ -75,11 +82,12 @@ async function putInCache(cacheName, request, response, max) {
 }
 
 async function cacheFirst(request, cacheName, max) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
-  if (response.ok) putInCache(cacheName, request, response.clone(), max);
-  return response;
+	const cached = await caches.match(request);
+	if (cached) return cached;
+	const response = await fetch(request);
+	// Réponse « opaque » : image d'un autre domaine chargée sans CORS, son statut n'est pas lisible
+	if (response.ok || response.type === 'opaque') putInCache(cacheName, request, response.clone(), max);
+	return response;
 }
 
 async function networkFirst(request, cacheName, max) {
@@ -110,43 +118,52 @@ async function handleNavigation(request, url) {
 }
 
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  if (request.method !== 'GET') return;
+	const { request } = event;
+	if (request.method !== 'GET') return;
 
-  const url = new URL(request.url);
+	const url = new URL(request.url);
 
-  // Polices Google : cache d'abord (fichiers versionnés)
-  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-	event.respondWith(cacheFirst(request, STATIC_CACHE, MAX_STATIC));
-	return;
-  }
-  if (url.origin !== location.origin) return;
+	// Polices Google : cache d'abord (fichiers versionnés)
+	if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+		event.respondWith(cacheFirst(request, STATIC_CACHE, MAX_STATIC));
+		return;
+	}
+	// Photos Firebase Storage (recettes du carnet, miniatures TikTok importées)
+	if (url.hostname === 'firebasestorage.googleapis.com' && request.destination === 'image') {
+		event.respondWith(cacheFirst(request, STORAGE_IMAGES_CACHE, MAX_STORAGE_IMAGES));
+		return;
+	}
+	if (url.origin !== location.origin) return;
 
-  // Jamais de cache pour les API, les données de navigation (RSC) et les images redimensionnées :
-  // réponses personnelles ou très nombreuses
-  if (
-	url.pathname.startsWith('/api/') ||
-	url.pathname.startsWith('/_next/image') ||
-	url.searchParams.has('_rsc') ||
-	request.headers.get('RSC') === '1'
-  ) {
-	return;
-  }
+	// Images redimensionnées par Next : même adresse = même image, cache d'abord
+	if (url.pathname.startsWith('/_next/image')) {
+		event.respondWith(cacheFirst(request, IMAGES_CACHE, MAX_IMAGES));
+		return;
+	}
 
-  if (request.mode === 'navigate') {
-	event.respondWith(handleNavigation(request, url));
-	return;
-  }
+	// Jamais de cache pour les API et les données de navigation (RSC) : réponses personnelles
+	if (
+		url.pathname.startsWith('/api/') ||
+		url.searchParams.has('_rsc') ||
+		request.headers.get('RSC') === '1'
+	) {
+		return;
+	}
 
-  if (url.pathname.startsWith('/_next/static/')) {
-	event.respondWith(cacheFirst(request, STATIC_CACHE, MAX_STATIC));
-	return;
-  }
+	if (request.mode === 'navigate') {
+		event.respondWith(handleNavigation(request, url));
+		return;
+	}
 
-  // Le service worker lui-même est géré par le navigateur
-  if (url.pathname === '/sw.js') return;
+	if (url.pathname.startsWith('/_next/static/')) {
+		event.respondWith(cacheFirst(request, STATIC_CACHE, MAX_STATIC));
+		return;
+	}
 
-  event.respondWith(networkFirst(request, ASSETS_CACHE, MAX_ASSETS));
+	// Le service worker lui-même est géré par le navigateur
+	if (url.pathname === '/sw.js') return;
+
+	event.respondWith(networkFirst(request, ASSETS_CACHE, MAX_ASSETS));
 });
 
 self.addEventListener('message', (event) => {
@@ -155,9 +172,9 @@ self.addEventListener('message', (event) => {
 		self.skipWaiting();
 	}
 
-  if (event.data && event.data.type === 'CLEAR_CACHE') {
-	caches.keys()
-	  .then((names) => Promise.all(names.map((name) => caches.delete(name))))
-	  .then(() => event.ports[0]?.postMessage({ success: true }));
-  }
+	if (event.data && event.data.type === 'CLEAR_CACHE') {
+		caches.keys()
+			.then((names) => Promise.all(names.map((name) => caches.delete(name))))
+			.then(() => event.ports[0]?.postMessage({ success: true }));
+	}
 });

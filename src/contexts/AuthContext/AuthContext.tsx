@@ -141,15 +141,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	}, []);
 
 	const logout = async () => {
-	try {
-	  setError(null);
-	  await signOut(auth);
-	  setRole(null);
-	  window.location.href = "/";
-	} catch (err) {
-	  console.error("Error signing out:", err);
-	  setError(err instanceof Error ? err.message : "Error signing out");
-	}
+		try {
+			setError(null);
+			await signOut(auth);
+			setRole(null);
+			// Le carnet est privé : ses données gardées sur l'appareil (hors ligne) sont effacées
+			try {
+				const { db, terminate, clearIndexedDbPersistence } = await loadFirestore();
+				await terminate(db);
+				await clearIndexedDbPersistence(db);
+			} catch (cacheError) {
+				console.error("Cache hors ligne non effacé :", cacheError);
+			}
+			// Rechargement complet : Firestore repart d'une instance neuve
+			window.location.href = "/";
+		} catch (err) {
+			console.error("Error signing out:", err);
+			setError(err instanceof Error ? err.message : "Error signing out");
+		}
 	};
 
 	const signInWithGoogle = async () => {

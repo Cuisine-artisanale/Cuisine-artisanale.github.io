@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { registerServiceWorker } from '@/lib/utils/service-worker';
 import { setInstallPrompt, type InstallPromptEvent } from '@/lib/utils/install-prompt';
 import InstallBanner from '@/components/ui/InstallBanner/InstallBanner';
+import OfflineIndicator from '@/components/ui/OfflineIndicator/OfflineIndicator';
 
 /**
  * PWA PROVIDER
@@ -35,5 +36,10 @@ export default function PWAProvider() {
 		};
 	}, []);
 
-	return <InstallBanner />;
+	return (
+		<>
+			<OfflineIndicator />
+			<InstallBanner />
+		</>
+	);
 }
