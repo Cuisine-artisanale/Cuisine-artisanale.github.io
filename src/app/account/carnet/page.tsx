@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db } from '@/lib/config/firebase';
 import { isOptimizableImage } from '@/lib/utils/image';
+import { carnetImages, getPublishedImagesByVideo } from '@/lib/services/carnet-images.service';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import RequireEmailVerification from '@/components/ui/RequireEmailVerification/RequireEmailVerification';
 import '@/components/features/Recette/Recette.css';
@@ -34,7 +35,10 @@ export default function CarnetPage() {
 			try {
 				setLoading(true);
 				setError(null);
-				const snapshot = await getDocs(query(collection(db, 'users', user.uid, 'carnet'), orderBy('createdAt', 'desc')));
+				const [snapshot, published] = await Promise.all([
+					getDocs(query(collection(db, 'users', user.uid, 'carnet'), orderBy('createdAt', 'desc'))),
+					getPublishedImagesByVideo(user.uid),
+				]);
 				if (cancelled) return;
 				setRecettes(
 					snapshot.docs.map((doc) => {
@@ -43,7 +47,7 @@ export default function CarnetPage() {
 							id: doc.id,
 							title: data.title || 'Recette sans titre',
 							type: data.type || '',
-							image: Array.isArray(data.images) ? data.images[0] : undefined,
+							image: carnetImages(data, published)[0],
 							time: (Number(data.preparationTime) || 0) + (Number(data.cookingTime) || 0),
 						};
 					})

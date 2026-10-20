@@ -6,6 +6,7 @@ import RecetteDesc from '@/components/features/RecetteDesc/RecetteDesc';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { useToast } from '@/contexts/ToastContext/ToastContext';
 import { loadFirestore } from '@/lib/config/firestore-lazy';
+import { carnetImages, getPublishedImagesByVideo } from '@/lib/services/carnet-images.service';
 import type { Recipe } from '@/types';
 import './carnet.css';
 
@@ -31,7 +32,10 @@ function CarnetRecipe() {
 		(async () => {
 			try {
 				const { db, doc, getDoc } = await loadFirestore();
-				const snapshot = await getDoc(doc(db, 'users', uid, 'carnet', id));
+				const [snapshot, published] = await Promise.all([
+					getDoc(doc(db, 'users', uid, 'carnet', id)),
+					getPublishedImagesByVideo(uid),
+				]);
 				if (cancelled) return;
 				if (!snapshot.exists()) {
 					setState({ status: 'missing' });
@@ -48,7 +52,7 @@ function CarnetRecipe() {
 						cookingTime: Number(data.cookingTime) || 0,
 						recipeParts: Array.isArray(data.recipeParts) ? data.recipeParts : [],
 						position: data.position || 'none',
-						images: Array.isArray(data.images) ? data.images : [],
+						images: carnetImages(data, published),
 						video: data.video || undefined,
 						servings: typeof data.servings === 'number' ? data.servings : undefined,
 						source: data.source,

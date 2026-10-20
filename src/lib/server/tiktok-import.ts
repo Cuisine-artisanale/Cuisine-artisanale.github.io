@@ -967,12 +967,18 @@ const getIngredientCatalog = unstable_cache(
 
 const MAX_THUMBNAIL_BYTES = 5 * 1024 * 1024;
 
+interface Thumbnail {
+	buffer: Buffer;
+	contentType: string;
+	extension: string;
+}
+
 /**
- * Copie la miniature de la vidéo dans le stockage du site : le lien fourni par TikTok expire
- * au bout de quelques jours. L'adresse est relue auprès de TikTok (jamais fournie par le client).
- * Renvoie l'URL publique, ou null si la copie échoue (la recette est alors enregistrée sans image).
+ * Télécharge la miniature de la vidéo : le lien fourni par TikTok expire au bout de quelques
+ * jours, elle est donc copiée dans le stockage du site. L'adresse est relue auprès de TikTok
+ * (jamais fournie par le client). null si elle est indisponible (recette enregistrée sans image).
  */
-async function copyThumbnailToStorage(videoUrl: string, uid: string, sourceVideoId: string): Promise<string | null> {
+async function fetchThumbnail(videoUrl: string): Promise<Thumbnail | null> {
 	try {
 		const oembed = await fetchTikTokOEmbed(videoUrl);
 		const thumbnailUrl = oembed?.thumbnail_url;
@@ -986,14 +992,32 @@ async function copyThumbnailToStorage(videoUrl: string, uid: string, sourceVideo
 		if (buffer.length === 0 || buffer.length > MAX_THUMBNAIL_BYTES) return null;
 
 		const extension = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg';
-		const path = `recipes/tiktok/${uid}/${sourceVideoId.replace(/[^\w-]/g, '_')}.${extension}`;
+		return { buffer, contentType, extension };
+	} catch (error) {
+		console.error('Miniature TikTok indisponible :', error);
+		return null;
+	}
+}
+
+/**
+ * Range la miniature comme les photos envoyées depuis le formulaire :
+ * recipes/{titre de la recette}/{horodatage}_{fichier}. Chaque appel crée un fichier distinct :
+ * le carnet et la demande de publication ont chacun le leur, retirer la photo de l'un
+ * (le fichier est alors supprimé) ne casse pas l'autre.
+ */
+async function saveThumbnail(thumbnail: Thumbnail, title: string, sourceVideoId: string): Promise<string | null> {
+	try {
+		// Un « / » dans le titre créerait des sous-dossiers
+		const folder = title.replace(/\//g, '-').trim() || 'sans-titre';
+		const fileName = `tiktok-${sourceVideoId.replace(/[^\w-]/g, '_')}.${thumbnail.extension}`;
+		const path = `recipes/${folder}/${Date.now()}_${fileName}`;
 		const token = randomUUID();
 		const bucket = getFirebaseAdminBucket();
 
-		await bucket.file(path).save(buffer, {
+		await bucket.file(path).save(thumbnail.buffer, {
 			resumable: false,
 			metadata: {
-				contentType,
+				contentType: thumbnail.contentType,
 				cacheControl: 'public, max-age=31536000',
 				metadata: { firebaseStorageDownloadTokens: token },
 			},
@@ -1069,7 +1093,8 @@ export async function saveTikTokDraft(uid: string, raw: unknown, { publish = fal
 	const carnetRef = db.doc(`users/${uid}/carnet/${carnetId}`);
 	if ((await carnetRef.get()).exists) return { duplicate: true, carnetId };
 
-	const image = await copyThumbnailToStorage(videoUrl, uid, sourceVideoId);
+	const thumbnail = await fetchThumbnail(videoUrl);
+	const image = thumbnail ? await saveThumbnail(thumbnail, title, sourceVideoId) : null;
 
 	const payload = {
 		type: toRecipeType(input.type),
@@ -1107,7 +1132,9 @@ export async function saveTikTokDraft(uid: string, raw: unknown, { publish = fal
 		if (alreadyRequested.empty) {
 			// Création puis ajout du titre, comme le formulaire : c'est le passage d'un titre vide à un
 			// titre renseigné qui déclenche l'email d'alerte à l'admin (Cloud Function sendEmailOnNewRecipeRequest)
-			const requestRef = await db.collection('recipesRequest').add({ ...payload, title: '' });
+			// Sa propre copie de la photo : la recette publiée peut la remplacer sans toucher au carnet
+			const requestImage = thumbnail ? await saveThumbnail(thumbnail, title, sourceVideoId) : null;
+			const requestRef = await db.collection('recipesRequest').add({ ...payload, images: requestImage ? [requestImage] : [], title: '' });
 			await requestRef.update({ title, id: requestRef.id });
 			recipeRequestId = requestRef.id;
 		}
