@@ -4,6 +4,7 @@ import Link from 'next/link';
 import './recettes-admin.css';
 import { db } from '@/lib/config/firebase';
 import { revalidateRecipe } from '@/lib/utils/revalidate-recipe';
+import { notifyRecipeApproved } from '@/lib/utils/notify-recipe-approved';
 import { collection, onSnapshot, orderBy, query, deleteDoc, doc, getDoc, addDoc, updateDoc, limit } from 'firebase/firestore';
 import { toastMessages } from '@/lib/utils/toast';
 import { syncRecipeIngredientsWithCatalog } from '@/lib/services/ingredient-catalog.service';
@@ -135,7 +136,8 @@ export default function RecettesAdminPage() {
 				return;
 			}
 
-			const recetteData = recetteSnap.data();
+			// editedByAdmin : marqueur de la demande, sert seulement à l'email de l'auteur
+			const { editedByAdmin, ...recetteData } = recetteSnap.data();
 
 			// Les ingrédients nouveaux n'entrent au catalogue qu'ici, une fois la recette validée
 			const { recipeParts, created } = await syncRecipeIngredientsWithCatalog(recetteData.recipeParts);
@@ -160,12 +162,18 @@ export default function RecettesAdminPage() {
 
 			await deleteDoc(recetteRef);
 
-			showToast({
-				severity: 'success',
-				summary: toastMessages.success.default,
-				detail: created.length > 0
+			const notification = await notifyRecipeApproved(id, editedByAdmin === true);
+			const details = [
+				created.length > 0
 					? `Recette publiée. Ajouté au catalogue : ${created.join(', ')}`
-					: 'La recette a été acceptée et publiée'
+					: 'La recette a été acceptée et publiée',
+				notification === 'sent' ? 'Email envoyé à l\'auteur.' : notification === 'failed' ? 'Email à l\'auteur non envoyé.' : '',
+			];
+
+			showToast({
+				severity: notification === 'failed' ? 'warn' : 'success',
+				summary: toastMessages.success.default,
+				detail: details.filter(Boolean).join(' ')
 			});
 		} catch (error) {
 			console.error('Error accepting recipe:', error);

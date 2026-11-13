@@ -165,3 +165,47 @@ export function getWelcomeEmailTemplate(displayName: string): string {
 	return getBaseTemplate(content, "👋 Bienvenue sur Cuisine Artisanale");
 }
 
+
+/** Échappe un texte saisi par un utilisateur avant de l'insérer dans un email HTML. */
+function escapeHtml(value: string): string {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;');
+}
+
+/**
+ * Template d'email envoyé à l'auteur d'une recette quand l'admin la publie
+ */
+export interface RecipeApprovedEmailData {
+	displayName: string;
+	recipeTitle: string;
+	recipeUrl: string;
+	/** La recette a été retouchée par l'admin avant publication */
+	modified: boolean;
+}
+
+export function getRecipeApprovedEmailTemplate(data: RecipeApprovedEmailData): string {
+	const title = escapeHtml(data.recipeTitle);
+	const url = escapeHtml(data.recipeUrl);
+	const modifiedNote = data.modified
+		? `<p>Nous y avons apporté quelques modifications (mise en forme, quantités ou étapes) pour qu'elle soit la plus claire possible pour tous les lecteurs.</p>`
+		: '';
+
+	const content = `
+		<p>Bonjour <strong>${escapeHtml(data.displayName || 'Utilisateur')}</strong>,</p>
+		<p>Bonne nouvelle : votre recette <strong>${title}</strong> a été acceptée et est maintenant publiée sur <strong>Cuisine Artisanale</strong> ! 🎉</p>
+		${modifiedNote}
+		<div style="text-align: center;">
+			<a href="${url}" class="button">Voir ma recette</a>
+		</div>
+		<p>Merci pour votre contribution !</p>
+		<p style="font-size: 14px; color: #666;">
+			Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :<br>
+			<a href="${url}" style="color: #8B4513; word-break: break-all;">${url}</a>
+		</p>
+	`;
+
+	return getBaseTemplate(content, '✅ Votre recette est publiée');
+}

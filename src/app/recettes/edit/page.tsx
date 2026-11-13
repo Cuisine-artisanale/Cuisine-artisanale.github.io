@@ -280,6 +280,8 @@ function EditRecetteContent() {
 				recipeParts,
 				titleKeywords: recipeTitle.toLowerCase().split(' '),
 				updatedAt: new Date(),
+				// Demande retouchée par l'admin : l'email de publication le signalera à l'auteur
+				...(source === 'demande' ? { editedByAdmin: true } : {}),
 			});
 
 			// Les photos retirées ne sont effacées du stockage qu'une fois la recette enregistrée

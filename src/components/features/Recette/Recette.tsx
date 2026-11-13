@@ -119,7 +119,8 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 			const recetteSnap = await getDoc(recetteRef);
 			if (!recetteSnap.exists()) return;
 
-			const recetteData = recetteSnap.data();
+			// editedByAdmin : marqueur de la demande, sert seulement à l'email de l'auteur
+			const { editedByAdmin, ...recetteData } = recetteSnap.data();
 			const safeUrl = recetteData.url || slugify(recetteData.title || '') || `recette-${Date.now()}`;
 			// Les ingrédients nouveaux n'entrent au catalogue qu'ici, une fois la recette validée
 			const { syncRecipeIngredientsWithCatalog } = await import('@/lib/services/ingredient-catalog.service');
@@ -140,6 +141,8 @@ export const Recette: React.FC<RecetteProps> = ({recetteId, title, type, fromReq
 			if (docRef.id) {
 				revalidateRecipe({ id: docRef.id, url: safeUrl }, { lists: true });
 				await declineRequest(); // Remove from requests after successful addition
+				const { notifyRecipeApproved } = await import('@/lib/utils/notify-recipe-approved');
+				await notifyRecipeApproved(docRef.id, editedByAdmin === true);
 			}
 		} catch (error) {
 			console.error('Error handling recipe request:', error);
