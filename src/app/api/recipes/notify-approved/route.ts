@@ -3,11 +3,8 @@ import { getFirebaseAdminAuth, getFirebaseAdminDb } from '@/lib/config/firebase-
 import { sendEmail } from '@/lib/services/emailService';
 import { getRecipeApprovedEmailTemplate } from '@/lib/services/emailTemplates';
 import { getRecipeUrl } from '@/lib/utils/recipe-url';
-
-const FRONTEND_URL =
-	process.env.NEXT_PUBLIC_FRONTEND_URL ||
-	process.env.FRONTEND_URL ||
-	'https://www.cuisine-artisanale.fr';
+// Adresse publique du site : jamais une URL de déploiement Vercel, qui expire
+import { SITE_URL } from '@/lib/server/recipes';
 
 /** Id de document Firestore */
 const ID_REGEX = /^[A-Za-z0-9_-]{1,200}$/;
@@ -79,7 +76,7 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ success: true, sent: false, reason: 'no-email' });
 	}
 
-	const recipeUrl = FRONTEND_URL + getRecipeUrl({ id: recipeId, url: recipe.url, title: recipe.title });
+	const recipeUrl = SITE_URL + getRecipeUrl({ id: recipeId, url: recipe.url, title: recipe.title });
 
 	const result = await sendEmail({
 		to: email,
