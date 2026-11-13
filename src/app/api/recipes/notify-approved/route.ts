@@ -18,7 +18,8 @@ const ID_REGEX = /^[A-Za-z0-9_-]{1,200}$/;
  * Réservé aux admins (header Authorization: Bearer <ID token>).
  * Corps : { recipeId: string, modified?: boolean } — id dans "recipes" ; `modified` ajoute
  * un paragraphe indiquant que la recette a été retouchée avant publication.
- * Le destinataire est l'adresse du compte qui a créé la recette, jamais une valeur du client.
+ * Le destinataire est l'adresse du compte qui a créé la recette, jamais une valeur du client ;
+ * l'admin qui a validé la reçoit en copie cachée.
  */
 export async function POST(request: NextRequest) {
 	const authHeader = request.headers.get('authorization') || '';
@@ -32,8 +33,9 @@ export async function POST(request: NextRequest) {
 	const db = getFirebaseAdminDb();
 
 	let uid: string;
+	let adminEmail: string | undefined;
 	try {
-		({ uid } = await auth.verifyIdToken(idToken));
+		({ uid, email: adminEmail } = await auth.verifyIdToken(idToken));
 	} catch {
 		return NextResponse.json({ success: false, error: 'Session invalide' }, { status: 401 });
 	}
@@ -81,6 +83,8 @@ export async function POST(request: NextRequest) {
 
 	const result = await sendEmail({
 		to: email,
+		// L'admin qui a validé reçoit le même email, sans que l'auteur voie son adresse
+		...(adminEmail && adminEmail !== email ? { bcc: adminEmail } : {}),
 		subject: 'Votre recette est publiée - Cuisine Artisanale',
 		html: getRecipeApprovedEmailTemplate({
 			displayName: displayName || 'Utilisateur',

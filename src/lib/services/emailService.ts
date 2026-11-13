@@ -11,6 +11,8 @@ const resend = process.env.RESEND_API_KEY
 
 export interface EmailOptions {
 	to: string | string[];
+	/** Copie cachée : les destinataires de `to` ne voient pas ces adresses */
+	bcc?: string | string[];
 	subject: string;
 	html: string;
 	text?: string;
@@ -38,6 +40,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
 		const { data, error } = await resend.emails.send({
 			from: options.from || process.env.RESEND_FROM_EMAIL || "a.sabatier@cuisine-artisanale.fr",
 			to: Array.isArray(options.to) ? options.to : [options.to],
+			...(options.bcc ? { bcc: options.bcc } : {}),
 			subject: options.subject,
 			html: options.html,
 			text: options.text,
