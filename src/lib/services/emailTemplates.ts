@@ -108,6 +108,14 @@ function getBaseTemplate(content: string, title: string): string {
 }
 
 /**
+ * Bouton d'email. Styles en ligne : Gmail et Outlook ignorent souvent la feuille de style
+ * et affichent alors le texte du lien en bleu, sans fond.
+ */
+function getButton(href: string, label: string): string {
+	return `<a href="${href}" class="button" style="display: inline-block; background-color: #8B4513; color: #ffffff !important; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 20px 0;"><span style="color: #ffffff;">${label}</span></a>`;
+}
+
+/**
  * Template d'email de vérification
  */
 export interface VerificationEmailData {
@@ -121,7 +129,7 @@ export function getVerificationEmailTemplate(data: VerificationEmailData): strin
 		<p>Merci de vous être inscrit sur <strong>Cuisine Artisanale</strong> !</p>
 		<p>Pour finaliser votre inscription, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous :</p>
 		<div style="text-align: center;">
-			<a href="${data.verificationLink}" class="button">Vérifier mon email</a>
+			${getButton(data.verificationLink, 'Vérifier mon email')}
 		</div>
 		<div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
 			<p style="margin: 0; font-size: 14px;">
@@ -155,7 +163,7 @@ export function getWelcomeEmailTemplate(displayName: string): string {
 			<li>🗺️ Explorer la carte des recettes par région</li>
 		</ul>
 		<div style="text-align: center; margin: 30px 0;">
-			<a href="https://www.aymeric-sabatier.fr/Cuisine-artisanale" class="button">Commencer à explorer</a>
+			${getButton('https://www.aymeric-sabatier.fr/Cuisine-artisanale', 'Commencer à explorer')}
 		</div>
 		<p style="font-size: 14px; color: #666;">
 			Si vous avez des questions ou des suggestions, n'hésitez pas à nous contacter !
@@ -184,6 +192,8 @@ export interface RecipeApprovedEmailData {
 	recipeUrl: string;
 	/** La recette a été retouchée par l'admin avant publication */
 	modified: boolean;
+	/** Renvoi après un premier email au lien erroné : ajoute un mot d'excuse */
+	resent?: boolean;
 }
 
 export function getRecipeApprovedEmailTemplate(data: RecipeApprovedEmailData): string {
@@ -192,13 +202,17 @@ export function getRecipeApprovedEmailTemplate(data: RecipeApprovedEmailData): s
 	const modifiedNote = data.modified
 		? `<p>Nous y avons apporté quelques modifications (mise en forme, quantités ou étapes) pour qu'elle soit la plus claire possible pour tous les lecteurs.</p>`
 		: '';
+	const resentNote = data.resent
+		? `<div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;"><p style="margin: 0; font-size: 14px;">Toutes nos excuses : le lien de notre précédent email ne fonctionnait pas. Voici le bon lien vers votre recette.</p></div>`
+		: '';
 
 	const content = `
 		<p>Bonjour <strong>${escapeHtml(data.displayName || 'Utilisateur')}</strong>,</p>
+		${resentNote}
 		<p>Bonne nouvelle : votre recette <strong>${title}</strong> a été acceptée et est maintenant publiée sur <strong>Cuisine Artisanale</strong> ! 🎉</p>
 		${modifiedNote}
 		<div style="text-align: center;">
-			<a href="${url}" class="button">Voir ma recette</a>
+			${getButton(url, 'Voir ma recette')}
 		</div>
 		<p>Merci pour votre contribution !</p>
 		<p style="font-size: 14px; color: #666;">
