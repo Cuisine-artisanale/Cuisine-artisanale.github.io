@@ -79,6 +79,31 @@ const TikTokImportReview: React.FC<TikTokImportReviewProps> = ({ draft: initialD
 						: "La recette a été lue dans la légende de la vidéo, sans assistance : vérifiez et complétez-la avant de l'enregistrer."}
 				</p>
 
+				{draft.check && (draft.check.corrections.length > 0 || draft.check.warnings.length > 0) && (
+					<div className="tiktok-review-check" role="status">
+						{draft.check.corrections.length > 0 && (
+							<>
+								<p className="tiktok-review-check-title">
+									<i className="pi pi-check-circle" aria-hidden="true" /> Corrections déjà appliquées
+								</p>
+								<ul>
+									{draft.check.corrections.map((note) => <li key={note}>{note}</li>)}
+								</ul>
+							</>
+						)}
+						{draft.check.warnings.length > 0 && (
+							<>
+								<p className="tiktok-review-check-title is-warning">
+									<i className="pi pi-exclamation-triangle" aria-hidden="true" /> À vérifier
+								</p>
+								<ul>
+									{draft.check.warnings.map((note) => <li key={note}>{note}</li>)}
+								</ul>
+							</>
+						)}
+					</div>
+				)}
+
 				<div className="tiktok-review-source">
 					{draft.thumbnailUrl && (
 						// eslint-disable-next-line @next/next/no-img-element -- miniature TikTok temporaire, simple aperçu

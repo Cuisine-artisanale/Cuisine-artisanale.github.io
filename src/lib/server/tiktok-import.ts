@@ -10,6 +10,7 @@ import { unstable_cache } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getFirebaseAdminBucket, getFirebaseAdminDb } from '@/lib/config/firebase-admin';
 import { getUnits } from '@/lib/server/units';
+import { checkImportedRecipe, type RecipeCheckResult } from '@/lib/server/recipe-check';
 import { slugify } from '@/lib/utils/slug';
 import { buildUnitIndex, normalizeUnitKey, resolveUnit, type UnitIndex } from '@/lib/utils/units';
 import { ingredientNameKey as ingredientKey } from '@/lib/utils/ingredient-name';
@@ -933,7 +934,7 @@ export async function analyzeTikTokVideo(rawVideoUrl: string, rawSupplementalTex
 
 	const aiSteps = toSteps(ai?.steps);
 
-	return {
+	const draft: ImportDraft = {
 		videoUrl,
 		sourceVideoId: getSourceVideoId(videoUrl),
 		title,
@@ -946,7 +947,35 @@ export async function analyzeTikTokVideo(rawVideoUrl: string, rawSupplementalTex
 		thumbnailUrl: oembed?.thumbnail_url || null,
 		author: oembed?.author_name || null,
 		aiUsed: Boolean(ai),
-		aiError: aiResult.error,
+	};
+
+	const check = await checkImportedRecipe(draft, fullText);
+	const aiError = [aiResult.error, check.error].filter(Boolean).join(' | ') || null;
+	return { ...applyRecipeCheck(draft, check.result, index), aiError };
+}
+
+/** Applique la relecture de Claude au brouillon, sans laisser une réponse appauvrie écraser l'extraction. */
+function applyRecipeCheck(draft: ImportDraft, result: RecipeCheckResult | null, index: UnitIndex): ImportDraft {
+	if (!result) return draft;
+
+	const checkedTitle = sanitizeRecipeTitle(toText(result.title, 70));
+	const checkedIngredients = (Array.isArray(result.ingredients) ? result.ingredients : [])
+		.map((ingredient) => toDraftIngredient(ingredient, index))
+		.filter((ingredient): ingredient is ImportDraftIngredient => ingredient !== null)
+		.slice(0, MAX_INGREDIENTS);
+	const checkedSteps = toSteps(result.steps);
+	const toNotes = (value: unknown) => (Array.isArray(value) ? value.map((note) => toText(note, 200)).filter(Boolean).slice(0, 8) : []);
+
+	return {
+		...draft,
+		title: checkedTitle.length >= 4 ? checkedTitle : draft.title,
+		type: toRecipeType(result.type),
+		preparationTime: toMinutes(result.preparationTime) || draft.preparationTime,
+		cookingTime: toMinutes(result.cookingTime) || draft.cookingTime,
+		servings: toServings(result.servings) ?? draft.servings,
+		ingredients: checkedIngredients.length >= draft.ingredients.length / 2 ? checkedIngredients : draft.ingredients,
+		steps: checkedSteps.length >= draft.steps.length / 2 ? checkedSteps : draft.steps,
+		check: { corrections: toNotes(result.corrections), warnings: toNotes(result.warnings).slice(0, 3) },
 	};
 }
 

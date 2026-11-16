@@ -197,6 +197,7 @@ npm run build      # build de production (échoue en cas d'erreur TS ou ESLint)
 | `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`, `TIKTOK_REDIRECT_URI` | Connexion TikTok (OAuth) |
 | `TIKTOK_OAUTH_STATE_SECRET`, `TIKTOK_TOKEN_ENCRYPTION_KEY` | Signature de l'état OAuth et chiffrement des jetons |
 | `AI_ENABLED`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `OPENAI_API_KEY`, `OPENAI_MODEL` | Enrichissement IA de l'import TikTok |
+| `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | Relecture de la recette importée par Claude avant affichage (`claude-haiku-5-5` par défaut ; ignorée sans clé) |
 
 En local, ces variables vont dans `.env.local` (non versionné). La clé Admin peut aussi être placée dans `src/firebase/serviceAccountKey.json` (ignoré par git).
 

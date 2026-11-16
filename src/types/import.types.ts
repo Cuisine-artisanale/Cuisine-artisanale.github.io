@@ -32,4 +32,13 @@ export interface ImportDraft {
 	author: string | null;
 	/** Vrai si l'IA a pu analyser la légende */
 	aiUsed: boolean;
+	/** Relecture par Claude avant affichage ; absent si elle n'a pas pu avoir lieu */
+	check?: ImportDraftCheck;
+}
+
+export interface ImportDraftCheck {
+	/** Corrections déjà appliquées au brouillon */
+	corrections: string[];
+	/** Points à vérifier par l'utilisateur */
+	warnings: string[];
 }
