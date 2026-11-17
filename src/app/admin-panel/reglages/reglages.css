@@ -1,0 +1,86 @@
+/* Page admin « Réglages » */
+.reglages-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 1rem;
+	padding: 1rem 1.1rem;
+	border: 1px solid var(--surface-border);
+	border-radius: 12px;
+	background: var(--surface-card);
+}
+
+.reglages-text {
+	flex: 1 1 18rem;
+}
+
+.reglages-text h2 {
+	margin: 0 0 0.25rem;
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: var(--text-color);
+}
+
+.reglages-text p {
+	margin: 0;
+	max-width: 65ch;
+	color: var(--text-color-secondary);
+	font-size: 0.9rem;
+}
+
+/* Interrupteur : pastille qui glisse vers la droite quand c'est activé */
+.admin-content .reglages-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	min-height: 44px;
+	padding: 0 0.25rem;
+	border: none;
+	background: none;
+	color: var(--text-color);
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.admin-content .reglages-switch:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+.reglages-switch-knob {
+	position: relative;
+	width: 2.75rem;
+	height: 1.5rem;
+	border-radius: 999px;
+	background: var(--surface-border);
+	transition: background 0.2s;
+}
+
+.reglages-switch-knob::after {
+	content: '';
+	position: absolute;
+	top: 0.2rem;
+	left: 0.2rem;
+	width: 1.1rem;
+	height: 1.1rem;
+	border-radius: 50%;
+	background: var(--surface-card);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+	transition: transform 0.2s;
+}
+
+.reglages-switch.is-on .reglages-switch-knob {
+	background: var(--primary-color);
+}
+
+.reglages-switch.is-on .reglages-switch-knob::after {
+	transform: translateX(1.25rem);
+}
+
+.admin-content .reglages-switch:focus-visible {
+	outline: none;
+	box-shadow: var(--focus-ring);
+	border-radius: var(--border-radius);
+}

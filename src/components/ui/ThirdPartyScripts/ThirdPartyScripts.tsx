@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
+import { loadFirestore } from '@/lib/config/firestore-lazy';
+import { SITE_SETTINGS_COLLECTION, SITE_SETTINGS_DOC } from '@/lib/config/site-settings';
 
 export const COOKIE_CONSENT_EVENT = 'cookie-consent-updated';
 
@@ -26,6 +28,7 @@ function readConsent(): ConsentChoices {
  */
 export default function ThirdPartyScripts() {
 	const [consent, setConsent] = useState<ConsentChoices>({ analytics: false, ads: false });
+	const [adsEnabled, setAdsEnabled] = useState(false);
 
 	useEffect(() => {
 		setConsent(readConsent());
@@ -33,6 +36,23 @@ export default function ThirdPartyScripts() {
 		window.addEventListener(COOKIE_CONSENT_EVENT, onUpdate);
 		return () => window.removeEventListener(COOKIE_CONSENT_EVENT, onUpdate);
 	}, []);
+
+	// Interrupteur « Publicités » de l'administration : lu seulement si le visiteur a accepté
+	// les cookies publicitaires, pour ne pas télécharger Firestore pour rien.
+	useEffect(() => {
+		if (!consent.ads) return;
+		let cancelled = false;
+		(async () => {
+			try {
+				const { db, doc, getDoc } = await loadFirestore();
+				const snap = await getDoc(doc(db, SITE_SETTINGS_COLLECTION, SITE_SETTINGS_DOC));
+				if (!cancelled) setAdsEnabled(snap.data()?.adsEnabled === true);
+			} catch {
+				// Réglage illisible : pas de publicité
+			}
+		})();
+		return () => { cancelled = true; };
+	}, [consent.ads]);
 
 	return (
 		<>
@@ -48,7 +68,7 @@ export default function ThirdPartyScripts() {
 					})(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`}
 				</Script>
 			)}
-			{consent.ads && (
+			{consent.ads && adsEnabled && (
 				<Script
 					id="adsense"
 					strategy="lazyOnload"

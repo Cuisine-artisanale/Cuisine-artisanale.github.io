@@ -278,6 +278,13 @@ service cloud.firestore {
       allow read: if isAdminUser();
     }
 
+    // === Réglages du site (ex. activation des publicités) ===
+    // Lecture publique (les visiteurs en ont besoin), modification depuis l'administration.
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdminUser();
+    }
+
     // === Bloquer tout accès par défaut aux autres collections ===
     match /{document=**} {
       allow read, write: if false;
